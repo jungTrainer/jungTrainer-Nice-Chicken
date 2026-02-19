@@ -4,9 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
   <title>나이스치킨 타이쿤 (방치+서빙)</title>
-  
-  <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#FF9F1C">
+  <!-- manifest removed for file:// compatibility -->
+<meta name="theme-color" content="#FF9F1C">
   <link rel="apple-touch-icon" href="./icon-192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -561,7 +560,91 @@
 }
 .loc-btn { width: 100%; padding: 12px; border-radius: 12px; font-size: 1rem; margin-top: auto; }
 
-</style>
+
+    /* ===== 엔딩 팝업/오버레이 스타일 ===== */
+    #replayEndingBtn{
+      position:absolute;
+      top: 14px;
+      right: 14px;
+      background: rgba(0,0,0,0.55);
+      border: 2px solid #4FC3F7;
+      color: #4FC3F7;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-family:'Jua', sans-serif;
+      font-size: 14px;
+      cursor:pointer;
+      z-index:120;
+      transition: all .25s ease;
+    }
+    #replayEndingBtn:hover{ background:#4FC3F7; color:#000; box-shadow:0 0 18px rgba(79,195,247,.35); transform: translateY(-1px); }
+
+    #endingConditionPopup{
+      position:absolute; inset:0;
+      background:rgba(0,0,0,.55);
+      z-index:9999;
+      display:flex;
+      align-items:center; justify-content:center;
+      padding:18px;
+    }
+    #endingConditionPopup .endingPopupInner{
+      width:min(560px, 92vw);
+      background:#1e1e1e;
+      border:4px solid #FFD54F;
+      border-radius:26px;
+      padding:26px 18px;
+      text-align:center;
+      box-shadow:0 30px 60px rgba(0,0,0,.9);
+    }
+    #endingConditionPopup .popup-title{ color:#FFD54F; font-size:26px; margin-bottom:10px; }
+    #endingConditionPopup .popup-msg{ font-size:18px; color:#ddd; margin-bottom:18px; line-height:1.5; }
+    #endingConditionPopup .popup-btns{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+    #endingConditionPopup .btn-yes{ background:#FFD54F; color:#000; padding:12px 22px; border-radius:12px; border:none; font-family:'Jua', sans-serif; font-size:18px; cursor:pointer; }
+    #endingConditionPopup .btn-no{ background:#444; color:#fff; padding:12px 18px; border-radius:12px; border:none; font-family:'Jua', sans-serif; font-size:18px; cursor:pointer; }
+
+    #endingOverlay{
+      position:absolute; inset:0;
+      background:#000;
+      z-index:10000;
+      display:flex;
+      align-items:center; justify-content:center;
+      padding:16px;
+      opacity:0;
+      transition: opacity 1.2s ease;
+    }
+    #endingOverlay.active{ opacity:1; }
+    #endingOverlay .endingViewport{ width:min(920px, 96vw); display:flex; flex-direction:column; align-items:center; gap:14px; }
+    #endingOverlay .img-viewport{
+      width:min(650px, 92vw);
+      height:min(650px, 52vh);
+      border: 8px solid #222;
+      border-radius: 18px;
+      overflow:hidden;
+      position:relative;
+      box-shadow: 0 0 90px rgba(0,0,0,1);
+      background:#000;
+    }
+    #endingOverlay .img-viewport img{
+      width:100%; height:100%;
+      object-fit:cover;
+      position:absolute; inset:0;
+      opacity:0;
+      transition: opacity 1.3s ease-in-out, transform 4s ease-out;
+      transform: scale(1.08);
+    }
+    #endingOverlay .img-viewport img.current{ opacity:1; transform: scale(1); }
+    #endingOverlay .img-viewport .missing{
+      display:flex; align-items:center; justify-content:center;
+      text-align:center; padding:18px;
+      color:#bdbdbd; font-size:16px; line-height:1.4;
+      position:absolute; inset:0;
+      background: radial-gradient(circle, #151515 0%, #000 100%);
+      border: 1px dashed rgba(255,255,255,0.16);
+      border-radius: 12px;
+      margin: 12px;
+    }
+
+  </style>
 
 </head>
 <body>
@@ -1158,20 +1241,24 @@ const CONFIG = {
 
 // --- [NEW] Level table auto-generation (up to 50) ---
 (function ensureLevelTable(){
-  const MAX_LV = 50;
-  // If table is short, rebuild to 0..MAX_LV (threshold means: lifetime sales required to reach that level)
-  if(!Array.isArray(CONFIG.levelUpTotalSales) || CONFIG.levelUpTotalSales.length < (MAX_LV+1)){
-    const arr = new Array(MAX_LV+1).fill(0);
-    // base increment: 120k, then grows
-    let total = 0;
-    for(let lv=1; lv<=MAX_LV; lv++){
-      const inc = Math.floor(120000 * Math.pow(1.32, lv-1) + (lv*lv*2500));
-      total += inc;
-      arr[lv] = total;
-    }
-    CONFIG.levelUpTotalSales = arr;
+  const MAX_LV = 999;
+
+  // Rebuild level table to 0..MAX_LV.
+  // Threshold = lifetime sales required to reach that level.
+  // Curve: base * exp(a*lv + b*lv^2) tuned so Lv.999 is near 1e70 (still below ending 9.99e70).
+  const base = 100000;         // 1e5
+  const a = 0.02;
+  const b = 0.0001299;
+
+  const arr = new Array(MAX_LV+1).fill(0);
+  for(let lv=1; lv<=MAX_LV; lv++){
+    const x = (a*lv) + (b*lv*lv);
+    const req = Math.floor(base * Math.exp(x));
+    arr[lv] = req;
   }
-  CONFIG.maxLevel = 50;
+  arr[0] = 0;
+  CONFIG.levelUpTotalSales = arr;
+  CONFIG.maxLevel = MAX_LV;
 })();
 
 /* --------------------
@@ -2252,6 +2339,8 @@ function openPanel(key){
   closePanels();
   if(!isOn){
     sanitizeState();
+  try{ applyRobotGrandson(); }catch(_){ }
+  try{ bindEndingUI(); }catch(_){ }
     panel.classList.add("on");
     const btn = navBtns.find(b=>b.dataset.panel===key);
     if(btn) btn.classList.add("active");
@@ -2367,6 +2456,10 @@ function renderRndList(){
       if(typeof sfxConfirm === "function") sfxConfirm();
       updateUI();
       updateStatsUI(); 
+      // 메뉴판 가격 즉시 반영
+      if(typeof buildMenuGrid === 'function') buildMenuGrid();
+      // 연구 탭 비용/레벨 갱신
+      if(typeof renderRndList === 'function') renderRndList();
     };
     list.appendChild(div);
   });
@@ -4182,6 +4275,12 @@ function load(){
 }
 
 function sanitizeState(){
+  // [ending flags]
+  if(typeof state.endingUnlocked !== 'boolean') state.endingUnlocked = false;
+  if(typeof state.endingPrompted !== 'boolean') state.endingPrompted = false;
+  if(typeof state.endingSeen !== 'boolean') state.endingSeen = false;
+  if(typeof state.robotGrandson !== 'boolean') state.robotGrandson = false;
+
   const d = defaultState();
 
   // shallow merge critical top-level objects
@@ -4190,9 +4289,14 @@ function sanitizeState(){
   if(typeof state.soundOn !== "boolean") state.soundOn = d.soundOn;
 
   // money/rep/level
-  if(typeof state.money !== "number") state.money = d.money;
-  if(typeof state.rep !== "number") state.rep = d.rep;
-  if(typeof state.level !== "number") state.level = d.level;
+  const normNum = (v, fallback=0)=>{
+    if(typeof v !== "number") return fallback;
+    if(!isFinite(v) || isNaN(v)) return fallback;
+    return v;
+  };
+  state.money = normNum(state.money, d.money);
+  state.rep   = normNum(state.rep, d.rep);
+  state.level = Math.max(1, Math.floor(normNum(state.level, d.level)));
 
 
   // [BRANCH/REGION] ensure region state exists (v84 -> v85 migration)
@@ -6332,6 +6436,7 @@ function startGameLoop(){
   if(rAF_ID) cancelAnimationFrame(rAF_ID);
   acc = 0;
   last = performance.now();
+  try{ checkEndingCondition(); }catch(e){}
   rAF_ID = requestAnimationFrame(frame);
 }
 /* --------------------
@@ -6383,6 +6488,10 @@ function tick(dt){
   if(!isFinite(state._autoServeAcc)) state._autoServeAcc = 0;
   if(!isFinite(state._saveAcc)) state._saveAcc = 0;
   if(!isFinite(state._eventCheckAcc)) state._eventCheckAcc = 0;
+  // money failsafe
+  if(typeof state.money !== 'number' || !isFinite(state.money) || isNaN(state.money)) state.money = 0;
+  if(typeof state.todaySales !== 'number' || !isFinite(state.todaySales) || isNaN(state.todaySales)) state.todaySales = 0;
+  if(typeof state.totalSales !== 'number' || !isFinite(state.totalSales) || isNaN(state.totalSales)) state.totalSales = 0;
   // online playtime accumulation
   if(state.play && typeof state.play.onlineSecTotal === 'number') state.play.onlineSecTotal += dt;
   ensureMissionReset();
@@ -6442,6 +6551,320 @@ function frame(now){
 }
   // boss fx tick (never throws)
   try{ updateBoss(dt); }catch(e){}
+
+
+
+/* ==========================================================
+   ENDING (손주) 시스템
+   - 조건: money >= 9.99e70 (999 무량대수 근사)
+   - 팝업: "나이스 치킨 게임의 엔딩 조건에 도달하였습니다. 엔딩을 보시겠습니까?"
+   - 엔딩 사운드: END_SOUND.* 루핑, 엔딩 종료 시 페이드아웃
+   - 엔딩 완료 보상: 로봇 손주(🤖) + 매출 50% + 손님 유입 50%
+========================================================== */
+const ENDING_MONEY = 9.99e70; // 999 무량대수(근사)
+const ENDING_SOUND_FILES = ["END_SOUND.mp3","END_SOUND.ogg","END_SOUND.wav"];
+
+let __endingAudio = null;
+let __endingTypingTimer = null;
+let __endingStep = 0;
+
+function ensureEndingAudio(){
+  if(__endingAudio) return __endingAudio;
+  const a = new Audio();
+  a.preload = "auto";
+  a.loop = true;
+  a.volume = 0;
+  for(const f of ENDING_SOUND_FILES){
+    const s = document.createElement("source");
+    s.src = f;
+    a.appendChild(s);
+  }
+  __endingAudio = a;
+  return a;
+}
+
+function fadeAudioTo(targetVol, ms){
+  const a = ensureEndingAudio();
+  const startVol = a.volume;
+  const t0 = performance.now();
+  return new Promise((resolve) => {
+    function tick(t){
+      const k = Math.min(1, (t - t0) / ms);
+      a.volume = startVol + (targetVol - startVol) * k;
+      if(k >= 1) return resolve();
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  });
+}
+
+async function playEndingLoop(){
+  const a = ensureEndingAudio();
+  try{
+    await a.play(); // requires user gesture
+    await fadeAudioTo(0.85, 900);
+  }catch(e){
+    // If autoplay blocked, silently continue without audio
+  }
+}
+
+async function stopEndingLoopFade(){
+  const a = ensureEndingAudio();
+  try{
+    await fadeAudioTo(0, 900);
+    a.pause();
+    a.currentTime = 0;
+  }catch(e){}
+}
+
+const endingStoryData = [
+  { img: 1, speaker: "할머니", text: "할미가 힘들어도 괜찮다.\n우리 손주 웃는 것만 보면 피로가 싹 가시니까." },
+  { img: 1, speaker: "나레이션", text: "주방의 열기 속에서\n너는 그렇게 무럭무럭 자랐단다." },
+  { img: 2, speaker: "할머니", text: "아이구 우리 귀한 손주…\n할미가 돈 많이 벌어서 맛난 거 다 사줄게." },
+  { img: 2, speaker: "나레이션", text: "그 한 조각에\n사랑은 늘, 가득 담겨 있었다." },
+  { img: 3, speaker: "할머니", text: "어마나… 세월 참 빠르기도 하지.\n우리 손주가 벌써 이렇게 컸구나." },
+  { img: 3, speaker: "손주", text: "할머니, 그동안 정말 고생 많으셨어요.\n이제는 제가 할머니를 제일 행복하게 해드릴게요." },
+  { img: 4, speaker: "손주", text: "할머니를 호강시켜 드리려고\n더 넓은 세상 밖으로 나가 보려 해요." },
+  { img: 4, speaker: "할머니", text: "그래… 우리 손주 가는 길인데 할미가 응원해야지.\n조심히 다녀오렴." },
+  { img: 4, speaker: "손주", text: "금방 돌아올게요. 사랑해요!" },
+  { img: 4, speaker: "할머니", text: "그려, 할미는 언제나 우리 손주를 기다리마." },
+  { img: 5, speaker: "나레이션", text: "당신의 헌신과 사랑으로\n손주는 세상에서 가장 밝게 빛나는 별이 되었습니다." },
+  { img: 5, speaker: "나레이션", text: "하지만 그 별이\n길을 잃지 않았던 건\n언제나 불빛을 켜둔 사람 때문이었습니다." },
+  { img: 5, speaker: "나레이션", text: "할머니와 손주의 이야기는 계속됩니다." }
+];
+
+function endingEls(){
+  return {
+    popup: document.getElementById("endingConditionPopup"),
+    yes: document.getElementById("endingYesBtn"),
+    no: document.getElementById("endingNoBtn"),
+    replay: document.getElementById("replayEndingBtn"),
+    overlay: document.getElementById("endingOverlay"),
+    miss: document.getElementById("endingMissingOverlay"),
+    box: document.getElementById("endingDialogBox"),
+    tag: document.getElementById("endingNameTag"),
+    text: document.getElementById("endingDialogText"),
+    wrap: document.getElementById("endingDialogWrapper"),
+  };
+}
+
+function openEndingPopup(){
+  const el = endingEls();
+  if(!el.popup) return;
+  el.popup.style.display = "flex";
+  el.popup.setAttribute("aria-hidden","false");
+}
+
+function closeEndingPopup(){
+  const el = endingEls();
+  if(!el.popup) return;
+  el.popup.style.display = "none";
+  el.popup.setAttribute("aria-hidden","true");
+}
+
+function setEndingSpeakerStyle(speaker){
+  const el = endingEls();
+  el.box.className = "dialogue-box";
+  el.tag.className = "name-tag";
+  if(speaker === "할머니"){
+    el.tag.classList.add("grandma"); el.box.classList.add("grandma");
+  }else if(speaker === "손주"){
+    el.tag.classList.add("grandson"); el.box.classList.add("grandson");
+  }else{
+    el.tag.classList.add("system"); el.box.classList.add("system");
+  }
+  el.tag.textContent = speaker;
+}
+
+function clearEndingTyping(){
+  if(__endingTypingTimer){
+    clearInterval(__endingTypingTimer);
+    __endingTypingTimer = null;
+  }
+}
+
+function animateEndingText(text){
+  const el = endingEls();
+  clearEndingTyping();
+  el.text.innerHTML = "";
+  const lines = text.split("\n");
+  const chars = [];
+  for(let li=0; li<lines.length; li++){
+    if(li>0) chars.push({br:true});
+    for(let i=0;i<lines[li].length;i++) chars.push({t:lines[li][i]});
+  }
+  let idx=0;
+  __endingTypingTimer = setInterval(()=>{
+    if(idx>=chars.length){ clearEndingTyping(); return; }
+    const c=chars[idx++];
+    if(c.br){ el.text.appendChild(document.createTextNode("\n")); return; }
+    const span=document.createElement("span");
+    span.textContent=c.t;
+    span.className="char-fade";
+    el.text.appendChild(span);
+  }, 38);
+}
+
+function updateEndingImage(step){
+  const el = endingEls();
+  for(let i=1;i<=5;i++){
+    const img=document.getElementById("imgCut"+i);
+    if(!img) continue;
+    img.classList.toggle("current", i===step.img);
+  }
+  const cur=document.getElementById("imgCut"+step.img);
+  const ok = cur && cur.complete && cur.naturalWidth>0;
+  if(el.miss){
+    el.miss.style.display = ok ? "none" : "flex";
+  }
+}
+
+function renderEndingStep(){
+  const step = endingStoryData[__endingStep];
+  if(!step){ finishEndingSequence(); return; }
+  setEndingSpeakerStyle(step.speaker);
+  updateEndingImage(step);
+  animateEndingText(step.text);
+}
+
+function nextEndingStep(){
+  const el = endingEls();
+  if(__endingTypingTimer){
+    clearEndingTyping();
+    const step = endingStoryData[__endingStep];
+    el.text.textContent = step.text;
+    return;
+  }
+  __endingStep++;
+  renderEndingStep();
+}
+
+async function startEndingSequence(){
+  // ensure unlocked & replay visible
+  state.endingUnlocked = true;
+  state.endingPrompted = true;
+  saveGame();
+
+  const el = endingEls();
+  closeEndingPopup();
+  if(el.replay) el.replay.style.display = "block";
+
+  // show overlay
+  el.overlay.style.display = "flex";
+  el.overlay.setAttribute("aria-hidden","false");
+  // force reflow then fade in
+  void el.overlay.offsetHeight;
+  el.overlay.classList.add("active");
+
+  __endingStep = 0;
+  renderEndingStep();
+
+  await playEndingLoop();
+}
+
+async function finishEndingSequence(){
+  const el = endingEls();
+  clearEndingTyping();
+
+  // mark seen + apply rewards (once)
+  if(!state.endingSeen){
+    state.endingSeen = true;
+    state.robotGrandson = true;
+    applyRobotGrandson();
+    saveGame();
+  }
+
+  await Promise.all([
+    stopEndingLoopFade(),
+    new Promise((resolve)=>{
+      el.overlay.classList.remove("active");
+      setTimeout(resolve, 950);
+    })
+  ]);
+
+  el.overlay.style.display = "none";
+  el.overlay.setAttribute("aria-hidden","true");
+  try{ showToast("엔딩이 완료되었습니다. 게임이 계속 진행됩니다."); }catch(_){}
+}
+
+function applyRobotGrandson(){
+  if(!state.robotGrandson) return;
+  const gs = STAFF_POOL && STAFF_POOL.find ? STAFF_POOL.find(s=>s.key==="grandson") : null;
+  if(gs){
+    gs.label = "로봇손주";
+    gs.emoji = "🤖";
+    gs.lines = ["할머니, 제가 도울게요 🤖", "매출은 제가 책임질게요!", "손님 더 불러올게요!", "시스템 최적화 완료!", "오늘도 영업 가즈아!"];
+  }
+}
+
+// condition check: called each frame
+function checkEndingCondition(){
+  if(state.endingUnlocked || state.endingPrompted) return;
+  const m = Number(state.money);
+  if(isFinite(m) && m >= ENDING_MONEY){
+    state.endingUnlocked = true;
+    state.endingPrompted = true;
+    saveGame();
+    openEndingPopup();
+    const el = endingEls();
+    if(el.replay) el.replay.style.display = "block";
+  }
+}
+
+// hook buffs into effects
+(function patchEndingBuffs(){
+  const _sumEffects = sumEffects;
+  sumEffects = function(){
+    const eff = _sumEffects();
+    if(state && state.robotGrandson){
+      // 매출 +50%, 손님 유입 +50%
+      eff.earningMul = (eff.earningMul||0) + 0.5;
+      eff.ordersMul = (eff.ordersMul||0) + 0.5;
+    }
+    return eff;
+  }
+})();
+
+// bind buttons after DOM ready
+function bindEndingUI(){
+  const el = endingEls();
+  if(!el.popup || !el.overlay) return;
+
+  // preview button for testing
+  const preview = document.getElementById("endingPreviewBtn");
+  if(preview){
+    preview.addEventListener("click", () => {
+      state.endingUnlocked = true;
+      state.endingPrompted = true;
+      saveGame();
+      openEndingPopup();
+      if(el.replay) el.replay.style.display = "block";
+    });
+  }
+
+  el.yes && el.yes.addEventListener("click", startEndingSequence);
+  el.no && el.no.addEventListener("click", ()=>{
+    closeEndingPopup();
+    state.endingUnlocked = true;
+    state.endingPrompted = true;
+    saveGame();
+    if(el.replay) el.replay.style.display = "block";
+    try{ showToast("우측 상단 🎬 버튼에서 언제든 엔딩을 볼 수 있어요."); }catch(_){}
+  });
+  el.replay && el.replay.addEventListener("click", startEndingSequence);
+  el.wrap && el.wrap.addEventListener("click", nextEndingStep);
+
+  // click outside popup closes (optional)
+  el.popup.addEventListener("click", (e)=>{ if(e.target===el.popup) closeEndingPopup(); });
+
+  // image errors show missing overlay
+  for(let i=1;i<=5;i++){
+    const img=document.getElementById("imgCut"+i);
+    if(!img) continue;
+    img.addEventListener("error", ()=>{ if(el.miss) el.miss.style.display="flex"; });
+    img.addEventListener("load", ()=>{ if(el.miss) el.miss.style.display="none"; });
+  }
+}
 
 
 /* --------------------
@@ -6690,12 +7113,59 @@ function renderMapUI(){
 
 
 <script>
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js");
-    });
-  }
+  // service worker disabled in this build (file:// compatible)
 </script>
+
+
+  <!-- =========================
+       엔딩(손주) 팝업/오버레이
+       - 조건 달성 시 팝업 표시
+       - "나중에 보기" 시 우측 상단 🎬 버튼 활성
+       - 엔딩 재생 중 END_SOUND 루핑
+       - 엔딩 종료 시 화면/사운드 페이드아웃 후 게임 계속
+  ========================== -->
+  <button id="replayEndingBtn" type="button" style="display:none;">🎬 엔딩</button>
+
+  <div id="endingConditionPopup" style="display:none;" aria-hidden="true">
+    <div class="endingPopupInner">
+      <div class="popup-title">🏆 목표 달성!</div>
+      <div class="popup-msg">나이스 치킨 게임의 엔딩 조건에 도달하였습니다. 엔딩을 보시겠습니까?</div>
+      <div class="popup-btns">
+        <button class="btn-yes" id="endingYesBtn" type="button">엔딩보기</button>
+        <button class="btn-no" id="endingNoBtn" type="button">나중에 보기</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="endingOverlay" style="display:none;" aria-hidden="true">
+    <div class="endingViewport">
+      <div class="img-viewport">
+        <!-- END_01 ~ END_05 순서 -->
+        <img id="imgCut1" src="END_01.png" alt="엔딩 1">
+        <img id="imgCut2" src="END_02.png" alt="엔딩 2">
+        <img id="imgCut3" src="END_03.png" alt="엔딩 3">
+        <img id="imgCut4" src="END_04.png" alt="엔딩 4">
+        <img id="imgCut5" src="END_05.png" alt="엔딩 5">
+        <div id="endingMissingOverlay" class="missing" style="display:none;">
+          이미지 파일을 찾을 수 없습니다.<br><br>
+          같은 폴더에 <b>END_01.png ~ END_05.png</b>를 넣어주세요.
+        </div>
+      </div>
+
+      <div class="dialogue-wrapper" id="endingDialogWrapper">
+        <div id="endingDialogBox" class="dialogue-box system">
+          <div id="endingNameTag" class="name-tag system">시스템</div>
+          <div id="endingDialogText" class="text-content">...</div>
+          <div class="next-indicator">클릭/탭하여 진행 ▼</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 테스트용: 엔딩 팝업 띄우기 버튼 (원하면 나중에 제거) -->
+  <button id="endingPreviewBtn" type="button" style="position:absolute; top:14px; left:14px; z-index:120; background:rgba(0,0,0,.55); border:2px solid #FFD54F; color:#FFD54F; padding:8px 12px; border-radius:999px; font-family:'Jua',sans-serif; font-size:14px; cursor:pointer;">
+    🧪 엔딩 미리보기
+  </button>
 
 </body>
 </html>
