@@ -1533,6 +1533,30 @@ function updateStatsUI(){
   }catch(e){ console.error("[updateStatsUI]", e); }
 }
 
+function researchMenu(menuId){
+  const m = MENUS.find(x=>x.id === menuId);
+  if(!m) return;
+  state.menuLevels = state.menuLevels || {};
+  const lvl = state.menuLevels?.[m.id] || 0;
+  const cost = Math.floor(100000 * Math.pow(1.8, lvl));
+  unlockAudioOnce();
+  if(state.money < cost){
+    showToast("연구비가 부족해요!");
+    if(typeof sfxWrong === "function") sfxWrong();
+    return;
+  }
+  state.money -= cost;
+  state.menuLevels[m.id] = lvl + 1;
+  _saveDirty = true;
+  save(true);
+  showToast(`${m.name} 연구 완료!`);
+  if(typeof sfxConfirm === "function") sfxConfirm();
+  updateUI();
+  updateStatsUI();
+  if(typeof buildMenuGrid === "function") buildMenuGrid();
+  if(typeof renderRndList === "function") renderRndList();
+}
+
 function renderRndList(){
   const list = document.getElementById("rndList");
   if(!list) return;
@@ -1551,36 +1575,26 @@ function renderRndList(){
         <span class="rnd-name">${m.emoji} ${m.name}</span>
         <span class="rnd-lvl">Lv.${lvl} (가격 x${(1 + (lvl*0.5)).toFixed(1)})</span>
       </div>
-      <button class="rnd-btn" style="pointer-events: auto !important; position: relative; z-index: 2001;">연구 (${fmtNoWon(cost)})</button>
+      <button class="rnd-btn" data-action="research-menu" data-menu-id="${m.id}" style="pointer-events: auto !important; position: relative; z-index: 2001;">연구 (${fmtNoWon(cost)})</button>
     `;
     
-    const btn = div.querySelector("button");
-    btn.onclick = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      unlockAudioOnce(); 
-      if(state.money < cost){
-        showToast("연구비가 부족해요!");
-        if(typeof sfxWrong === "function") sfxWrong();
-        return;
-      }
-      state.money -= cost;
-      state.menuLevels[m.id] = lvl + 1;
-      _saveDirty = true;
-      save(true);
-      showToast(`${m.name} 연구 완료!`);
-      if(typeof sfxConfirm === "function") sfxConfirm();
-      updateUI();
-      updateStatsUI(); 
-      // 메뉴판 가격 즉시 반영
-      if(typeof buildMenuGrid === 'function') buildMenuGrid();
-      // 연구 탭 비용/레벨 갱신
-      if(typeof renderRndList === 'function') renderRndList();
-    };
     list.appendChild(div);
   });
 }
 
+
+const rndListEl = document.getElementById("rndList");
+if(rndListEl){
+  rndListEl.addEventListener("click", (e)=>{
+    const btn = e.target.closest('[data-action="research-menu"]');
+    if(!btn || !rndListEl.contains(btn)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const menuId = btn.dataset.menuId;
+    if(!menuId) return;
+    researchMenu(menuId);
+  });
+}
 
 // 탭 전환 (위임)
 document.addEventListener("click", (e)=>{
