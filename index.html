@@ -1525,6 +1525,19 @@ function initDOMRefs(){
   };
 
 
+
+  const mapWrapEl = document.getElementById("mapWrap");
+  if(mapWrapEl){
+    mapWrapEl.addEventListener("click", (e)=>{
+      const node = e.target.closest('.map-node[data-action="select-region"]');
+      if(!node || !mapWrapEl.contains(node)) return;
+      const id = node.dataset.regionId;
+      if(!id) return;
+      state.mapSelected = id;
+      renderMapUI();
+    });
+  }
+
   const closeExpansionModalBtn = document.getElementById("closeExpansionModalBtn");
   if(closeExpansionModalBtn){
     closeExpansionModalBtn.addEventListener("click", (e)=>{
@@ -6372,10 +6385,8 @@ function renderMapUI(){
     const unlocked = !!state.regionUnlocked[r.id];
     const node = document.createElement("div");
     node.className = "map-node" + (unlocked ? "" : " locked") + (r.id===selId ? " active":"");
-    node.onclick = ()=>{
-      state.mapSelected = r.id;
-      renderMapUI();
-    };
+    node.dataset.action = "select-region";
+    node.dataset.regionId = r.id;
 
     const left = document.createElement("div");
     left.className="map-left";
