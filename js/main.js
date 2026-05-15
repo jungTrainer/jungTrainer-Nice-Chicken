@@ -1000,7 +1000,9 @@ function initDOMRefs(){
   closeSettingsBtn = document.getElementById("closeSettings");
 
   // 4. 이벤트 리스너 연결 (변수가 연결된 후 실행되어야 안전함)
-  if(closeSettingsBtn) closeSettingsBtn.onclick = ()=> modalSettings && modalSettings.classList.remove("on");
+  if(closeSettingsBtn){
+    closeSettingsBtn.addEventListener("click", ()=> modalSettings && modalSettings.classList.remove("on"));
+  }
 
   if(forceSaveBtn) forceSaveBtn.onclick = ()=>{ save(true); showToast("저장 완료"); };
 
@@ -1037,8 +1039,12 @@ function initDOMRefs(){
     renderExchange();
   };
 
-  if(closeCouponsBtn) closeCouponsBtn.onclick = ()=> modalCoupons && modalCoupons.classList.remove("on");
-  if(closeExchangeBtn) closeExchangeBtn.onclick = ()=> modalExchange && modalExchange.classList.remove("on");
+  if(closeCouponsBtn){
+    closeCouponsBtn.addEventListener("click", ()=> modalCoupons && modalCoupons.classList.remove("on"));
+  }
+  if(closeExchangeBtn){
+    closeExchangeBtn.addEventListener("click", ()=> modalExchange && modalExchange.classList.remove("on"));
+  }
 
   if(clearLogBtn) clearLogBtn.onclick = ()=>{
     if(confirm("혜택 내역을 정리할까요? (로그만 삭제)")){
@@ -1689,7 +1695,7 @@ function safeOn(el, evt, fn, opts){
 function _bindSafe(el, evt, fn, opts){ return safeOn(el, evt, fn, opts); }
 function safeClick(id, fn){ const el = document.getElementById(id); if(el) el.onclick = fn; }
 
-safeClick("closeSettings", ()=> modalSettings.classList.remove("on"));
+safeOn(document.getElementById("closeSettings"), "click", ()=> modalSettings && modalSettings.classList.remove("on"));
 safeClick("forceSave", ()=>{ save(true); showToast("저장 완료"); });
 safeClick("resetAll", ()=>{
   if(confirm("정말 초기화할까요? (저장 데이터 삭제)")){
@@ -1720,8 +1726,8 @@ if(openExchangeBtn) openExchangeBtn.onclick = ()=>{
   modalExchange.classList.add("on");
   renderExchange();
 };
-if(closeCouponsBtn) closeCouponsBtn.onclick = ()=> modalCoupons.classList.remove("on");
-if(closeExchangeBtn) closeExchangeBtn.onclick = ()=> modalExchange.classList.remove("on");
+// Step 2-8A: closeCouponsBtn handled once in initDOMRefs().
+// Step 2-8A: closeExchangeBtn handled once in initDOMRefs().
 if(clearLogBtn) clearLogBtn.onclick = ()=>{
   if(confirm("혜택 내역을 정리할까요? (로그만 삭제)")){
     state.benefitsLog = [];
