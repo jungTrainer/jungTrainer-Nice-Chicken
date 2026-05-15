@@ -1,0 +1,106 @@
+name: Split CSS Step 2-2
+
+on:
+  push:
+    paths:
+      - ".github/workflows/split-css-step2-2.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  split-css:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Split inline CSS into css/style.css
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          index_path = Path('index.html')
+          css_path = Path('css/style.css')
+
+          text = index_path.read_text(encoding='utf-8')
+
+          if css_path.exists() and '<link rel="stylesheet" href="./css/style.css">' in text:
+              print('CSS split already applied')
+          else:
+              matches = list(re.finditer(r'<style>\s*(.*?)\s*</style>', text, flags=re.S|re.I))
+              if len(matches) != 1:
+                  raise SystemExit(f'Expected exactly one <style> block, found {len(matches)}')
+
+              m = matches[0]
+              css = m.group(1)
+              if len(css.strip()) < 1000:
+                  raise SystemExit(f'Extracted CSS unexpectedly small: {len(css.strip())} chars')
+
+              required_tokens = [':root{', '#app{', '.game-header', '.menuBtn', '#endingOverlay']
+              missing = [token for token in required_tokens if token not in css]
+              if missing:
+                  raise SystemExit(f'Extracted CSS missing expected tokens: {missing}')
+
+              css_path.parent.mkdir(parents=True, exist_ok=True)
+              css_path.write_text(css.strip() + '\n', encoding='utf-8')
+
+              link = '<link rel="stylesheet" href="./css/style.css">\n'
+              new_text = text[:m.start()] + link + text[m.end():]
+
+              if '<style>' in new_text or '</style>' in new_text:
+                  raise SystemExit('Inline <style> tags still remain after split')
+              if new_text.count('<link rel="stylesheet" href="./css/style.css">') != 1:
+                  raise SystemExit('Stylesheet link count is not exactly 1')
+
+              index_path.write_text(new_text, encoding='utf-8')
+              print(f'Extracted CSS characters: {len(css)}')
+
+          # Post verification
+          index_after = index_path.read_text(encoding='utf-8')
+          css_after = css_path.read_text(encoding='utf-8')
+
+          if '<link rel="stylesheet" href="./css/style.css">' not in index_after:
+              raise SystemExit('Missing stylesheet link in index.html')
+          if '<style>' in index_after or '</style>' in index_after:
+              raise SystemExit('Inline style block remains in index.html')
+          if len(css_after.strip()) < 1000:
+              raise SystemExit('css/style.css is unexpectedly small')
+          for token in [':root{', '#app{', '.game-header', '.menuBtn', '#endingOverlay']:
+              if token not in css_after:
+                  raise SystemExit(f'css/style.css missing token: {token}')
+
+          print('Step 2-2 CSS split verification passed')
+          PY
+
+      - name: Verify HTML references and JS syntax
+        run: |
+          test -f css/style.css
+          grep -q '<link rel="stylesheet" href="./css/style.css">' index.html
+          if grep -q '<style>' index.html; then
+            echo 'Inline style tag still exists'
+            exit 1
+          fi
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          text = Path('index.html').read_text(encoding='utf-8')
+          scripts = re.findall(r'<script[^>]*>(.*?)</script>', text, flags=re.S|re.I)
+          Path('/tmp/index-extracted.js').write_text('\n'.join(scripts), encoding='utf-8')
+          print(f'Extracted {len(scripts)} script blocks')
+          PY
+          node --check /tmp/index-extracted.js
+
+      - name: Commit CSS split
+        run: |
+          if git diff --quiet -- index.html css/style.css; then
+            echo "No CSS split changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html css/style.css
+          git commit -m "Split inline CSS into external stylesheet"
+          git push
