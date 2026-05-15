@@ -23,34 +23,59 @@ jobs:
           test "$(grep -c '<script src="./js/main.js"></script>' index.html || true)" = "1"
           node --check js/main.js
 
-      - name: Apply Step 2-8B PIN click cleanup
+      - name: Apply Step 2-9 benefit click cleanup
         run: |
-          python3 scripts/apply-step2-8b-pin-clicks.py
+          python3 scripts/apply-step2-9-benefit-clicks.py
 
-      - name: Verify Step 2-8B cleanup
+      - name: Verify Step 2-9 cleanup
         run: |
           test "$(grep -R -c ' onclick=' index.html js/main.js | awk -F: '{s+=$2} END {print s+0}')" = "0"
-          test "$(grep -c 'pinCancelBtn.onclick' js/main.js || true)" = "0"
-          test "$(grep -c 'pinOkBtn.onclick' js/main.js || true)" = "0"
-          test "$(grep -c 'pinCancelBtn.addEventListener("click"' js/main.js || true)" = "1"
-          test "$(grep -c 'pinOkBtn.addEventListener("click"' js/main.js || true)" = "1"
-          test "$(grep -c 'pinInput.addEventListener("keydown"' js/main.js || true)" -ge "1"
-          test "$(grep -c 'openMapBtn.addEventListener("click"' js/main.js || true)" = "1"
-          test "$(grep -c 'mapGoBtn.addEventListener("click"' js/main.js || true)" = "1"
-          test "$(grep -c 'mapUnlockBtn.addEventListener("click"' js/main.js || true)" = "1"
-          test "$(grep -c 'closeExpansionModalBtn.addEventListener("click"' js/main.js || true)" = "1"
+          for target in \
+            openCouponsBtn.onclick \
+            openExchangeBtn.onclick \
+            clearLogBtn.onclick \
+            useDrinkCouponBtn.onclick \
+            useVegCouponBtn.onclick \
+            doExchangeBtn.onclick \
+            useCertDrinkBtn.onclick \
+            makeCardBtn.onclick; do
+            test "$(grep -c "$target" js/main.js || true)" = "0"
+          done
+          for target in \
+            'openCouponsBtn.addEventListener("click"' \
+            'openExchangeBtn.addEventListener("click"' \
+            'clearLogBtn.addEventListener("click"' \
+            'useDrinkCouponBtn.addEventListener("click"' \
+            'useVegCouponBtn.addEventListener("click"' \
+            'doExchangeBtn.addEventListener("click"' \
+            'useCertDrinkBtn.addEventListener("click"' \
+            'makeCardBtn.addEventListener("click"'; do
+            test "$(grep -c "$target" js/main.js || true)" = "1"
+          done
+          for target in \
+            'openMapBtn.addEventListener("click"' \
+            'mapGoBtn.addEventListener("click"' \
+            'mapUnlockBtn.addEventListener("click"' \
+            'closeExpansionModalBtn.addEventListener("click"' \
+            'closeSettingsBtn.addEventListener("click"' \
+            'closeCouponsBtn.addEventListener("click"' \
+            'closeExchangeBtn.addEventListener("click"' \
+            'pinCancelBtn.addEventListener("click"' \
+            'pinOkBtn.addEventListener("click"'; do
+            test "$(grep -c "$target" js/main.js || true)" = "1"
+          done
           node --check js/main.js
 
-      - name: Commit Step 2-8B cleanup
+      - name: Commit Step 2-9 cleanup
         run: |
-          if git diff --quiet -- js/main.js docs/2026-05-15-step2-8b-pin-click-cleanup.md; then
-            echo "No Step 2-8B changes to commit"
+          if git diff --quiet -- js/main.js docs/2026-05-15-step2-9-benefit-click-cleanup.md; then
+            echo "No Step 2-9 changes to commit"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add js/main.js docs/2026-05-15-step2-8b-pin-click-cleanup.md
-          git commit -m "Convert PIN clicks to event listeners"
+          git add js/main.js docs/2026-05-15-step2-9-benefit-click-cleanup.md
+          git commit -m "Convert benefit clicks to event listeners"
           git push
 
-# retrigger: 2026-05-15T18:00:00+09:00
+# retrigger: 2026-05-15T18:20:00+09:00
