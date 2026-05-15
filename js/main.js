@@ -1975,6 +1975,20 @@ function pickMenuByRule(){
 /* --------------------
    Menu grid (3x3)
 -------------------- */
+function handleMenuGridServe(btn){
+  if(!btn) return;
+  applyElementFX(btn);
+  unlockAudioOnce(); startBGM();
+  sfxTick();
+  if(btn.dataset.locked === "1" || btn.disabled){
+    showToast("아직 잠긴 메뉴예요! (업그레이드: 메뉴 확장)");
+    return;
+  }
+  const menuId = btn.dataset.menuId;
+  if(!menuId) return;
+  serveByMenu(menuId);
+}
+
 function buildMenuGrid(){
   menuGrid.innerHTML = "";
 
@@ -1986,6 +2000,9 @@ function buildMenuGrid(){
     const btn = document.createElement("button");
     btn.className = "menuBtn";
     btn.disabled = locked;
+    btn.dataset.action = "serve-menu";
+    btn.dataset.menuId = m.id;
+    btn.dataset.locked = locked ? "1" : "0";
 
     const emoji = locked ? "🔒" : m.emoji;
     const nameText = locked ? "잠김" : m.name;
@@ -2000,18 +2017,17 @@ function buildMenuGrid(){
       <div class="price">${priceText}</div>
     `;
 
-    btn.onclick = () => {
-      applyElementFX(btn);
-      unlockAudioOnce(); startBGM();
-      sfxTick();
-      if (locked) {
-        showToast("아직 잠긴 메뉴예요! (업그레이드: 메뉴 확장)");
-        return;
-      }
-      serveByMenu(m.id);
-    };
-
     menuGrid.appendChild(btn);
+  });
+}
+
+const menuGridEl = document.getElementById("menuGrid");
+if(menuGridEl){
+  menuGridEl.addEventListener("click", (e)=>{
+    const btn = e.target.closest('[data-action="serve-menu"]');
+    if(!btn || !menuGridEl.contains(btn)) return;
+    e.preventDefault();
+    handleMenuGridServe(btn);
   });
 }
 
