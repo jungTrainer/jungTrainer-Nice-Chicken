@@ -1004,28 +1004,34 @@ function initDOMRefs(){
     closeSettingsBtn.addEventListener("click", ()=> modalSettings && modalSettings.classList.remove("on"));
   }
 
-  if(forceSaveBtn) forceSaveBtn.onclick = ()=>{ save(true); showToast("저장 완료"); };
+  if(forceSaveBtn){
+    forceSaveBtn.addEventListener("click", ()=>{ save(true); showToast("저장 완료"); });
+  }
 
-  if(resetAllBtn) resetAllBtn.onclick = ()=>{
-    if(confirm("정말 초기화할까요? (저장 데이터 삭제)")){
-      localStorage.removeItem(SAVE_KEY);
-      stopBGM();
-      state = defaultState();
-      initAfterLoad(true);
-      if(modalSettings) modalSettings.classList.remove("on");
-      showToast("초기화 완료");
-    }
-  };
+  if(resetAllBtn){
+    resetAllBtn.addEventListener("click", ()=>{
+      if(confirm("정말 초기화할까요? (저장 데이터 삭제)")){
+        localStorage.removeItem(SAVE_KEY);
+        stopBGM();
+        state = defaultState();
+        initAfterLoad(true);
+        if(modalSettings) modalSettings.classList.remove("on");
+        showToast("초기화 완료");
+      }
+    });
+  }
 
-  if(toggleSoundBtn) toggleSoundBtn.onclick = ()=>{
-    unlockAudioOnce();
-    const next = !state.soundOn;
-    state.soundOn = next;
-    setSoundEnabled(next);
-    toggleSoundBtn.textContent = next ? "ON" : "OFF";
-    sfxTick();
-    if(_saveDirty) save(true);
-  };
+  if(toggleSoundBtn){
+    toggleSoundBtn.addEventListener("click", ()=>{
+      unlockAudioOnce();
+      const next = !state.soundOn;
+      state.soundOn = next;
+      setSoundEnabled(next);
+      toggleSoundBtn.textContent = next ? "ON" : "OFF";
+      sfxTick();
+      if(_saveDirty) save(true);
+    });
+  }
 
   if(openCouponsBtn){
     openCouponsBtn.addEventListener("click", ()=>{
@@ -1080,38 +1086,42 @@ function initDOMRefs(){
   });
 
   // 이름 저장
-  if(saveNameBtn) saveNameBtn.onclick = ()=>{
-    unlockAudioOnce(); startBGM();
-    const v = ((nameInput && nameInput.value) || "").trim();
-    if(!isHangulOnly(v)){
-      showToast("한글만, 최대 10글자까지 가능해요.");
-      sfxWrong();
-      return;
-    }
-    state.profile = state.profile || {};
-    state.profile.name = v;
-    if(modalProfile) modalProfile.classList.remove("on");
-    _saveDirty = true;
-    updateUI();
-    showToast("이름 저장 완료");
-    sfxConfirm();
-  };
+  if(saveNameBtn){
+    saveNameBtn.addEventListener("click", ()=>{
+      unlockAudioOnce(); startBGM();
+      const v = ((nameInput && nameInput.value) || "").trim();
+      if(!isHangulOnly(v)){
+        showToast("한글만, 최대 10글자까지 가능해요.");
+        sfxWrong();
+        return;
+      }
+      state.profile = state.profile || {};
+      state.profile.name = v;
+      if(modalProfile) modalProfile.classList.remove("on");
+      _saveDirty = true;
+      updateUI();
+      showToast("이름 저장 완료");
+      sfxConfirm();
+    });
+  }
 
   // 오프라인 수익 수령
-  if(claimOfflineBtn) claimOfflineBtn.onclick = ()=>{
-    unlockAudioOnce(); startBGM();
-    if(modalOffline) modalOffline.classList.remove("on");
-    if(offlinePending > 0){
-      state.money += offlinePending;
-      state.offlineSalesToday = (state.offlineSalesToday || 0) + offlinePending;
-      state.offlineSalesTotal = (state.offlineSalesTotal || 0) + offlinePending;
-      offlinePending = 0;
-      if(_saveDirty) save(true);
-      updateUI();
-      showToast("오프라인 수익 수령!");
-      sfxConfirm();
-    }
-  };
+  if(claimOfflineBtn){
+    claimOfflineBtn.addEventListener("click", ()=>{
+      unlockAudioOnce(); startBGM();
+      if(modalOffline) modalOffline.classList.remove("on");
+      if(offlinePending > 0){
+        state.money += offlinePending;
+        state.offlineSalesToday = (state.offlineSalesToday || 0) + offlinePending;
+        state.offlineSalesTotal = (state.offlineSalesTotal || 0) + offlinePending;
+        offlinePending = 0;
+        if(_saveDirty) save(true);
+        updateUI();
+        showToast("오프라인 수익 수령!");
+        sfxConfirm();
+      }
+    });
+  }
 
   // 인증서 및 쿠폰 사용
   if(makeCardBtn){
@@ -1716,26 +1726,9 @@ function _bindSafe(el, evt, fn, opts){ return safeOn(el, evt, fn, opts); }
 function safeClick(id, fn){ const el = document.getElementById(id); if(el) el.onclick = fn; }
 
 safeOn(document.getElementById("closeSettings"), "click", ()=> modalSettings && modalSettings.classList.remove("on"));
-safeClick("forceSave", ()=>{ save(true); showToast("저장 완료"); });
-safeClick("resetAll", ()=>{
-  if(confirm("정말 초기화할까요? (저장 데이터 삭제)")){
-    localStorage.removeItem(SAVE_KEY);
-    stopBGM();
-    state = defaultState();
-    initAfterLoad(true);
-    modalSettings.classList.remove("on");
-    showToast("초기화 완료");
-  }
-});
-if(toggleSoundBtn) toggleSoundBtn.onclick = ()=>{
-  unlockAudioOnce();
-  const next = !state.soundOn;
-  state.soundOn = next;
-  setSoundEnabled(next);
-  toggleSoundBtn.textContent = next ? "ON" : "OFF";
-  sfxTick();
-  if(_saveDirty) save(true);
-};
+// Step 2-10: forceSaveBtn handled once in initDOMRefs().
+// Step 2-10: resetAllBtn handled once in initDOMRefs().
+// Step 2-10: toggleSoundBtn handled once in initDOMRefs().
 // Step 2-9: openCouponsBtn handled once in initDOMRefs().
 // Step 2-9: openExchangeBtn handled once in initDOMRefs().
 // Step 2-8A: closeCouponsBtn handled once in initDOMRefs().
@@ -1797,25 +1790,7 @@ function maybeAskName(){
     return;
   }
 }
-if(saveNameBtn) saveNameBtn.onclick = ()=>{
-  unlockAudioOnce(); startBGM();
-  const v = (nameInput.value || "").trim();
-  if(!isHangulOnly(v)){
-    showToast("한글만, 최대 10글자까지 가능해요.");
-    sfxWrong();
-    return;
-  }
-
-  // 안전 초기화
-  state.profile = state.profile || {};
-  state.profile.name = v;
-
-  modalProfile.classList.remove("on");
-  _saveDirty = true; // autosave 대상으로만 표시
-  updateUI();
-  showToast("이름 저장 완료");
-  sfxConfirm();
-};
+// Step 2-10: saveNameBtn handled once in initDOMRefs().
 
 /* --------------------
    Effects aggregation
@@ -3518,20 +3493,7 @@ function applyOfflineProgress(){
   modalOffline.classList.add("on");
 }
 
-if(claimOfflineBtn) claimOfflineBtn.onclick = ()=>{
-  unlockAudioOnce(); startBGM();
-  modalOffline.classList.remove("on");
-  if(offlinePending > 0){
-    state.money += offlinePending;
-    state.offlineSalesToday = (state.offlineSalesToday || 0) + offlinePending;
-    state.offlineSalesTotal = (state.offlineSalesTotal || 0) + offlinePending;
-    offlinePending = 0;
-    if(_saveDirty) save(true);
-    updateUI();
-    showToast("오프라인 수익 수령!");
-    sfxConfirm();
-  }
-};
+// Step 2-10: claimOfflineBtn handled once in initDOMRefs().
 
 /* --------------------
    Certificate status + actions
