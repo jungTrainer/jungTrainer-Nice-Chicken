@@ -23,33 +23,33 @@ jobs:
           test "$(grep -c '<script src="./js/main.js"></script>' index.html || true)" = "1"
           node --check js/main.js
 
-      - name: Apply Step 2-15C rndList click cleanup
+      - name: Apply Step 2-16 menuGrid click cleanup
         run: |
-          python3 scripts/apply-step2-15c-rndlist-click-cleanup.py
+          python3 scripts/apply-step2-16-menugrid-click-cleanup.py
 
-      - name: Verify Step 2-15C rndList click cleanup
+      - name: Verify Step 2-16 menuGrid click cleanup
         run: |
-          test -f docs/2026-05-15-step2-15c-rndlist-click-cleanup.md
-          test "$(grep -c 'btn.onclick = (e) =>' js/main.js || true)" = "0"
-          test "$(grep -c 'data-action="research-menu"' js/main.js || true)" -ge "1"
-          test "$(grep -c 'data-menu-id="${m.id}"' js/main.js || true)" = "1"
-          test "$(grep -c 'function researchMenu(menuId)' js/main.js || true)" = "1"
-          test "$(grep -c 'rndListEl.addEventListener("click"' js/main.js || true)" = "1"
+          test -f docs/2026-05-15-step2-16-menugrid-click-cleanup.md
+          test "$(grep -c 'btn.onclick = () =>' js/main.js || true)" = "0"
+          test "$(grep -c 'btn.dataset.action = "serve-menu"' js/main.js || true)" = "1"
+          test "$(grep -c 'btn.dataset.menuId = m.id' js/main.js || true)" = "1"
+          test "$(grep -c 'function handleMenuGridServe(btn)' js/main.js || true)" = "1"
+          test "$(grep -c 'menuGridEl.addEventListener("click"' js/main.js || true)" = "1"
           test "$(grep -c 'function safeClick' js/main.js || true)" = "0"
           test "$(grep -c 'safeClick(' js/main.js || true)" = "0"
           test "$(grep -R -c ' onclick=' index.html js/main.js | awk -F: '{s+=$2} END {print s+0}')" = "0"
           node --check js/main.js
 
-      - name: Commit Step 2-15C rndList click cleanup
+      - name: Commit Step 2-16 menuGrid click cleanup
         run: |
-          if git diff --quiet -- js/main.js docs/2026-05-15-step2-15c-rndlist-click-cleanup.md; then
-            echo "No Step 2-15C changes to commit"
+          if git diff --quiet -- js/main.js docs/2026-05-15-step2-16-menugrid-click-cleanup.md; then
+            echo "No Step 2-16 changes to commit"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add js/main.js docs/2026-05-15-step2-15c-rndlist-click-cleanup.md
-          git commit -m "Convert rndList research click handler"
+          git add js/main.js docs/2026-05-15-step2-16-menugrid-click-cleanup.md
+          git commit -m "Convert menuGrid serve click handler"
           git push
 
-# retrigger: 2026-05-15T21:45:00+09:00
+# retrigger: 2026-05-15T22:05:00+09:00
