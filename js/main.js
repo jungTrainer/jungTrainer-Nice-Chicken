@@ -1056,15 +1056,19 @@ function initDOMRefs(){
   };
 
   // PIN 입력 관련
-  if(pinCancelBtn) pinCancelBtn.onclick = ()=>{
-    if(modalPin) modalPin.classList.remove("on");
-    if(pinResolver){ pinResolver(false); pinResolver = null; }
-  };
-  if(pinOkBtn) pinOkBtn.onclick = ()=>{
-    const ok = (pinInput && pinInput.value === CONFIG.pin);
-    if(modalPin) modalPin.classList.remove("on");
-    if(pinResolver){ pinResolver(ok); pinResolver = null; }
-  };
+  if(pinCancelBtn){
+    pinCancelBtn.addEventListener("click", ()=>{
+      if(modalPin) modalPin.classList.remove("on");
+      if(pinResolver){ pinResolver(false); pinResolver = null; }
+    });
+  }
+  if(pinOkBtn){
+    pinOkBtn.addEventListener("click", ()=>{
+      const ok = (pinInput && pinInput.value === CONFIG.pin);
+      if(modalPin) modalPin.classList.remove("on");
+      if(pinResolver){ pinResolver(ok); pinResolver = null; }
+    });
+  }
   if(pinInput) pinInput.addEventListener("keydown",(e)=>{
     if(e.key==="Enter" && pinOkBtn) pinOkBtn.click();
   });
@@ -1777,15 +1781,8 @@ function askPIN(){
     pinInput.focus();
   });
 }
-if(pinCancelBtn) pinCancelBtn.onclick = ()=>{
-  modalPin.classList.remove("on");
-  if(pinResolver){ pinResolver(false); pinResolver = null; }
-};
-if(pinOkBtn) pinOkBtn.onclick = ()=>{
-  const ok = (pinInput.value === CONFIG.pin);
-  modalPin.classList.remove("on");
-  if(pinResolver){ pinResolver(ok); pinResolver = null; }
-};
+// Step 2-8B: pinCancelBtn handled once in initDOMRefs().
+// Step 2-8B: pinOkBtn handled once in initDOMRefs().
 safeOn(pinInput, "keydown", (e)=>{
   if(e.key==="Enter" && pinOkBtn) pinOkBtn.click();
 });
