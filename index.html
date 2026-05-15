@@ -1526,6 +1526,28 @@ function initDOMRefs(){
 
 
 
+
+  const mapGoBtn = document.getElementById("mapGo");
+  if(mapGoBtn){
+    mapGoBtn.addEventListener("click", (e)=>{
+      e.preventDefault();
+      e.stopPropagation();
+      unlockAudioOnce(); startBGM();
+      const id = state.mapSelected || state.regionId;
+      if(typeof BranchManager !== "undefined" && BranchManager.move) BranchManager.move(id);
+    });
+  }
+
+  const mapUnlockBtn = document.getElementById("mapUnlock");
+  if(mapUnlockBtn){
+    mapUnlockBtn.addEventListener("click", (e)=>{
+      e.preventDefault();
+      e.stopPropagation();
+      unlockAudioOnce(); startBGM();
+      if(typeof BranchManager !== "undefined" && BranchManager.unlockNext) BranchManager.unlockNext();
+    });
+  }
+
   const mapWrapEl = document.getElementById("mapWrap");
   if(mapWrapEl){
     mapWrapEl.addEventListener("click", (e)=>{
@@ -6506,7 +6528,11 @@ function renderMapUI(){
     </div>
 
     <div style="background:#fff; border-radius:0 0 20px 20px; padding:15px; text-align:center;">
-      <p class="note" style="margin:0;">좌우로 스크롤하여 지역을 확인하세요.<br>새 지역 오픈 시 자금이 차감됩니다.</p>
+      <div class="row" style="margin-bottom:10px;">
+        <button class="btn alt" id="mapGo" type="button">선택 지역으로 이동 🚀</button>
+        <button class="btn" id="mapUnlock" type="button">다음 지역 오픈 🔓</button>
+      </div>
+      <p class="note" id="mapHint" style="margin:0;">좌우로 스크롤하여 지역을 확인하세요.<br>새 지역 오픈 시 자금이 차감됩니다.</p>
     </div>
   </div>
 </div>
