@@ -54,4 +54,4 @@ jobs:
           git commit -m "Fix expansion modal open map flow"
           git push
 
-# retrigger: 2026-05-15T13:05:00+09:00
+# retrigger: 2026-05-15T13:20:00+09:00
