@@ -2031,6 +2031,31 @@ if(menuGridEl){
   });
 }
 
+const upgListEl = document.getElementById("upgList");
+if(upgListEl){
+  upgListEl.addEventListener("click", (e)=>{
+    const btn = e.target.closest('[data-action]');
+    if(!btn || !upgListEl.contains(btn)) return;
+    const action = btn.dataset.action;
+    if(action === "buy-upgrade"){
+      e.preventDefault();
+      const upgradeId = btn.dataset.upgradeId;
+      if(!upgradeId) return;
+      unlockAudioOnce();
+      if(typeof startBGM === "function") startBGM();
+      buyUpgrade(upgradeId);
+      return;
+    }
+    if(action === "buy-staff-upgrade"){
+      e.preventDefault();
+      const staffKey = btn.dataset.staffKey;
+      const kind = btn.dataset.kind;
+      if(!staffKey || !kind) return;
+      buyStaffUpgrade(staffKey, kind);
+    }
+  });
+}
+
 /* --------------------
    Stage layout helpers
 -------------------- */
@@ -5238,11 +5263,11 @@ function renderPanel(key){
           </div>
           <button class="btn" ${can || lvl >= maxL ? "" : "disabled"}>${lvl >= maxL ? "완료" : "구매"}</button>
         `;
-        div.querySelector("button").onclick = () => {
-          unlockAudioOnce(); 
-          if(typeof startBGM === "function") startBGM();
-          buyUpgrade(u.id);
-        };
+const upgBtn = div.querySelector("button");
+    if(upgBtn){
+      upgBtn.dataset.action = "buy-upgrade";
+      upgBtn.dataset.upgradeId = u.id;
+    }
         upgList.appendChild(div);
       }
     }
@@ -5273,8 +5298,18 @@ function renderPanel(key){
           </div>
         `;
         upgList.appendChild(card);
-        card.querySelector(`#btn-auto-${s.key}`).onclick = () => buyStaffUpgrade(s.key, 'auto');
-        card.querySelector(`#btn-tip-${s.key}`).onclick = () => buyStaffUpgrade(s.key, 'tip');
+        const autoBtn = card.querySelector(`#btn-auto-${s.key}`);
+      if(autoBtn){
+        autoBtn.dataset.action = "buy-staff-upgrade";
+        autoBtn.dataset.staffKey = s.key;
+        autoBtn.dataset.kind = "auto";
+      }
+        const tipBtn = card.querySelector(`#btn-tip-${s.key}`);
+      if(tipBtn){
+        tipBtn.dataset.action = "buy-staff-upgrade";
+        tipBtn.dataset.staffKey = s.key;
+        tipBtn.dataset.kind = "tip";
+      }
       });
     }
   } 
