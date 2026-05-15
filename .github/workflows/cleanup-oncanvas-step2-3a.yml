@@ -1,0 +1,204 @@
+name: Cleanup onCanvasDown Step 2-3A
+
+on:
+  push:
+    paths:
+      - ".github/workflows/cleanup-oncanvas-step2-3a.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup-oncanvas:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Diagnose and cleanup onCanvasDown definitions
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          index_path = Path('index.html')
+          report_path = Path('docs/2026-05-15-oncanvasdown-diagnosis.md')
+          text = index_path.read_text(encoding='utf-8')
+
+          pattern = 'function onCanvasDown('
+          positions = [m.start() for m in re.finditer(re.escape(pattern), text)]
+
+          def find_function_end(src, start):
+              brace_start = src.find('{', start)
+              if brace_start < 0:
+                  raise SystemExit('Could not find opening brace for onCanvasDown')
+              i = brace_start + 1
+              depth = 1
+              in_str = None
+              escape = False
+              in_line_comment = False
+              in_block_comment = False
+              while i < len(src):
+                  ch = src[i]
+                  nxt = src[i+1] if i + 1 < len(src) else ''
+
+                  if in_line_comment:
+                      if ch == '\n':
+                          in_line_comment = False
+                      i += 1
+                      continue
+                  if in_block_comment:
+                      if ch == '*' and nxt == '/':
+                          in_block_comment = False
+                          i += 2
+                      else:
+                          i += 1
+                      continue
+                  if in_str:
+                      if escape:
+                          escape = False
+                      elif ch == '\\':
+                          escape = True
+                      elif ch == in_str:
+                          in_str = None
+                      i += 1
+                      continue
+
+                  if ch == '/' and nxt == '/':
+                      in_line_comment = True
+                      i += 2
+                      continue
+                  if ch == '/' and nxt == '*':
+                      in_block_comment = True
+                      i += 2
+                      continue
+                  if ch in ('"', "'", '`'):
+                      in_str = ch
+                      i += 1
+                      continue
+                  if ch == '{':
+                      depth += 1
+                  elif ch == '}':
+                      depth -= 1
+                      if depth == 0:
+                          return i + 1
+                  i += 1
+              raise SystemExit('Could not parse onCanvasDown function end')
+
+          original_count = len(positions)
+          kept_summary = ''
+          removed_count = 0
+
+          if original_count == 0:
+              raise SystemExit('No onCanvasDown definition found')
+
+          # Keep the last definition because it contains the latest boss/staff/customer handling.
+          latest_start = positions[-1]
+          latest_end = find_function_end(text, latest_start)
+          latest_body = text[latest_start:latest_end]
+
+          required_tokens = ['triggerBossFX', 'triggerStaffFX', 'pickCustomerAt', 'selectCustomer', 'getCanvasPoint']
+          missing = [token for token in required_tokens if token not in latest_body]
+          if missing:
+              raise SystemExit(f'Latest onCanvasDown is missing expected behavior tokens: {missing}')
+
+          if original_count > 1:
+              ranges = []
+              for pos in positions[:-1]:
+                  end = find_function_end(text, pos)
+                  ranges.append((pos, end))
+
+              # Remove earlier definitions from bottom to top.
+              new_text = text
+              for start, end in sorted(ranges, reverse=True):
+                  # trim nearby blank lines but preserve surrounding code
+                  remove_start = start
+                  while remove_start > 0 and new_text[remove_start-1] in ' \t':
+                      remove_start -= 1
+                  remove_end = end
+                  while remove_end < len(new_text) and new_text[remove_end] in ' \t':
+                      remove_end += 1
+                  if remove_end < len(new_text) and new_text[remove_end] == '\n':
+                      remove_end += 1
+                  new_text = new_text[:remove_start] + new_text[remove_end:]
+              text = new_text
+              index_path.write_text(text, encoding='utf-8')
+              removed_count = len(ranges)
+              kept_summary = '앞쪽 구버전 정의를 제거하고 마지막 최신 정의만 유지했습니다.'
+          else:
+              kept_summary = '현재 index.html에는 onCanvasDown 정의가 이미 1개만 존재하여 코드 제거는 하지 않았습니다.'
+
+          final_count = text.count(pattern)
+          if final_count != 1:
+              raise SystemExit(f'Expected one onCanvasDown after cleanup, found {final_count}')
+          if 'safeOn(canvas, "mousedown", onCanvasDown);' not in text:
+              raise SystemExit('Missing mousedown binding for onCanvasDown')
+          if 'safeOn(canvas, "touchstart", onCanvasDown, {passive:false});' not in text:
+              raise SystemExit('Missing touchstart binding for onCanvasDown')
+
+          report_path.parent.mkdir(parents=True, exist_ok=True)
+          report_path.write_text(f'''# Step 2-3A onCanvasDown 진단 보고
+
+작성일: 2026-05-15
+대상: `index.html`
+
+## 결과
+
+- 기존 `onCanvasDown` 정의 수: {original_count}
+- 제거한 중복 정의 수: {removed_count}
+- 최종 `onCanvasDown` 정의 수: {final_count}
+
+## 유지 기준
+
+마지막 `onCanvasDown` 정의를 최신 구현으로 판단했습니다. 이 함수에는 다음 핵심 동작이 포함되어 있습니다.
+
+- 사장님 터치: `triggerBossFX`
+- 알바 터치: `triggerStaffFX`
+- 손님 선택: `pickCustomerAt`, `selectCustomer`
+- 모바일 좌표 보정: `getCanvasPoint`
+
+## 이벤트 바인딩 검증
+
+다음 바인딩이 유지되어 있음을 확인했습니다.
+
+```js
+safeOn(canvas, "mousedown", onCanvasDown);
+safeOn(canvas, "touchstart", onCanvasDown, {{passive:false}});
+```
+
+## 처리 내용
+
+{kept_summary}
+
+## 다음 단계
+
+다음 JS 안정화 작업은 inline `onclick` 제거입니다. 지역 확장 모달의 `moveBranch`, `unlockBranch`, `closeExpansionModal` 호출을 이벤트 위임 방식으로 바꾸는 것이 목표입니다.
+''', encoding='utf-8')
+
+          print(f'onCanvasDown original_count={original_count}, removed={removed_count}, final_count={final_count}')
+          PY
+
+      - name: Verify script syntax
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          text = Path('index.html').read_text(encoding='utf-8')
+          scripts = re.findall(r'<script[^>]*>(.*?)</script>', text, flags=re.S|re.I)
+          Path('/tmp/index-extracted.js').write_text('\n'.join(scripts), encoding='utf-8')
+          print(f'Extracted {len(scripts)} script blocks')
+          PY
+          node --check /tmp/index-extracted.js
+
+      - name: Commit onCanvasDown cleanup report
+        run: |
+          if git diff --quiet -- index.html docs/2026-05-15-oncanvasdown-diagnosis.md; then
+            echo "No onCanvasDown cleanup changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html docs/2026-05-15-oncanvasdown-diagnosis.md
+          git commit -m "Diagnose and cleanup canvas input handler"
+          git push
