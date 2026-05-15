@@ -1207,6 +1207,21 @@ function initDOMRefs(){
     });
   }
 
+
+  const expansionActionModalEl = document.getElementById("modalExpansion");
+  if(expansionActionModalEl){
+    expansionActionModalEl.addEventListener("click", (e)=>{
+      const btn = e.target.closest('[data-action="move-branch"], [data-action="unlock-branch"]');
+      if(!btn || !expansionActionModalEl.contains(btn)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const id = btn.dataset.regionId;
+      if(!id) return;
+      if(btn.dataset.action === "move-branch") moveBranch(id);
+      else if(btn.dataset.action === "unlock-branch") unlockBranch(id);
+    });
+  }
+
   const closeExpansionModalBtn = document.getElementById("closeExpansionModalBtn");
   if(closeExpansionModalBtn){
     closeExpansionModalBtn.addEventListener("click", (e)=>{
@@ -1634,12 +1649,12 @@ function renderExpansionCards(){
     if(isCurrent){
       btnHtml = `<button class="btn gray loc-btn" disabled>현재 위치</button>`;
     }else if(isUnlocked){
-      btnHtml = `<button class="btn alt loc-btn" onclick="moveBranch('${loc.id}')">이동하기 🚀</button>`;
+      btnHtml = `<button class="btn alt loc-btn" data-action="move-branch" data-region-id="${loc.id}" type="button">이동하기 🚀</button>`;
     }else{
       if(isNext){
         const canAfford = state.money >= (loc.unlockCost||0);
         const costText = fmtWon(loc.unlockCost||0);
-        btnHtml = `<button class="btn loc-btn" ${canAfford ? "" : "disabled"} onclick="unlockBranch('${loc.id}')">${costText} 오픈 🔓</button>`;
+        btnHtml = `<button class="btn loc-btn" ${canAfford ? "" : "disabled"} data-action="unlock-branch" data-region-id="${loc.id}" type="button">${costText} 오픈 🔓</button>`;
       }else{
         btnHtml = `<button class="btn gray loc-btn" disabled>이전 지역 필요 🔒</button>`;
       }
