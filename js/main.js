@@ -2056,6 +2056,20 @@ if(upgListEl){
   });
 }
 
+const resListEl = document.getElementById("resList");
+if(resListEl){
+  resListEl.addEventListener("click", (e)=>{
+    const btn = e.target.closest('[data-action="start-research"]');
+    if(!btn || !resListEl.contains(btn)) return;
+    e.preventDefault();
+    const researchId = btn.dataset.researchId;
+    if(!researchId) return;
+    unlockAudioOnce();
+    if(typeof startBGM === "function") startBGM();
+    startResearch(researchId);
+  });
+}
+
 /* --------------------
    Stage layout helpers
 -------------------- */
@@ -5358,7 +5372,8 @@ const upgBtn = div.querySelector("button");
       `;
       const btn = div.querySelector("button");
       btn.disabled = done || running;
-      btn.onclick = ()=>{ unlockAudioOnce(); if(typeof startBGM === "function") startBGM(); startResearch(r.id); };
+      btn.dataset.action = "start-research";
+      btn.dataset.researchId = r.id;
       targetList.appendChild(div);
     }
 
