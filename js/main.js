@@ -1738,8 +1738,8 @@ safeOn(document.getElementById("closeSettings"), "click", ()=> modalSettings && 
 /* --------------------
    Icon explanations
 -------------------- */
-safeClick("statMoney", ()=>showToast("💰 보유 금액: 업그레이드/연구/확장/교환상점에 사용해요."));
-safeClick("statRep", ()=>showToast("⭐ 평점(0~5): 손님 이탈/오답 시 하락, 정확 서빙 시 상승!"));
+safeOn(document.getElementById("statMoney"), "click", ()=>showToast("💰 보유 금액: 업그레이드/연구/확장/교환상점에 사용해요."));
+safeOn(document.getElementById("statRep"), "click", ()=>showToast("⭐ 평점(0~5): 손님 이탈/오답 시 하락, 정확 서빙 시 상승!"));
 let __infoTimer = 0;
 function showInfoToast(title, rows){
   const el = document.getElementById("infoToast");
@@ -1752,9 +1752,9 @@ function showInfoToast(title, rows){
   __infoTimer = setTimeout(()=>{ el.classList.remove("on"); }, 3000);
 }
 
-safeClick("statLvl", ()=>showInfoToast("🏢 매장 레벨", [["기준","누적 매출(온라인+오프라인)"],["효과","단가/콘텐츠 확장"],["팁","누적을 늘리면 성장!"]]));
-safeClick("statToday", ()=>showInfoToast("📆 오늘 매출", [["범위","접속 중(온라인)"],["리셋","매일 0시"],["스탬프","일간 목표 달성에 사용"]]));
-safeClick("statTotal", ()=>{
+safeOn(document.getElementById("statLvl"), "click", ()=>showInfoToast("🏢 매장 레벨", [["기준","누적 매출(온라인+오프라인)"],["효과","단가/콘텐츠 확장"],["팁","누적을 늘리면 성장!"]]));
+safeOn(document.getElementById("statToday"), "click", ()=>showInfoToast("📆 오늘 매출", [["범위","접속 중(온라인)"],["리셋","매일 0시"],["스탬프","일간 목표 달성에 사용"]]));
+safeOn(document.getElementById("statTotal"), "click", ()=>{
   const p = state.play || {onlineSecTotal:0, offlineSecTotal:0};
   const online = fmtDuration(p.onlineSecTotal);
   const offline = fmtDuration(p.offlineSecTotal);
