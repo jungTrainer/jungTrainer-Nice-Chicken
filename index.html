@@ -1524,6 +1524,17 @@ function initDOMRefs(){
     renderCoupons();
   };
 
+
+  const closeExpansionModalBtn = document.getElementById("closeExpansionModalBtn");
+  if(closeExpansionModalBtn){
+    closeExpansionModalBtn.addEventListener("click", (e)=>{
+      e.preventDefault();
+      e.stopPropagation();
+      if(typeof closeExpansionModal === "function") closeExpansionModal();
+      else document.getElementById("modalExpansion")?.classList.remove("on");
+    }, {passive:false});
+  }
+
   // 5. Canvas 설정
   
   // --- Stats modal close (ensure X works on mobile) ---
@@ -6477,7 +6488,7 @@ function renderMapUI(){
   <div class="modal" style="width:95%; max-width:480px; padding:0; background:transparent; box-shadow:none;">
     <div style="background:#fff; border-radius:20px 20px 0 0; padding:15px; display:flex; justify-content:space-between; align-items:center;">
       <h3 style="margin:0;">🌍 세계 정복 (지점 관리)</h3>
-      <button class="closeBtn" onclick="closeExpansionModal()">✕</button>
+      <button class="closeBtn" id="closeExpansionModalBtn" type="button">✕</button>
     </div>
 
     <div style="background:#f0f2f5; height:380px; overflow-x:auto; overflow-y:hidden; display:flex; align-items:center; padding:0 15px; gap:15px; scroll-snap-type: x mandatory;" id="expansionList">
