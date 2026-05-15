@@ -24,17 +24,23 @@ jobs:
         run: |
           python3 scripts/apply-step2-3c-map-event-delegation.py
 
-      - name: Apply Step 2-3D map button events
+      - name: Ensure Step 2-3D map button events
         run: |
           python3 scripts/apply-step2-3d-map-buttons.py
 
-      - name: Verify Step 2-3D counts
+      - name: Apply Step 2-3E open map flow
         run: |
+          python3 scripts/apply-step2-3e-open-map-flow.py
+
+      - name: Verify Step 2-3E counts
+        run: |
+          test "$(grep -c 'id="openMap"' index.html || true)" = "1"
+          test "$(grep -c 'openMapBtn.addEventListener("click"' index.html || true)" = "1"
+          test "$(grep -c 'modalExpansionEl.classList.add("on")' index.html || true)" = "1"
+          test "$(grep -c 'id="mapWrap"' index.html || true)" = "1"
+          test "$(grep -c 'id="expansionList"' index.html || true)" = "0"
           test "$(grep -c 'id="mapGo"' index.html || true)" = "1"
           test "$(grep -c 'id="mapUnlock"' index.html || true)" = "1"
-          test "$(grep -c 'mapGoBtn.addEventListener("click"' index.html || true)" = "1"
-          test "$(grep -c 'mapUnlockBtn.addEventListener("click"' index.html || true)" = "1"
-          test "$(grep -c 'mapWrapEl.addEventListener("click"' index.html || true)" = "1"
 
       - name: Commit expansion event cleanup
         run: |
@@ -45,7 +51,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
-          git commit -m "Add map movement and unlock button events"
+          git commit -m "Fix expansion modal open map flow"
           git push
 
-# retrigger: 2026-05-15T12:45:00+09:00
+# retrigger: 2026-05-15T13:05:00+09:00
