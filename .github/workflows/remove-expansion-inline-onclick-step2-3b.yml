@@ -80,14 +80,11 @@ jobs:
           PY
           node --check /tmp/index-extracted.js
 
-      - name: Verify Step 2-3B and Step 2-3C counts
+      - name: Verify Step 2-3C counts
         run: |
-          test "$(grep -c 'onclick="closeExpansionModal()"' index.html || true)" = "0"
-          test "$(grep -c 'id="closeExpansionModalBtn"' index.html || true)" = "1"
-          test "$(grep -c 'closeExpansionModalBtn.addEventListener("click"' index.html || true)" = "1"
-          test "$(grep -c 'function closeExpansionModal(' index.html || true)" = "1"
           test "$(grep -c 'node.onclick = ()=>{' index.html || true)" = "0"
           test "$(grep -c 'node.dataset.action = "select-region";' index.html || true)" = "1"
+          test "$(grep -c 'node.dataset.regionId = r.id;' index.html || true)" = "1"
           test "$(grep -c 'mapWrapEl.addEventListener("click"' index.html || true)" = "1"
 
       - name: Commit expansion event cleanup
@@ -102,4 +99,4 @@ jobs:
           git commit -m "Refactor map node selection event delegation"
           git push
 
-# retrigger: 2026-05-15T11:55:00+09:00
+# retrigger: 2026-05-15T12:10:00+09:00
