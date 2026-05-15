@@ -23,27 +23,27 @@ jobs:
           test "$(grep -c '<script src="./js/main.js"></script>' index.html || true)" = "1"
           node --check js/main.js
 
-      - name: Apply Step 2-10 profile save click cleanup
+      - name: Apply Step 2-11 stat click cleanup
         run: |
-          python3 scripts/apply-step2-10-profile-save-clicks.py
+          python3 scripts/apply-step2-11-stat-clicks.py
 
-      - name: Verify Step 2-10 cleanup
+      - name: Verify Step 2-11 cleanup
         run: |
           test "$(grep -R -c ' onclick=' index.html js/main.js | awk -F: '{s+=$2} END {print s+0}')" = "0"
           for target in \
-            forceSaveBtn.onclick \
-            resetAllBtn.onclick \
-            toggleSoundBtn.onclick \
-            saveNameBtn.onclick \
-            claimOfflineBtn.onclick; do
+            'safeClick("statMoney"' \
+            'safeClick("statRep"' \
+            'safeClick("statLvl"' \
+            'safeClick("statToday"' \
+            'safeClick("statTotal"'; do
             test "$(grep -c "$target" js/main.js || true)" = "0"
           done
           for target in \
-            'forceSaveBtn.addEventListener("click"' \
-            'resetAllBtn.addEventListener("click"' \
-            'toggleSoundBtn.addEventListener("click"' \
-            'saveNameBtn.addEventListener("click"' \
-            'claimOfflineBtn.addEventListener("click"'; do
+            'safeOn(document.getElementById("statMoney"), "click"' \
+            'safeOn(document.getElementById("statRep"), "click"' \
+            'safeOn(document.getElementById("statLvl"), "click"' \
+            'safeOn(document.getElementById("statToday"), "click"' \
+            'safeOn(document.getElementById("statTotal"), "click"'; do
             test "$(grep -c "$target" js/main.js || true)" = "1"
           done
           for target in \
@@ -63,21 +63,26 @@ jobs:
             'useVegCouponBtn.addEventListener("click"' \
             'doExchangeBtn.addEventListener("click"' \
             'useCertDrinkBtn.addEventListener("click"' \
-            'makeCardBtn.addEventListener("click"'; do
+            'makeCardBtn.addEventListener("click"' \
+            'forceSaveBtn.addEventListener("click"' \
+            'resetAllBtn.addEventListener("click"' \
+            'toggleSoundBtn.addEventListener("click"' \
+            'saveNameBtn.addEventListener("click"' \
+            'claimOfflineBtn.addEventListener("click"'; do
             test "$(grep -c "$target" js/main.js || true)" = "1"
           done
           node --check js/main.js
 
-      - name: Commit Step 2-10 cleanup
+      - name: Commit Step 2-11 cleanup
         run: |
-          if git diff --quiet -- js/main.js docs/2026-05-15-step2-10-profile-save-click-cleanup.md; then
-            echo "No Step 2-10 changes to commit"
+          if git diff --quiet -- js/main.js docs/2026-05-15-step2-11-stat-click-cleanup.md; then
+            echo "No Step 2-11 changes to commit"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add js/main.js docs/2026-05-15-step2-10-profile-save-click-cleanup.md
-          git commit -m "Convert profile save clicks to event listeners"
+          git add js/main.js docs/2026-05-15-step2-11-stat-click-cleanup.md
+          git commit -m "Convert stat clicks to safeOn listeners"
           git push
 
-# retrigger: 2026-05-15T18:40:00+09:00
+# retrigger: 2026-05-15T19:00:00+09:00
