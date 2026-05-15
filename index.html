@@ -1674,7 +1674,7 @@ function levelCurve(lv){
   return (5*0.08) + (lv-5)*0.22;
 }
 
-function staffUpgradeCost(lv, mult=1){
+function genericStaffUpgradeCost(lv, mult=1){
   return Math.floor(50000 * mult * Math.pow(2.0, lv));
 }
 
