@@ -36,21 +36,35 @@ jobs:
         run: |
           python3 scripts/diagnose-step2-4-js-readiness.py
 
-      - name: Verify Step 2-4 diagnostic report
+      - name: Apply Step 2-5 main JS split
+        run: |
+          python3 scripts/prepare-step2-5-split-main-js.py
+
+      - name: Verify Step 2-5 main JS split
         run: |
           test -f docs/2026-05-15-step2-4-js-readiness.md
-          grep -q 'js/main.js 분리 판단' docs/2026-05-15-step2-4-js-readiness.md
+          test -f docs/2026-05-15-step2-5-main-js-split.md
+          test -f js/main.js
+          test "$(grep -c '<script src="./js/main.js"></script>' index.html || true)" = "1"
+          test "$(grep -c 'Splash auto-hide' index.html || true)" = "1"
+          test "$(grep -c 'service worker disabled in this build' index.html || true)" = "1"
+          test "$(grep -c './css/style.css' index.html || true)" = "1"
+          test "$(grep -c 'openMapBtn.addEventListener("click"' js/main.js || true)" = "1"
+          test "$(grep -c 'mapGoBtn.addEventListener("click"' js/main.js || true)" = "1"
+          test "$(grep -c 'mapUnlockBtn.addEventListener("click"' js/main.js || true)" = "1"
+          test "$(grep -c 'closeExpansionModalBtn.addEventListener("click"' js/main.js || true)" = "1"
+          node --check js/main.js
 
-      - name: Commit expansion cleanup and diagnostics
+      - name: Commit Step 2-5 main JS split
         run: |
-          if git diff --quiet -- index.html docs/2026-05-15-step2-4-js-readiness.md; then
-            echo "No Step 2-4 changes to commit"
+          if git diff --quiet -- index.html js/main.js docs/2026-05-15-step2-4-js-readiness.md docs/2026-05-15-step2-5-main-js-split.md; then
+            echo "No Step 2-5 changes to commit"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html docs/2026-05-15-step2-4-js-readiness.md
-          git commit -m "Add JS readiness diagnostics"
+          git add index.html js/main.js docs/2026-05-15-step2-4-js-readiness.md docs/2026-05-15-step2-5-main-js-split.md
+          git commit -m "Split main JavaScript into js main file"
           git push
 
-# retrigger: 2026-05-15T13:45:00+09:00
+# retrigger: 2026-05-15T15:55:00+09:00
