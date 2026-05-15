@@ -21,33 +21,39 @@ jobs:
           test "$(grep -c '<script src="./js/main.js"></script>' index.html || true)" = "1"
           node --check js/main.js
 
-      - name: Apply Step 2-18 resList click cleanup
+      - name: Apply Step 2-23 save stability phase1
         run: |
-          python3 scripts/apply-step2-18-reslist-click-cleanup.py
+          python3 scripts/apply-step2-23-save-stability-phase1.py
 
-      - name: Verify Step 2-18 resList click cleanup
+      - name: Verify Step 2-23 save stability phase1
         run: |
-          test -f docs/2026-05-15-step2-18-reslist-click-cleanup.md
-          test "$(grep -c 'btn.onclick' js/main.js || true)" = "0"
-          test "$(grep -c 'btn.dataset.action = "start-research"' js/main.js || true)" = "1"
-          test "$(grep -c 'btn.dataset.researchId = r.id' js/main.js || true)" = "1"
-          test "$(grep -c 'resListEl.addEventListener("click"' js/main.js || true)" = "1"
+          test -f docs/2026-05-15-step2-23-save-stability-phase1.md
+          test "$(grep -c 'function save(force=false)' js/main.js || true)" = "1"
+          test "$(grep -c 'if(!force){ _saveDirty = true; return true; }' js/main.js || true)" = "1"
+          test "$(grep -c 'console.error("\[save\] failed", e);' js/main.js || true)" = "1"
+          test "$(grep -c 'function saveGame()' js/main.js || true)" = "1"
+          test "$(grep -c 'function bindSaveLifecycleEvents()' js/main.js || true)" = "1"
+          test "$(grep -c 'window.addEventListener("pagehide"' js/main.js || true)" = "1"
+          test "$(grep -c 'document.addEventListener("visibilitychange"' js/main.js || true)" = "1"
+          test "$(grep -c 'window.addEventListener("beforeunload"' js/main.js || true)" = "1"
+          test "$(grep -c 'const ok = save(true);' js/main.js || true)" = "1"
+          test "$(grep -c '저장 실패! 브라우저 저장 공간을 확인하세요.' js/main.js || true)" = "1"
           test "$(grep -c '\.onclick[[:space:]]*=' js/main.js || true)" = "0"
           test "$(grep -c 'function safeClick' js/main.js || true)" = "0"
           test "$(grep -c 'safeClick(' js/main.js || true)" = "0"
           test "$(grep -R -c ' onclick=' index.html js/main.js | awk -F: '{s+=$2} END {print s+0}')" = "0"
           node --check js/main.js
 
-      - name: Commit Step 2-18 resList click cleanup
+      - name: Commit Step 2-23 save stability phase1
         run: |
-          if git diff --quiet -- js/main.js docs/2026-05-15-step2-18-reslist-click-cleanup.md; then
-            echo "No Step 2-18 changes to commit"
+          if git diff --quiet -- js/main.js docs/2026-05-15-step2-23-save-stability-phase1.md; then
+            echo "No Step 2-23 changes to commit"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add js/main.js docs/2026-05-15-step2-18-reslist-click-cleanup.md
-          git commit -m "Convert resList research click handler"
+          git add js/main.js docs/2026-05-15-step2-23-save-stability-phase1.md
+          git commit -m "Add save lifecycle stability hooks"
           git push
 
-# retrigger: 2026-05-15T23:55:00+09:00
+# retrigger: 2026-05-16T00:20:00+09:00
