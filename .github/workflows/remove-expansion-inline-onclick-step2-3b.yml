@@ -145,3 +145,5 @@ if(closeExpansionModalBtn){
           git add index.html docs/2026-05-15-inline-onclick-step2-3b.md
           git commit -m "Remove expansion close inline onclick"
           git push
+
+# retrigger: 2026-05-15T10:55:00+09:00
