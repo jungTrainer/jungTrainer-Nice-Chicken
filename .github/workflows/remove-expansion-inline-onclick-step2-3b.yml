@@ -2,8 +2,6 @@ name: Expansion Event Cleanup Steps
 
 on:
   push:
-    paths:
-      - ".github/workflows/remove-expansion-inline-onclick-step2-3b.yml"
   workflow_dispatch:
 
 permissions:
@@ -53,4 +51,4 @@ jobs:
           git commit -m "Convert upgList click handlers"
           git push
 
-# retrigger: 2026-05-15T22:30:00+09:00
+# retrigger: 2026-05-15T23:05:00+09:00
