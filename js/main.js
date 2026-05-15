@@ -915,7 +915,12 @@ function initDOMRefs(){
   elLvl = document.getElementById("uiLvl");
   window.uiXpFill = document.getElementById("uiXpFill");
   const lvlPill = document.getElementById("lvlPill");
-  if(lvlPill) lvlPill.onclick = ()=>{ const mul = (1 + ((Number(state.level)||0)*0.10)); showToast(`매장 레벨 효과: 전체 매출 x${mul.toFixed(2)}`); };
+  if(lvlPill){
+    lvlPill.addEventListener("click", ()=>{
+      const mul = (1 + ((Number(state.level)||0)*0.10));
+      showToast(`매장 레벨 효과: 전체 매출 x${mul.toFixed(2)}`);
+    });
+  }
   elToday = document.getElementById("uiToday");
   elTotal = document.getElementById("uiTotal");
   elSelected = document.getElementById("uiSelected");
