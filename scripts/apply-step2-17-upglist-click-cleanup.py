@@ -8,11 +8,15 @@ INDEX = Path('index.html')
 MAIN = Path('js/main.js')
 REPORT = Path('docs/2026-05-15-step2-17-upglist-click-cleanup.md')
 
-OLD_UPG = '''div.querySelector("button").onclick = () => {
-      unlockAudioOnce(); 
-      if(typeof startBGM === "function") startBGM();
-      buyUpgrade(u.id);
-    };'''
+# The upgrade button block has changed spacing/indentation a few times.
+# Match the semantic block instead of relying on one exact multi-line string.
+UPG_RE = re.compile(
+    r'''(?P<indent>^[ \t]*)div\.querySelector\(["']button["']\)\.onclick\s*=\s*\(\)\s*=>\s*\{\s*\n'''
+    r'''(?P<body>.*?)'''
+    r'''^[ \t]*\};''',
+    re.M | re.S,
+)
+
 NEW_UPG = '''const upgBtn = div.querySelector("button");
     if(upgBtn){
       upgBtn.dataset.action = "buy-upgrade";
@@ -96,6 +100,16 @@ def direct_count(js):
     return len(re.findall(r'\.onclick\s*=', js))
 
 
+def find_upgrade_blocks(js):
+    matches = []
+    for m in UPG_RE.finditer(js):
+        block = m.group(0)
+        body = m.group('body')
+        if 'buyUpgrade(u.id)' in body:
+            matches.append((m, block))
+    return matches
+
+
 def main():
     if not INDEX.exists() or not MAIN.exists():
         fail('index.html or js/main.js missing')
@@ -114,7 +128,12 @@ def main():
         fail('safeClick actual call must stay 0')
     if before_direct != 4:
         fail(f'expected 4 direct .onclick assignments before Step 2-17, found {before_direct}')
-    for label, old in [('upgrade', OLD_UPG), ('auto', OLD_AUTO), ('tip', OLD_TIP)]:
+
+    upg_matches = find_upgrade_blocks(js)
+    if len(upg_matches) != 1:
+        fail(f'expected upgrade target exactly 1, found {len(upg_matches)}')
+
+    for label, old in [('auto', OLD_AUTO), ('tip', OLD_TIP)]:
         count = js.count(old)
         if count != 1:
             fail(f'expected {label} target exactly 1, found {count}')
@@ -124,7 +143,7 @@ def main():
         fail('menuGrid delegate anchor not found')
 
     patched = js
-    patched = patched.replace(OLD_UPG, NEW_UPG, 1)
+    patched = patched.replace(upg_matches[0][1], NEW_UPG, 1)
     patched = patched.replace(OLD_AUTO, NEW_AUTO, 1)
     patched = patched.replace(OLD_TIP, NEW_TIP, 1)
     patched = patched.replace(INSERT_DELEGATE_BEFORE, INSERT_DELEGATE_BEFORE + DELEGATE, 1)
@@ -137,7 +156,7 @@ def main():
     after_inline = inline_count(index2, js2)
 
     checks = {
-        'upg_direct': js2.count('div.querySelector("button").onclick'),
+        'upg_direct': js2.count('div.querySelector("button").onclick') + js2.count("div.querySelector('button').onclick"),
         'auto_direct': js2.count('card.querySelector(`#btn-auto-${s.key}`).onclick'),
         'tip_direct': js2.count('card.querySelector(`#btn-tip-${s.key}`).onclick'),
         'buy_upgrade_action': js2.count('dataset.action = "buy-upgrade"'),
