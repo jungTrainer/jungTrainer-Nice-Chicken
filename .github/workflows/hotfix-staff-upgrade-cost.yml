@@ -1,0 +1,67 @@
+name: Hotfix staff upgrade cost
+
+on:
+  push:
+    paths:
+      - ".github/workflows/hotfix-staff-upgrade-cost.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  hotfix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Apply staffUpgradeCost hotfix
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('index.html')
+          text = path.read_text(encoding='utf-8')
+
+          old = """\nfunction staffUpgradeCost(lv, mult=1){\n  return Math.floor(50000 * mult * Math.pow(2.0, lv));\n}\n"""
+          new = """\nfunction genericStaffUpgradeCost(lv, mult=1){\n  return Math.floor(50000 * mult * Math.pow(2.0, lv));\n}\n"""
+
+          count = text.count(old)
+          if count != 1:
+              raise SystemExit(f'Expected exactly one generic staffUpgradeCost block, found {count}')
+
+          text = text.replace(old, new, 1)
+
+          staff_count = text.count('function staffUpgradeCost(')
+          generic_count = text.count('function genericStaffUpgradeCost(')
+          if staff_count != 1 or generic_count != 1:
+              raise SystemExit(f'Unexpected function counts: staff={staff_count}, generic={generic_count}')
+
+          path.write_text(text, encoding='utf-8')
+          print('Applied hotfix: staffUpgradeCost duplicate removed')
+          PY
+
+      - name: Verify script syntax
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          text = Path('index.html').read_text(encoding='utf-8')
+          scripts = re.findall(r'<script[^>]*>(.*?)</script>', text, flags=re.S|re.I)
+          Path('/tmp/index-extracted.js').write_text('\n'.join(scripts), encoding='utf-8')
+          print(f'Extracted {len(scripts)} script blocks')
+          PY
+          node --check /tmp/index-extracted.js
+
+      - name: Commit hotfix
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "No index.html changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Fix duplicate staffUpgradeCost function"
+          git push
