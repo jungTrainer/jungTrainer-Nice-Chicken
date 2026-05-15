@@ -23,30 +23,28 @@ jobs:
           test "$(grep -c '<script src="./js/main.js"></script>' index.html || true)" = "1"
           node --check js/main.js
 
-      - name: Apply Step 2-13B safeClick helper removal
+      - name: Run Step 2-14 onclick inventory
         run: |
-          python3 scripts/apply-step2-13b-remove-safe-click-helper.py
+          python3 scripts/apply-step2-14-onclick-inventory.py
 
-      - name: Verify Step 2-13B safeClick helper removal
+      - name: Verify Step 2-14 onclick inventory
         run: |
+          test -f docs/2026-05-15-step2-14-onclick-inventory.md
           test "$(grep -c 'function safeClick' js/main.js || true)" = "0"
           test "$(grep -c 'safeClick(' js/main.js || true)" = "0"
-          test "$(grep -c 'function safeOn' js/main.js || true)" = "1"
-          test "$(grep -c 'function _bindSafe' js/main.js || true)" = "1"
           test "$(grep -R -c ' onclick=' index.html js/main.js | awk -F: '{s+=$2} END {print s+0}')" = "0"
-          test -f docs/2026-05-15-step2-13b-remove-safe-click-helper.md
           node --check js/main.js
 
-      - name: Commit Step 2-13B safeClick helper removal
+      - name: Commit Step 2-14 inventory
         run: |
-          if git diff --quiet -- js/main.js docs/2026-05-15-step2-13b-remove-safe-click-helper.md; then
-            echo "No Step 2-13B changes to commit"
+          if git diff --quiet -- js/main.js docs/2026-05-15-step2-14-onclick-inventory.md; then
+            echo "No Step 2-14 changes to commit"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add js/main.js docs/2026-05-15-step2-13b-remove-safe-click-helper.md
-          git commit -m "Remove safeClick helper"
+          git add js/main.js docs/2026-05-15-step2-14-onclick-inventory.md
+          git commit -m "Add onclick inventory report"
           git push
 
-# retrigger: 2026-05-15T20:40:00+09:00
+# retrigger: 2026-05-15T21:00:00+09:00
