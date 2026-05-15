@@ -4230,6 +4230,12 @@ function save(force=false){
   _lastSaveWriteAt = Date.now();
 }
 
+// Compatibility alias for older patched code paths.
+function saveGame(){
+  return save(true);
+}
+
+
 function load(){
   const raw = localStorage.getItem(SAVE_KEY);
   if(!raw) return false;
@@ -6833,6 +6839,12 @@ function bindEndingUI(){
   // preview button for testing
   const preview = document.getElementById("endingPreviewBtn");
   if(preview){
+    try{
+      const debugMode = new URLSearchParams(window.location.search).get("debug") === "1";
+      preview.style.display = debugMode ? "block" : "none";
+    }catch(_e){
+      preview.style.display = "none";
+    }
     preview.addEventListener("click", () => {
       state.endingUnlocked = true;
       state.endingPrompted = true;
@@ -7163,7 +7175,7 @@ function renderMapUI(){
   </div>
 
   <!-- 테스트용: 엔딩 팝업 띄우기 버튼 (원하면 나중에 제거) -->
-  <button id="endingPreviewBtn" type="button" style="position:absolute; top:14px; left:14px; z-index:120; background:rgba(0,0,0,.55); border:2px solid #FFD54F; color:#FFD54F; padding:8px 12px; border-radius:999px; font-family:'Jua',sans-serif; font-size:14px; cursor:pointer;">
+  <button id="endingPreviewBtn" type="button" style="display:none; position:absolute; top:14px; left:14px; z-index:120; background:rgba(0,0,0,.55); border:2px solid #FFD54F; color:#FFD54F; padding:8px 12px; border-radius:999px; font-family:'Jua',sans-serif; font-size:14px; cursor:pointer;">
     🧪 엔딩 미리보기
   </button>
 
