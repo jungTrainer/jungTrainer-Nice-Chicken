@@ -21,34 +21,33 @@ jobs:
           test "$(grep -c '<script src="./js/main.js"></script>' index.html || true)" = "1"
           node --check js/main.js
 
-      - name: Apply Step 2-17 upgList click cleanup
+      - name: Apply Step 2-18 resList click cleanup
         run: |
-          python3 scripts/apply-step2-17-upglist-click-cleanup.py
+          python3 scripts/apply-step2-18-reslist-click-cleanup.py
 
-      - name: Verify Step 2-17 upgList click cleanup
+      - name: Verify Step 2-18 resList click cleanup
         run: |
-          test -f docs/2026-05-15-step2-17-upglist-click-cleanup.md
-          test "$(grep -c 'div.querySelector("button").onclick' js/main.js || true)" = "0"
-          test "$(grep -c 'card.querySelector(`#btn-auto-${s.key}`).onclick' js/main.js || true)" = "0"
-          test "$(grep -c 'card.querySelector(`#btn-tip-${s.key}`).onclick' js/main.js || true)" = "0"
-          test "$(grep -c 'dataset.action = "buy-upgrade"' js/main.js || true)" = "1"
-          test "$(grep -c 'dataset.action = "buy-staff-upgrade"' js/main.js || true)" = "2"
-          test "$(grep -c 'upgListEl.addEventListener("click"' js/main.js || true)" = "1"
+          test -f docs/2026-05-15-step2-18-reslist-click-cleanup.md
+          test "$(grep -c 'btn.onclick' js/main.js || true)" = "0"
+          test "$(grep -c 'btn.dataset.action = "start-research"' js/main.js || true)" = "1"
+          test "$(grep -c 'btn.dataset.researchId = r.id' js/main.js || true)" = "1"
+          test "$(grep -c 'resListEl.addEventListener("click"' js/main.js || true)" = "1"
+          test "$(grep -c '\.onclick[[:space:]]*=' js/main.js || true)" = "0"
           test "$(grep -c 'function safeClick' js/main.js || true)" = "0"
           test "$(grep -c 'safeClick(' js/main.js || true)" = "0"
           test "$(grep -R -c ' onclick=' index.html js/main.js | awk -F: '{s+=$2} END {print s+0}')" = "0"
           node --check js/main.js
 
-      - name: Commit Step 2-17 upgList click cleanup
+      - name: Commit Step 2-18 resList click cleanup
         run: |
-          if git diff --quiet -- js/main.js docs/2026-05-15-step2-17-upglist-click-cleanup.md; then
-            echo "No Step 2-17 changes to commit"
+          if git diff --quiet -- js/main.js docs/2026-05-15-step2-18-reslist-click-cleanup.md; then
+            echo "No Step 2-18 changes to commit"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add js/main.js docs/2026-05-15-step2-17-upglist-click-cleanup.md
-          git commit -m "Convert upgList click handlers"
+          git add js/main.js docs/2026-05-15-step2-18-reslist-click-cleanup.md
+          git commit -m "Convert resList research click handler"
           git push
 
-# retrigger: 2026-05-15T23:05:00+09:00
+# retrigger: 2026-05-15T23:55:00+09:00
