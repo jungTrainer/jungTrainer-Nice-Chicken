@@ -1570,7 +1570,7 @@ safeClick("closeStats", ()=>{
   document.getElementById("modalStats")?.classList.remove("on");
 });
 // [NEW] Region map
-safeClick("openMap", ()=>{ openExpansionModal(); });
+// Step 2-7: openMap is handled by openMapBtn.addEventListener in initDOMRefs().
 
 
 // ------------------------------
@@ -1580,7 +1580,7 @@ function openExpansionModal(){
   const m = document.getElementById("modalExpansion");
   if(!m) return;
   m.classList.add("on");
-  renderExpansionCards();
+  renderMapUI();
 }
 
 function closeExpansionModal(){
@@ -1619,7 +1619,7 @@ function unlockBranch(id){
   _saveDirty = true;
   save(true);
   updateUI();
-  renderExpansionCards();
+  renderMapUI();
   showToast(`${loc.name} 오픈을 축하합니다! 🎉`);
   sfxConfirm();
 }
