@@ -23,29 +23,33 @@ jobs:
           test "$(grep -c '<script src="./js/main.js"></script>' index.html || true)" = "1"
           node --check js/main.js
 
-      - name: Apply Step 2-13 safeClick removal
+      - name: Apply Step 2-13A safeClick call cleanup
         run: |
-          python3 scripts/apply-step2-13-remove-safe-click.py
+          python3 scripts/apply-step2-13a-safe-click-call-cleanup.py
 
-      - name: Verify Step 2-13 safeClick removal
+      - name: Verify Step 2-13A safeClick call cleanup
         run: |
+          test "$(grep -c 'safeClick("openSettings"' js/main.js || true)" = "0"
+          test "$(grep -c 'safeClick("openStats"' js/main.js || true)" = "0"
+          test "$(grep -c 'safeClick("closeStats"' js/main.js || true)" = "0"
+          test "$(grep -c 'safeOn(document.getElementById("openSettings"), "click"' js/main.js || true)" = "1"
+          test "$(grep -c 'safeOn(document.getElementById("openStats"), "click"' js/main.js || true)" = "1"
+          test "$(grep -c 'safeOn(document.getElementById("closeStats"), "click"' js/main.js || true)" = "1"
+          test "$(grep -c 'function safeClick' js/main.js || true)" = "1"
           test "$(grep -R -c ' onclick=' index.html js/main.js | awk -F: '{s+=$2} END {print s+0}')" = "0"
-          test "$(grep -c 'function safeClick' js/main.js || true)" = "0"
-          test "$(grep -c 'safeClick(' js/main.js || true)" = "0"
-          test -f docs/2026-05-15-step2-13-remove-safe-click.md
-          grep -q '.onclick =.*→' docs/2026-05-15-step2-13-remove-safe-click.md
+          test -f docs/2026-05-15-step2-13a-safe-click-call-cleanup.md
           node --check js/main.js
 
-      - name: Commit Step 2-13 safeClick removal
+      - name: Commit Step 2-13A safeClick call cleanup
         run: |
-          if git diff --quiet -- js/main.js docs/2026-05-15-step2-13-remove-safe-click.md; then
-            echo "No Step 2-13 changes to commit"
+          if git diff --quiet -- js/main.js docs/2026-05-15-step2-13a-safe-click-call-cleanup.md; then
+            echo "No Step 2-13A changes to commit"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add js/main.js docs/2026-05-15-step2-13-remove-safe-click.md
-          git commit -m "Remove unused safeClick helper"
+          git add js/main.js docs/2026-05-15-step2-13a-safe-click-call-cleanup.md
+          git commit -m "Convert remaining safeClick calls"
           git push
 
-# retrigger: 2026-05-15T19:55:00+09:00
+# retrigger: 2026-05-15T20:20:00+09:00
