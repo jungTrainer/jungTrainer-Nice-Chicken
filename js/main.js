@@ -1723,7 +1723,6 @@ function safeOn(el, evt, fn, opts){
   if(el && typeof el.addEventListener === "function") el.addEventListener(evt, fn, opts);
 }
 function _bindSafe(el, evt, fn, opts){ return safeOn(el, evt, fn, opts); }
-function safeClick(id, fn){ const el = document.getElementById(id); if(el) el.onclick = fn; }
 
 safeOn(document.getElementById("closeSettings"), "click", ()=> modalSettings && modalSettings.classList.remove("on"));
 // Step 2-10: forceSaveBtn handled once in initDOMRefs().
