@@ -1,4 +1,4 @@
-name: Remove Expansion Inline Onclick Step 2-3B
+name: Expansion Event Cleanup Steps
 
 on:
   push:
@@ -10,24 +10,87 @@ permissions:
   contents: write
 
 jobs:
-  cleanup-expansion-onclick:
+  cleanup-expansion-events:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run committed safe apply script
+      - name: Ensure Step 2-3B close button cleanup
         run: |
           python3 scripts/apply-step2-3b-close-expansion-onclick.py
 
-      - name: Verify target counts
+      - name: Apply Step 2-3C map node event delegation
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path('index.html')
+          text = p.read_text(encoding='utf-8')
+
+          old = '''    node.className = "map-node" + (unlocked ? "" : " locked") + (r.id===selId ? " active":"");
+    node.onclick = ()=>{
+      state.mapSelected = r.id;
+      renderMapUI();
+    };
+'''
+          new = '''    node.className = "map-node" + (unlocked ? "" : " locked") + (r.id===selId ? " active":"");
+    node.dataset.action = "select-region";
+    node.dataset.regionId = r.id;
+'''
+
+          if old in text:
+              text = text.replace(old, new, 1)
+          elif 'node.dataset.action = "select-region";' in text:
+              print('Step 2-3C node dataset patch already applied')
+          else:
+              raise SystemExit('Could not find map node onclick block')
+
+          binding = '''
+  const mapWrapEl = document.getElementById("mapWrap");
+  if(mapWrapEl){
+    mapWrapEl.addEventListener("click", (e)=>{
+      const node = e.target.closest('.map-node[data-action="select-region"]');
+      if(!node || !mapWrapEl.contains(node)) return;
+      const id = node.dataset.regionId;
+      if(!id) return;
+      state.mapSelected = id;
+      renderMapUI();
+    });
+  }
+'''
+
+          if 'mapWrapEl.addEventListener("click"' not in text:
+              anchor = '  const closeExpansionModalBtn = document.getElementById("closeExpansionModalBtn");\n'
+              if anchor not in text:
+                  raise SystemExit('Could not find initDOMRefs anchor for mapWrap delegation')
+              text = text.replace(anchor, binding + '\n' + anchor, 1)
+
+          if 'node.onclick = ()=>{' in text:
+              raise SystemExit('map node onclick still remains')
+          if text.count('node.dataset.action = "select-region";') != 1:
+              raise SystemExit('map node data-action count is not 1')
+          if text.count('mapWrapEl.addEventListener("click"') != 1:
+              raise SystemExit('mapWrap click delegation count is not 1')
+
+          scripts = re.findall(r'<script[^>]*>(.*?)</script>', text, flags=re.S|re.I)
+          Path('/tmp/index-extracted.js').write_text('\n'.join(scripts), encoding='utf-8')
+          p.write_text(text, encoding='utf-8')
+          PY
+          node --check /tmp/index-extracted.js
+
+      - name: Verify Step 2-3B and Step 2-3C counts
         run: |
           test "$(grep -c 'onclick="closeExpansionModal()"' index.html || true)" = "0"
           test "$(grep -c 'id="closeExpansionModalBtn"' index.html || true)" = "1"
           test "$(grep -c 'closeExpansionModalBtn.addEventListener("click"' index.html || true)" = "1"
           test "$(grep -c 'function closeExpansionModal(' index.html || true)" = "1"
+          test "$(grep -c 'node.onclick = ()=>{' index.html || true)" = "0"
+          test "$(grep -c 'node.dataset.action = "select-region";' index.html || true)" = "1"
+          test "$(grep -c 'mapWrapEl.addEventListener("click"' index.html || true)" = "1"
 
-      - name: Commit expansion onclick cleanup
+      - name: Commit expansion event cleanup
         run: |
           if git diff --quiet -- index.html; then
             echo "No index.html changes to commit"
@@ -36,7 +99,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
-          git commit -m "Remove expansion close inline onclick"
+          git commit -m "Refactor map node selection event delegation"
           git push
 
-# retrigger: 2026-05-15T11:30:00+09:00
+# retrigger: 2026-05-15T11:55:00+09:00
