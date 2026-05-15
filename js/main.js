@@ -1469,7 +1469,7 @@ document.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",
 /* --------------------
    Settings modal
 -------------------- */
-safeClick("openSettings", ()=>{
+safeOn(document.getElementById("openSettings"), "click", ()=>{
   unlockAudioOnce(); startBGM();
   modalSettings?.classList.add("on");
 });
@@ -1593,7 +1593,7 @@ document.addEventListener("click", (e)=>{
 });
 
 // 모달 열고 닫기
-safeClick("openStats", ()=>{
+safeOn(document.getElementById("openStats"), "click", ()=>{
   unlockAudioOnce(); 
   if(typeof startBGM === "function") startBGM();
   const modal = document.getElementById("modalStats");
@@ -1602,7 +1602,7 @@ safeClick("openStats", ()=>{
     updateStatsUI(); // 👈 여기서 한 번만 호출!
   }
 });
-safeClick("closeStats", ()=>{
+safeOn(document.getElementById("closeStats"), "click", ()=>{
   document.getElementById("modalStats")?.classList.remove("on");
 });
 // [NEW] Region map
