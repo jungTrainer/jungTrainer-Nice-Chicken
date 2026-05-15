@@ -1,0 +1,147 @@
+name: Remove Expansion Inline Onclick Step 2-3B
+
+on:
+  push:
+    paths:
+      - ".github/workflows/remove-expansion-inline-onclick-step2-3b.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup-expansion-onclick:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Replace expansion close inline onclick
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          index_path = Path('index.html')
+          report_path = Path('docs/2026-05-15-inline-onclick-step2-3b.md')
+          text = index_path.read_text(encoding='utf-8')
+
+          old_btn = '<button class="closeBtn" onclick="closeExpansionModal()">✕</button>'
+          new_btn = '<button class="closeBtn" id="closeExpansionModalBtn" type="button">✕</button>'
+
+          changed = False
+          if old_btn in text:
+              text = text.replace(old_btn, new_btn, 1)
+              changed = True
+          elif new_btn in text:
+              pass
+          else:
+              raise SystemExit('Expected expansion close button not found')
+
+          bind_snippet = '''
+  const closeExpansionModalBtn = document.getElementById("closeExpansionModalBtn");
+  if(closeExpansionModalBtn){
+    closeExpansionModalBtn.addEventListener("click", (e)=>{
+      e.preventDefault();
+      e.stopPropagation();
+      if(typeof closeExpansionModal === "function") closeExpansionModal();
+      else document.getElementById("modalExpansion")?.classList.remove("on");
+    }, {passive:false});
+  }
+'''
+
+          if 'id="closeExpansionModalBtn"' not in text:
+              raise SystemExit('closeExpansionModalBtn id missing after replacement')
+
+          if 'const closeExpansionModalBtn = document.getElementById("closeExpansionModalBtn");' not in text:
+              anchor = '  // 5. Canvas 설정\n'
+              if anchor not in text:
+                  raise SystemExit('Could not find binding anchor before canvas setup')
+              text = text.replace(anchor, bind_snippet + '\n' + anchor, 1)
+              changed = True
+
+          if 'onclick="closeExpansionModal()"' in text:
+              raise SystemExit('inline closeExpansionModal onclick still remains')
+          if text.count('id="closeExpansionModalBtn"') != 1:
+              raise SystemExit('closeExpansionModalBtn id count is not 1')
+          if text.count('const closeExpansionModalBtn = document.getElementById("closeExpansionModalBtn");') != 1:
+              raise SystemExit('closeExpansionModalBtn binding count is not 1')
+
+          index_path.write_text(text, encoding='utf-8')
+
+          report_path.parent.mkdir(parents=True, exist_ok=True)
+          report_path.write_text('''# Step 2-3B inline onclick 제거 보고
+
+작성일: 2026-05-15
+대상: `index.html`
+
+## 작업 범위
+
+이번 단계에서는 지역 확장 모달 닫기 버튼의 inline 이벤트를 제거했다.
+
+기존:
+
+```html
+<button class="closeBtn" onclick="closeExpansionModal()">✕</button>
+```
+
+변경:
+
+```html
+<button class="closeBtn" id="closeExpansionModalBtn" type="button">✕</button>
+```
+
+그리고 `initDOMRefs()` 흐름 안에서 DOM 참조 후 이벤트를 연결하도록 변경했다.
+
+```js
+const closeExpansionModalBtn = document.getElementById("closeExpansionModalBtn");
+if(closeExpansionModalBtn){
+  closeExpansionModalBtn.addEventListener("click", (e)=>{
+    e.preventDefault();
+    e.stopPropagation();
+    if(typeof closeExpansionModal === "function") closeExpansionModal();
+    else document.getElementById("modalExpansion")?.classList.remove("on");
+  }, {passive:false});
+}
+```
+
+## 검증 기준
+
+- `onclick="closeExpansionModal()"` 제거
+- `id="closeExpansionModalBtn"` 1개 존재
+- close 버튼 이벤트 바인딩 1개 존재
+- script 추출 후 `node --check` 문법 검사 통과
+
+## 남은 작업
+
+지역 확장 카드 내부의 `moveBranch`, `unlockBranch` 버튼은 별도 추적이 필요하다. 현재 확인된 명시적 inline 제거 대상은 모달 닫기 버튼이었다.
+
+다음 단계에서는 `renderExpansion` 또는 지역 카드 생성 로직을 더 정확히 찾아 `data-action` 기반 이벤트 위임으로 정리한다.
+''', encoding='utf-8')
+
+          print('Step 2-3B close expansion inline onclick cleanup applied' if changed else 'No code change needed')
+          PY
+
+      - name: Verify script syntax
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          text = Path('index.html').read_text(encoding='utf-8')
+          scripts = re.findall(r'<script[^>]*>(.*?)</script>', text, flags=re.S|re.I)
+          Path('/tmp/index-extracted.js').write_text('\n'.join(scripts), encoding='utf-8')
+          print(f'Extracted {len(scripts)} script blocks')
+          PY
+          node --check /tmp/index-extracted.js
+
+      - name: Commit expansion onclick cleanup
+        run: |
+          if git diff --quiet -- index.html docs/2026-05-15-inline-onclick-step2-3b.md; then
+            echo "No expansion onclick cleanup changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html docs/2026-05-15-inline-onclick-step2-3b.md
+          git commit -m "Remove expansion close inline onclick"
+          git push
