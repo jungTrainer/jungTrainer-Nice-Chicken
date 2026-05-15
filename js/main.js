@@ -1027,17 +1027,21 @@ function initDOMRefs(){
     if(_saveDirty) save(true);
   };
 
-  if(openCouponsBtn) openCouponsBtn.onclick = ()=>{
-    unlockAudioOnce(); startBGM();
-    if(modalCoupons) modalCoupons.classList.add("on");
-    renderCoupons();
-  };
+  if(openCouponsBtn){
+    openCouponsBtn.addEventListener("click", ()=>{
+      unlockAudioOnce(); startBGM();
+      if(modalCoupons) modalCoupons.classList.add("on");
+      renderCoupons();
+    });
+  }
 
-  if(openExchangeBtn) openExchangeBtn.onclick = ()=>{
-    unlockAudioOnce(); startBGM();
-    if(modalExchange) modalExchange.classList.add("on");
-    renderExchange();
-  };
+  if(openExchangeBtn){
+    openExchangeBtn.addEventListener("click", ()=>{
+      unlockAudioOnce(); startBGM();
+      if(modalExchange) modalExchange.classList.add("on");
+      renderExchange();
+    });
+  }
 
   if(closeCouponsBtn){
     closeCouponsBtn.addEventListener("click", ()=> modalCoupons && modalCoupons.classList.remove("on"));
@@ -1046,14 +1050,16 @@ function initDOMRefs(){
     closeExchangeBtn.addEventListener("click", ()=> modalExchange && modalExchange.classList.remove("on"));
   }
 
-  if(clearLogBtn) clearLogBtn.onclick = ()=>{
-    if(confirm("혜택 내역을 정리할까요? (로그만 삭제)")){
-      state.benefitsLog = [];
-      if(_saveDirty) save(true);
-      renderCoupons();
-      showToast("기록 정리 완료");
-    }
-  };
+  if(clearLogBtn){
+    clearLogBtn.addEventListener("click", ()=>{
+      if(confirm("혜택 내역을 정리할까요? (로그만 삭제)")){
+        state.benefitsLog = [];
+        if(_saveDirty) save(true);
+        renderCoupons();
+        showToast("기록 정리 완료");
+      }
+    });
+  }
 
   // PIN 입력 관련
   if(pinCancelBtn){
@@ -1108,65 +1114,75 @@ function initDOMRefs(){
   };
 
   // 인증서 및 쿠폰 사용
-  if(makeCardBtn) makeCardBtn.onclick = ()=> {
-    unlockAudioOnce(); startBGM();
-    generateWeeklyCertificate();
-  };
-  if(useCertDrinkBtn) useCertDrinkBtn.onclick = async ()=>{
-    unlockAudioOnce(); startBGM();
-    if(!state.cert.issuedThisWeek){
-      showToast("먼저 인증서를 발급하세요!");
-      sfxWrong();
-      return;
-    }
-    if(state.coupons.drink <= 0){
-      showToast("사용 가능한 음료 쿠폰이 없어요.");
-      sfxWrong();
-      return;
-    }
-    if(!confirm("음료 서비스 사용 처리(본사 사용)하시겠어요?\nPIN CODE 입력이 필요합니다.")){
-      return;
-    }
-    const ok = await askPIN();
-    if(!ok){
-      showToast("PIN이 올바르지 않아요.");
-      sfxWrong();
-      return;
-    }
-    state.coupons.drink -= 1;
-    state.cert.usedAt = Date.now();
-    logBenefit({type:"drink", qty:1, source:"cert_use", note:"인증서(본사 사용 처리)로 사용"});
-    startNewWeek();
-    showToast("✅ 사용되었습니다. 주간 미션이 초기화되었습니다.");
-    sfxConfirm();
-    if(_saveDirty) save(true);
-    updateUI();
-    renderCoupons();
-    renderPanel("mis");
-    renderPanel("shr");
-  };
+  if(makeCardBtn){
+    makeCardBtn.addEventListener("click", ()=>{
+      unlockAudioOnce(); startBGM();
+      generateWeeklyCertificate();
+    });
+  }
+  if(useCertDrinkBtn){
+    useCertDrinkBtn.addEventListener("click", async ()=>{
+      unlockAudioOnce(); startBGM();
+      if(!state.cert.issuedThisWeek){
+        showToast("먼저 인증서를 발급하세요!");
+        sfxWrong();
+        return;
+      }
+      if(state.coupons.drink <= 0){
+        showToast("사용 가능한 음료 쿠폰이 없어요.");
+        sfxWrong();
+        return;
+      }
+      if(!confirm("음료 서비스 사용 처리(본사 사용)하시겠어요?\nPIN CODE 입력이 필요합니다.")){
+        return;
+      }
+      const ok = await askPIN();
+      if(!ok){
+        showToast("PIN이 올바르지 않아요.");
+        sfxWrong();
+        return;
+      }
+      state.coupons.drink -= 1;
+      state.cert.usedAt = Date.now();
+      logBenefit({type:"drink", qty:1, source:"cert_use", note:"인증서(본사 사용 처리)로 사용"});
+      startNewWeek();
+      showToast("✅ 사용되었습니다. 주간 미션이 초기화되었습니다.");
+      sfxConfirm();
+      if(_saveDirty) save(true);
+      updateUI();
+      renderCoupons();
+      renderPanel("mis");
+      renderPanel("shr");
+    });
+  }
 
-  if(useDrinkCouponBtn) useDrinkCouponBtn.onclick = ()=>{ unlockAudioOnce(); startBGM(); useCoupon("drink"); };
-  if(useVegCouponBtn) useVegCouponBtn.onclick = ()=>{ unlockAudioOnce(); startBGM(); useCoupon("veg"); };
+  if(useDrinkCouponBtn){
+    useDrinkCouponBtn.addEventListener("click", ()=>{ unlockAudioOnce(); startBGM(); useCoupon("drink"); });
+  }
+  if(useVegCouponBtn){
+    useVegCouponBtn.addEventListener("click", ()=>{ unlockAudioOnce(); startBGM(); useCoupon("veg"); });
+  }
 
-  if(doExchangeBtn) doExchangeBtn.onclick = ()=>{
-    unlockAudioOnce(); startBGM();
-    const cnt = Math.floor(state.money / CONFIG.exchangeUnit);
-    if(cnt <= 0){
-      showToast("교환할 돈이 부족해요.");
-      sfxWrong();
-      return;
-    }
-    state.money -= CONFIG.exchangeUnit;
-    state.coupons.drink += 1;
-    logBenefit({type:"drink", qty:1, source:"exchange", note:"5,000만원 교환"});
-    showToast("교환 완료! 음료 쿠폰 +1");
-    sfxConfirm();
-    if(_saveDirty) save(true);
-    updateUI();
-    renderExchange();
-    renderCoupons();
-  };
+  if(doExchangeBtn){
+    doExchangeBtn.addEventListener("click", ()=>{
+      unlockAudioOnce(); startBGM();
+      const cnt = Math.floor(state.money / CONFIG.exchangeUnit);
+      if(cnt <= 0){
+        showToast("교환할 돈이 부족해요.");
+        sfxWrong();
+        return;
+      }
+      state.money -= CONFIG.exchangeUnit;
+      state.coupons.drink += 1;
+      logBenefit({type:"drink", qty:1, source:"exchange", note:"5,000만원 교환"});
+      showToast("교환 완료! 음료 쿠폰 +1");
+      sfxConfirm();
+      if(_saveDirty) save(true);
+      updateUI();
+      renderExchange();
+      renderCoupons();
+    });
+  }
 
 
 
@@ -1720,26 +1736,11 @@ if(toggleSoundBtn) toggleSoundBtn.onclick = ()=>{
   sfxTick();
   if(_saveDirty) save(true);
 };
-if(openCouponsBtn) openCouponsBtn.onclick = ()=>{
-  unlockAudioOnce(); startBGM();
-  modalCoupons.classList.add("on");
-  renderCoupons();
-};
-if(openExchangeBtn) openExchangeBtn.onclick = ()=>{
-  unlockAudioOnce(); startBGM();
-  modalExchange.classList.add("on");
-  renderExchange();
-};
+// Step 2-9: openCouponsBtn handled once in initDOMRefs().
+// Step 2-9: openExchangeBtn handled once in initDOMRefs().
 // Step 2-8A: closeCouponsBtn handled once in initDOMRefs().
 // Step 2-8A: closeExchangeBtn handled once in initDOMRefs().
-if(clearLogBtn) clearLogBtn.onclick = ()=>{
-  if(confirm("혜택 내역을 정리할까요? (로그만 삭제)")){
-    state.benefitsLog = [];
-    if(_saveDirty) save(true);
-    renderCoupons();
-    showToast("기록 정리 완료");
-  }
-};
+// Step 2-9: clearLogBtn handled once in initDOMRefs().
 
 /* --------------------
    Icon explanations
@@ -3552,49 +3553,9 @@ function certStatusText(){
   return { okIssue:true, okUse:false, msg:"주간 올클! 인증서 발급 가능 ✅" };
 }
 
-if(makeCardBtn) makeCardBtn.onclick = ()=> {
-  unlockAudioOnce(); startBGM();
-  generateWeeklyCertificate();
-};
+// Step 2-9: makeCardBtn handled once in initDOMRefs().
 
-if(useCertDrinkBtn) useCertDrinkBtn.onclick = async ()=>{
-  unlockAudioOnce(); startBGM();
-  const st = certStatusText();
-  if(!state.cert.issuedThisWeek){
-    showToast("먼저 인증서를 발급하세요!");
-    sfxWrong();
-    return;
-  }
-  if(state.coupons.drink <= 0){
-    showToast("사용 가능한 음료 쿠폰이 없어요.");
-    sfxWrong();
-    return;
-  }
-  if(!confirm("음료 서비스 사용 처리(본사 사용)하시겠어요?\nPIN CODE 입력이 필요합니다.")){
-    return;
-  }
-  const ok = await askPIN();
-  if(!ok){
-    showToast("PIN이 올바르지 않아요.");
-    sfxWrong();
-    return;
-  }
-
-  // 사용 처리
-  state.coupons.drink -= 1;
-  state.cert.usedAt = Date.now();
-  logBenefit({type:"drink", qty:1, source:"cert_use", note:"인증서(본사 사용 처리)로 사용"});
-
-  // 주간 초기화
-  startNewWeek();
-  showToast("✅ 사용되었습니다. 주간 미션이 초기화되었습니다.");
-  sfxConfirm();
-  if(_saveDirty) save(true);
-  updateUI();
-  renderCoupons();
-  renderPanel("mis");
-  renderPanel("shr");
-};
+// Step 2-9: useCertDrinkBtn handled once in initDOMRefs().
 
 function generateWeeklyCertificate(){
   const st = certStatusText();
@@ -3734,8 +3695,8 @@ async function useCoupon(type){
   renderCoupons();
 }
 
-if(useDrinkCouponBtn) useDrinkCouponBtn.onclick = ()=>{ unlockAudioOnce(); startBGM(); useCoupon("drink"); };
-if(useVegCouponBtn) useVegCouponBtn.onclick = ()=>{ unlockAudioOnce(); startBGM(); useCoupon("veg"); };
+// Step 2-9: useDrinkCouponBtn handled once in initDOMRefs().
+// Step 2-9: useVegCouponBtn handled once in initDOMRefs().
 
 function renderCoupons(){
   uiDrinkCoupons2.textContent = state.coupons.drink;
@@ -3761,25 +3722,7 @@ function renderExchange(){
   doExchangeBtn.disabled = cnt <= 0;
 }
 
-if(doExchangeBtn) doExchangeBtn.onclick = ()=>{
-  unlockAudioOnce(); startBGM();
-  const cnt = Math.floor(state.money / CONFIG.exchangeUnit);
-  if(cnt <= 0){
-    showToast("교환할 돈이 부족해요.");
-    sfxWrong();
-    return;
-  }
-  // 1회 교환
-  state.money -= CONFIG.exchangeUnit;
-  state.coupons.drink += 1;
-  logBenefit({type:"drink", qty:1, source:"exchange", note:"5,000만원 교환"});
-  showToast("교환 완료! 음료 쿠폰 +1");
-  sfxConfirm();
-  if(_saveDirty) save(true);
-  updateUI();
-  renderExchange();
-  renderCoupons();
-};
+// Step 2-9: doExchangeBtn handled once in initDOMRefs().
 
 /* --------------------
    Rendering: background / sign / door / tables / staff / customers
