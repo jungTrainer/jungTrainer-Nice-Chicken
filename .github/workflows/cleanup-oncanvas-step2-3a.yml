@@ -93,7 +93,6 @@ jobs:
           if original_count == 0:
               raise SystemExit('No onCanvasDown definition found')
 
-          # Keep the last definition because it contains the latest boss/staff/customer handling.
           latest_start = positions[-1]
           latest_end = find_function_end(text, latest_start)
           latest_body = text[latest_start:latest_end]
@@ -109,10 +108,8 @@ jobs:
                   end = find_function_end(text, pos)
                   ranges.append((pos, end))
 
-              # Remove earlier definitions from bottom to top.
               new_text = text
               for start, end in sorted(ranges, reverse=True):
-                  # trim nearby blank lines but preserve surrounding code
                   remove_start = start
                   while remove_start > 0 and new_text[remove_start-1] in ' \t':
                       remove_start -= 1
@@ -202,3 +199,5 @@ safeOn(canvas, "touchstart", onCanvasDown, {{passive:false}});
           git add index.html docs/2026-05-15-oncanvasdown-diagnosis.md
           git commit -m "Diagnose and cleanup canvas input handler"
           git push
+
+# retrigger: 2026-05-15T10:40:00+09:00
