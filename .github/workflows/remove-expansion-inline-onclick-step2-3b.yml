@@ -20,15 +20,20 @@ jobs:
         run: |
           python3 scripts/apply-step2-3b-close-expansion-onclick.py
 
-      - name: Apply Step 2-3C map event delegation
+      - name: Ensure Step 2-3C map event delegation
         run: |
           python3 scripts/apply-step2-3c-map-event-delegation.py
 
-      - name: Verify Step 2-3C counts
+      - name: Apply Step 2-3D map button events
         run: |
-          test "$(grep -c 'node.onclick = ()=>{' index.html || true)" = "0"
-          test "$(grep -c 'node.dataset.action = "select-region";' index.html || true)" = "1"
-          test "$(grep -c 'node.dataset.regionId = r.id;' index.html || true)" = "1"
+          python3 scripts/apply-step2-3d-map-buttons.py
+
+      - name: Verify Step 2-3D counts
+        run: |
+          test "$(grep -c 'id="mapGo"' index.html || true)" = "1"
+          test "$(grep -c 'id="mapUnlock"' index.html || true)" = "1"
+          test "$(grep -c 'mapGoBtn.addEventListener("click"' index.html || true)" = "1"
+          test "$(grep -c 'mapUnlockBtn.addEventListener("click"' index.html || true)" = "1"
           test "$(grep -c 'mapWrapEl.addEventListener("click"' index.html || true)" = "1"
 
       - name: Commit expansion event cleanup
@@ -40,7 +45,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
-          git commit -m "Refactor map node selection event delegation"
+          git commit -m "Add map movement and unlock button events"
           git push
 
-# retrigger: 2026-05-15T12:25:00+09:00
+# retrigger: 2026-05-15T12:45:00+09:00
