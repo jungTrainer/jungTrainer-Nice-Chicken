@@ -1,0 +1,109 @@
+name: Stabilize Step 2-1
+
+on:
+  push:
+    paths:
+      - ".github/workflows/stabilize-step2-1.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  stabilize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Apply Step 2-1 stabilization hotfix
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('index.html')
+          text = path.read_text(encoding='utf-8')
+
+          # 1) Add saveGame alias after save() definition if missing.
+          if 'function saveGame(' not in text:
+              m = re.search(r'function save\(force=false\)\{', text)
+              if not m:
+                  raise SystemExit('Could not find function save(force=false)')
+
+              start = m.start()
+              i = m.end()
+              depth = 1
+              while i < len(text) and depth > 0:
+                  ch = text[i]
+                  if ch == '{':
+                      depth += 1
+                  elif ch == '}':
+                      depth -= 1
+                  i += 1
+              if depth != 0:
+                  raise SystemExit('Could not parse save() function body')
+
+              alias = '''\n\n// Compatibility alias for older patched code paths.\nfunction saveGame(){\n  return save(true);\n}\n'''
+              text = text[:i] + alias + text[i:]
+              print('Added saveGame alias')
+          else:
+              print('saveGame alias already exists')
+
+          # 2) Hide ending preview button by default.
+          old_btn = 'style="position:absolute; top:14px; left:14px; z-index:120; background:rgba(0,0,0,.55); border:2px solid #FFD54F; color:#FFD54F; padding:8px 12px; border-radius:999px; font-family:\'Jua\',sans-serif; font-size:14px; cursor:pointer;"'
+          new_btn = 'style="display:none; position:absolute; top:14px; left:14px; z-index:120; background:rgba(0,0,0,.55); border:2px solid #FFD54F; color:#FFD54F; padding:8px 12px; border-radius:999px; font-family:\'Jua\',sans-serif; font-size:14px; cursor:pointer;"'
+          if old_btn in text:
+              text = text.replace(old_btn, new_btn, 1)
+              print('Set endingPreviewBtn default display:none')
+          elif 'id="endingPreviewBtn"' in text and 'display:none; position:absolute; top:14px; left:14px;' in text:
+              print('endingPreviewBtn default hidden style already applied')
+          else:
+              raise SystemExit('Could not find expected endingPreviewBtn style')
+
+          # 3) Enable preview button only with ?debug=1.
+          old_bind = '''  if(preview){\n    preview.addEventListener("click", () => {\n      state.endingUnlocked = true;'''
+          new_bind = '''  if(preview){\n    try{\n      const debugMode = new URLSearchParams(window.location.search).get("debug") === "1";\n      preview.style.display = debugMode ? "block" : "none";\n    }catch(_e){\n      preview.style.display = "none";\n    }\n    preview.addEventListener("click", () => {\n      state.endingUnlocked = true;'''
+          if old_bind in text:
+              text = text.replace(old_bind, new_bind, 1)
+              print('Added ?debug=1 gating for endingPreviewBtn')
+          elif 'const debugMode = new URLSearchParams(window.location.search).get("debug") === "1";' in text:
+              print('endingPreviewBtn debug gating already exists')
+          else:
+              raise SystemExit('Could not find expected ending preview binding block')
+
+          # 4) Verify counts and important snippets.
+          if text.count('function saveGame(') != 1:
+              raise SystemExit(f'Unexpected saveGame count: {text.count("function saveGame(")}')
+          if 'display:none; position:absolute; top:14px; left:14px;' not in text:
+              raise SystemExit('endingPreviewBtn is not hidden by default')
+          if 'get("debug") === "1"' not in text:
+              raise SystemExit('endingPreviewBtn debug gating missing')
+
+          path.write_text(text, encoding='utf-8')
+          print('Step 2-1 stabilization hotfix applied')
+          PY
+
+      - name: Verify script syntax
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          text = Path('index.html').read_text(encoding='utf-8')
+          scripts = re.findall(r'<script[^>]*>(.*?)</script>', text, flags=re.S|re.I)
+          Path('/tmp/index-extracted.js').write_text('\n'.join(scripts), encoding='utf-8')
+          print(f'Extracted {len(scripts)} script blocks')
+          PY
+          node --check /tmp/index-extracted.js
+
+      - name: Commit stabilization hotfix
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "No index.html changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Stabilize save alias and debug preview button"
+          git push
