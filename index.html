@@ -1527,6 +1527,19 @@ function initDOMRefs(){
 
 
 
+
+  const openMapBtn = document.getElementById("openMap");
+  const modalExpansionEl = document.getElementById("modalExpansion");
+  if(openMapBtn){
+    openMapBtn.addEventListener("click", (e)=>{
+      e.preventDefault();
+      e.stopPropagation();
+      unlockAudioOnce(); startBGM();
+      if(modalExpansionEl) modalExpansionEl.classList.add("on");
+      renderMapUI();
+    });
+  }
+
   const mapGoBtn = document.getElementById("mapGo");
   if(mapGoBtn){
     mapGoBtn.addEventListener("click", (e)=>{
@@ -6524,7 +6537,7 @@ function renderMapUI(){
       <button class="closeBtn" id="closeExpansionModalBtn" type="button">✕</button>
     </div>
 
-    <div style="background:#f0f2f5; height:380px; overflow-x:auto; overflow-y:hidden; display:flex; align-items:center; padding:0 15px; gap:15px; scroll-snap-type: x mandatory;" id="expansionList">
+    <div style="background:#f0f2f5; height:380px; overflow-x:auto; overflow-y:hidden; display:flex; align-items:center; padding:0 15px; gap:15px; scroll-snap-type: x mandatory;" id="mapWrap">
     </div>
 
     <div style="background:#fff; border-radius:0 0 20px 20px; padding:15px; text-align:center;">
