@@ -23,66 +23,27 @@ jobs:
           test "$(grep -c '<script src="./js/main.js"></script>' index.html || true)" = "1"
           node --check js/main.js
 
-      - name: Apply Step 2-11 stat click cleanup
+      - name: Run Step 2-12 safeClick inventory
         run: |
-          python3 scripts/apply-step2-11-stat-clicks.py
+          python3 scripts/apply-step2-12-safe-click-inventory.py
 
-      - name: Verify Step 2-11 cleanup
+      - name: Verify Step 2-12 report
         run: |
+          test -f docs/2026-05-15-step2-12-safe-click-inventory.md
+          grep -q 'safeClick 실제 호출 수' docs/2026-05-15-step2-12-safe-click-inventory.md
           test "$(grep -R -c ' onclick=' index.html js/main.js | awk -F: '{s+=$2} END {print s+0}')" = "0"
-          for target in \
-            'safeClick("statMoney"' \
-            'safeClick("statRep"' \
-            'safeClick("statLvl"' \
-            'safeClick("statToday"' \
-            'safeClick("statTotal"'; do
-            test "$(grep -c "$target" js/main.js || true)" = "0"
-          done
-          for target in \
-            'safeOn(document.getElementById("statMoney"), "click"' \
-            'safeOn(document.getElementById("statRep"), "click"' \
-            'safeOn(document.getElementById("statLvl"), "click"' \
-            'safeOn(document.getElementById("statToday"), "click"' \
-            'safeOn(document.getElementById("statTotal"), "click"'; do
-            test "$(grep -c "$target" js/main.js || true)" = "1"
-          done
-          for target in \
-            'openMapBtn.addEventListener("click"' \
-            'mapGoBtn.addEventListener("click"' \
-            'mapUnlockBtn.addEventListener("click"' \
-            'closeExpansionModalBtn.addEventListener("click"' \
-            'closeSettingsBtn.addEventListener("click"' \
-            'closeCouponsBtn.addEventListener("click"' \
-            'closeExchangeBtn.addEventListener("click"' \
-            'pinCancelBtn.addEventListener("click"' \
-            'pinOkBtn.addEventListener("click"' \
-            'openCouponsBtn.addEventListener("click"' \
-            'openExchangeBtn.addEventListener("click"' \
-            'clearLogBtn.addEventListener("click"' \
-            'useDrinkCouponBtn.addEventListener("click"' \
-            'useVegCouponBtn.addEventListener("click"' \
-            'doExchangeBtn.addEventListener("click"' \
-            'useCertDrinkBtn.addEventListener("click"' \
-            'makeCardBtn.addEventListener("click"' \
-            'forceSaveBtn.addEventListener("click"' \
-            'resetAllBtn.addEventListener("click"' \
-            'toggleSoundBtn.addEventListener("click"' \
-            'saveNameBtn.addEventListener("click"' \
-            'claimOfflineBtn.addEventListener("click"'; do
-            test "$(grep -c "$target" js/main.js || true)" = "1"
-          done
           node --check js/main.js
 
-      - name: Commit Step 2-11 cleanup
+      - name: Commit Step 2-12 inventory
         run: |
-          if git diff --quiet -- js/main.js docs/2026-05-15-step2-11-stat-click-cleanup.md; then
-            echo "No Step 2-11 changes to commit"
+          if git diff --quiet -- docs/2026-05-15-step2-12-safe-click-inventory.md; then
+            echo "No Step 2-12 changes to commit"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add js/main.js docs/2026-05-15-step2-11-stat-click-cleanup.md
-          git commit -m "Convert stat clicks to safeOn listeners"
+          git add docs/2026-05-15-step2-12-safe-click-inventory.md
+          git commit -m "Add safeClick inventory report"
           git push
 
-# retrigger: 2026-05-15T19:00:00+09:00
+# retrigger: 2026-05-15T19:20:00+09:00
