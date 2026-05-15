@@ -28,30 +28,29 @@ jobs:
         run: |
           python3 scripts/apply-step2-3d-map-buttons.py
 
-      - name: Apply Step 2-3E open map flow
+      - name: Ensure Step 2-3E open map flow
         run: |
           python3 scripts/apply-step2-3e-open-map-flow.py
 
-      - name: Verify Step 2-3E counts
+      - name: Run Step 2-4 JS readiness diagnostics
         run: |
-          test "$(grep -c 'id="openMap"' index.html || true)" = "1"
-          test "$(grep -c 'openMapBtn.addEventListener("click"' index.html || true)" = "1"
-          test "$(grep -c 'modalExpansionEl.classList.add("on")' index.html || true)" = "1"
-          test "$(grep -c 'id="mapWrap"' index.html || true)" = "1"
-          test "$(grep -c 'id="expansionList"' index.html || true)" = "0"
-          test "$(grep -c 'id="mapGo"' index.html || true)" = "1"
-          test "$(grep -c 'id="mapUnlock"' index.html || true)" = "1"
+          python3 scripts/diagnose-step2-4-js-readiness.py
 
-      - name: Commit expansion event cleanup
+      - name: Verify Step 2-4 diagnostic report
         run: |
-          if git diff --quiet -- index.html; then
-            echo "No index.html changes to commit"
+          test -f docs/2026-05-15-step2-4-js-readiness.md
+          grep -q 'js/main.js 분리 판단' docs/2026-05-15-step2-4-js-readiness.md
+
+      - name: Commit expansion cleanup and diagnostics
+        run: |
+          if git diff --quiet -- index.html docs/2026-05-15-step2-4-js-readiness.md; then
+            echo "No Step 2-4 changes to commit"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html
-          git commit -m "Fix expansion modal open map flow"
+          git add index.html docs/2026-05-15-step2-4-js-readiness.md
+          git commit -m "Add JS readiness diagnostics"
           git push
 
-# retrigger: 2026-05-15T13:20:00+09:00
+# retrigger: 2026-05-15T13:45:00+09:00
