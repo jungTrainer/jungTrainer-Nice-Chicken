@@ -23,34 +23,33 @@ jobs:
           test "$(grep -c '<script src="./js/main.js"></script>' index.html || true)" = "1"
           node --check js/main.js
 
-      - name: Apply Step 2-6 expansion inline onclick cleanup
+      - name: Apply Step 2-7 runtime stabilization
         run: |
-          python3 scripts/apply-step2-6-remove-expansion-inline-onclick.py
+          python3 scripts/apply-step2-7-stabilize-open-map-flow.py
 
-      - name: Verify Step 2-6 cleanup
+      - name: Verify Step 2-7 stabilization
         run: |
-          test -f js/main.js
           test "$(grep -R -c ' onclick=' index.html js/main.js | awk -F: '{s+=$2} END {print s+0}')" = "0"
-          test "$(grep -c 'data-action="move-branch"' js/main.js || true)" -ge "1"
-          test "$(grep -c 'data-action="unlock-branch"' js/main.js || true)" -ge "1"
-          test "$(grep -c 'function moveBranch(id)' js/main.js || true)" = "1"
-          test "$(grep -c 'function unlockBranch(id)' js/main.js || true)" = "1"
+          test "$(grep -c 'safeClick("openMap"' js/main.js || true)" = "0"
           test "$(grep -c 'openMapBtn.addEventListener("click"' js/main.js || true)" = "1"
+          test "$(grep -c 'function openExpansionModal()' js/main.js || true)" = "1"
+          test "$(grep -c 'id="mapWrap"' index.html || true)" = "1"
+          test "$(grep -c 'id="expansionList"' index.html || true)" = "0"
           test "$(grep -c 'mapGoBtn.addEventListener("click"' js/main.js || true)" = "1"
           test "$(grep -c 'mapUnlockBtn.addEventListener("click"' js/main.js || true)" = "1"
           test "$(grep -c 'closeExpansionModalBtn.addEventListener("click"' js/main.js || true)" = "1"
           node --check js/main.js
 
-      - name: Commit Step 2-6 cleanup
+      - name: Commit Step 2-7 stabilization
         run: |
-          if git diff --quiet -- js/main.js docs/2026-05-15-step2-6-expansion-inline-onclick-cleanup.md; then
-            echo "No Step 2-6 changes to commit"
+          if git diff --quiet -- js/main.js docs/2026-05-15-step2-7-runtime-stabilization.md; then
+            echo "No Step 2-7 changes to commit"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add js/main.js docs/2026-05-15-step2-6-expansion-inline-onclick-cleanup.md
-          git commit -m "Remove expansion card inline onclick handlers"
+          git add js/main.js docs/2026-05-15-step2-7-runtime-stabilization.md
+          git commit -m "Stabilize expansion modal map flow"
           git push
 
-# retrigger: 2026-05-15T16:25:00+09:00
+# retrigger: 2026-05-15T16:45:00+09:00
