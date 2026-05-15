@@ -16,29 +16,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Ensure Step 2-3B close button cleanup
+      - name: Verify split baseline
         run: |
-          python3 scripts/apply-step2-3b-close-expansion-onclick.py
-
-      - name: Ensure Step 2-3C map event delegation
-        run: |
-          python3 scripts/apply-step2-3c-map-event-delegation.py
-
-      - name: Ensure Step 2-3D map button events
-        run: |
-          python3 scripts/apply-step2-3d-map-buttons.py
-
-      - name: Ensure Step 2-3E open map flow
-        run: |
-          python3 scripts/apply-step2-3e-open-map-flow.py
-
-      - name: Ensure Step 2-5 main JS split
-        run: |
-          if [ ! -f js/main.js ]; then
-            python3 scripts/prepare-step2-5-split-main-js.py
-          else
-            node --check js/main.js
-          fi
+          test -f index.html
+          test -f js/main.js
+          test "$(grep -c '<script src="./js/main.js"></script>' index.html || true)" = "1"
+          node --check js/main.js
 
       - name: Apply Step 2-6 expansion inline onclick cleanup
         run: |
@@ -70,4 +53,4 @@ jobs:
           git commit -m "Remove expansion card inline onclick handlers"
           git push
 
-# retrigger: 2026-05-15T16:10:00+09:00
+# retrigger: 2026-05-15T16:25:00+09:00
