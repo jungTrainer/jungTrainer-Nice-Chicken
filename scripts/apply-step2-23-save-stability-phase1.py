@@ -16,6 +16,19 @@ SAVE_BLOCK_RE = re.compile(
     re.S,
 )
 
+FORCE_RE = re.compile(
+    r'''(?P<indent>^[ \t]*)if\s*\(\s*forceSaveBtn\s*\)\s*\{\s*\n'''
+    r'''(?P<body>.*?)'''
+    r'''^[ \t]*\}\s*''',
+    re.M | re.S,
+)
+
+LEGACY_BEFOREUNLOAD_RE = re.compile(
+    r'''\n// Force-save on exit\s*\nwindow\.addEventListener\("beforeunload",\s*\(\)\s*=>\s*\{\s*try\{\s*save\(true\);\s*\}catch\(e\)\{\}\s*\}\);\s*\n'''
+)
+
+INIT_ANCHOR_RE = re.compile(r'''(^[ \t]*initDOMRefs\(\);\s*$)''', re.M)
+
 NEW_SAVE = '''let _saveDirty = false;
 let _lastSaveWriteAt = 0;
 function save(force=false){
@@ -48,13 +61,6 @@ function bindSaveLifecycleEvents(){
 }
 '''
 
-FORCE_RE = re.compile(
-    r'''(?P<indent>^[ \t]*)if\s*\(\s*forceSaveBtn\s*\)\s*\{\s*\n'''
-    r'''(?P<body>.*?)'''
-    r'''^[ \t]*\}\s*''',
-    re.M | re.S,
-)
-
 NEW_FORCE = '''  if(forceSaveBtn){
     forceSaveBtn.addEventListener("click", ()=>{
       const ok = save(true);
@@ -62,7 +68,6 @@ NEW_FORCE = '''  if(forceSaveBtn){
     });
   }'''
 
-INIT_ANCHOR_RE = re.compile(r'''(^[ \t]*initDOMRefs\(\);\s*$)''', re.M)
 INIT_CALL = '''  bindSaveLifecycleEvents();'''
 
 
@@ -83,17 +88,62 @@ def count_direct_onclick(js):
     return len(re.findall(r'\.onclick\s*=', js))
 
 
-def is_already_applied(js):
+def collect(js, index):
+    return {
+        'save_fn': js.count('function save(force=false)'),
+        'save_return_true_dirty': js.count('if(!force){ _saveDirty = true; return true; }'),
+        'console_error': js.count('console.error("[save] failed", e);'),
+        'save_game': js.count('function saveGame()'),
+        'bind_lifecycle': js.count('function bindSaveLifecycleEvents()'),
+        'pagehide': js.count('window.addEventListener("pagehide"'),
+        'visibilitychange': js.count('document.addEventListener("visibilitychange"'),
+        'beforeunload': js.count('window.addEventListener("beforeunload"'),
+        'bind_call': js.count('bindSaveLifecycleEvents();'),
+        'force_handler': js.count('const ok = save(true);'),
+        'save_failed_toast': js.count('저장 실패! 브라우저 저장 공간을 확인하세요.'),
+        'inline_onclick': count_inline_onclick(index, js),
+        'direct_onclick': count_direct_onclick(js),
+        'safe_click_fn': js.count('function safeClick'),
+        'safe_click_actual': count_actual_safe_click(js),
+    }
+
+
+def verify(after):
+    if after['save_fn'] != 1:
+        fail(f'save function count invalid: {after}')
+    if after['save_return_true_dirty'] != 1:
+        fail(f'save(false) true return missing: {after}')
+    if after['console_error'] != 1:
+        fail(f'save failure console.error missing: {after}')
+    if after['save_game'] != 1:
+        fail(f'saveGame alias invalid: {after}')
+    if after['bind_lifecycle'] != 1:
+        fail(f'bindSaveLifecycleEvents invalid: {after}')
+    if after['pagehide'] != 1 or after['visibilitychange'] != 1 or after['beforeunload'] != 1:
+        fail(f'lifecycle handler counts invalid: {after}')
+    if after['bind_call'] != 1:
+        fail(f'bindSaveLifecycleEvents call invalid: {after}')
+    if after['force_handler'] != 1 or after['save_failed_toast'] != 1:
+        fail(f'force save handler not updated: {after}')
+    if after['inline_onclick'] != 0:
+        fail(f'inline onclick must remain 0, found {after["inline_onclick"]}')
+    if after['direct_onclick'] != 0:
+        fail(f'.onclick direct assignments must remain 0, found {after["direct_onclick"]}')
+    if after['safe_click_fn'] != 0 or after['safe_click_actual'] != 0:
+        fail(f'safeClick must remain removed: {after}')
+
+
+def already_applied(js):
     return (
-        js.count('function save(force=false)') == 1
-        and js.count('if(!force){ _saveDirty = true; return true; }') == 1
-        and js.count('console.error("[save] failed", e);') == 1
-        and js.count('function bindSaveLifecycleEvents()') == 1
-        and js.count('window.addEventListener("pagehide"') == 1
-        and js.count('document.addEventListener("visibilitychange"') == 1
-        and js.count('window.addEventListener("beforeunload"') == 1
-        and js.count('const ok = save(true);') == 1
-        and js.count('저장 실패! 브라우저 저장 공간을 확인하세요.') == 1
+        js.count('function save(force=false)') == 1 and
+        js.count('if(!force){ _saveDirty = true; return true; }') == 1 and
+        js.count('console.error("[save] failed", e);') == 1 and
+        js.count('function bindSaveLifecycleEvents()') == 1 and
+        js.count('window.addEventListener("pagehide"') == 1 and
+        js.count('document.addEventListener("visibilitychange"') == 1 and
+        js.count('window.addEventListener("beforeunload"') == 1 and
+        js.count('const ok = save(true);') == 1 and
+        js.count('저장 실패! 브라우저 저장 공간을 확인하세요.') == 1
     )
 
 
@@ -106,7 +156,7 @@ def find_force_block(js):
     return matches
 
 
-def write_report(after):
+def write_report(after, legacy_removed):
     REPORT.parent.mkdir(parents=True, exist_ok=True)
     REPORT.write_text(
         '# Step 2-23 저장 안정화 1차 보고\n\n'
@@ -118,7 +168,8 @@ def write_report(after):
         '- 저장 실패 시 `console.error("[save] failed", e)`를 남긴다.\n'
         '- 강제 저장 버튼은 `save(true)` 결과에 따라 성공/실패 토스트를 다르게 표시한다.\n'
         '- `pagehide`, `visibilitychange`, `beforeunload` 저장 훅을 추가했다.\n'
-        '- 저장 훅은 `bindSaveLifecycleEvents()`에서 1회만 바인딩된다.\n\n'
+        '- 저장 훅은 `bindSaveLifecycleEvents()`에서 1회만 바인딩된다.\n'
+        f'- 기존 legacy beforeunload 훅 제거 여부: {legacy_removed}\n\n'
         '## 유지한 내용\n\n'
         '- 기존 `save(false)` dirty flag 구조 유지\n'
         '- 기존 autosave 흐름 유지\n'
@@ -149,70 +200,13 @@ def write_report(after):
     )
 
 
-def collect_after(js, index):
-    return {
-        'save_fn': js.count('function save(force=false)'),
-        'save_return_true_dirty': js.count('if(!force){ _saveDirty = true; return true; }'),
-        'console_error': js.count('console.error("[save] failed", e);'),
-        'save_game': js.count('function saveGame()'),
-        'bind_lifecycle': js.count('function bindSaveLifecycleEvents()'),
-        'pagehide': js.count('window.addEventListener("pagehide"'),
-        'visibilitychange': js.count('document.addEventListener("visibilitychange"'),
-        'beforeunload': js.count('window.addEventListener("beforeunload"'),
-        'bind_call': js.count('bindSaveLifecycleEvents();'),
-        'force_handler': js.count('const ok = save(true);'),
-        'save_failed_toast': js.count('저장 실패! 브라우저 저장 공간을 확인하세요.'),
-        'inline_onclick': count_inline_onclick(index, js),
-        'direct_onclick': count_direct_onclick(js),
-        'safe_click_fn': js.count('function safeClick'),
-        'safe_click_actual': count_actual_safe_click(js),
-    }
-
-
-def verify_after(after):
-    if after['save_fn'] != 1:
-        fail(f'save function count invalid after patch: {after}')
-    if after['save_return_true_dirty'] != 1:
-        fail(f'save(false) true return missing: {after}')
-    if after['console_error'] != 1:
-        fail(f'save failure console.error missing: {after}')
-    if after['save_game'] != 1:
-        fail(f'saveGame alias invalid: {after}')
-    if after['bind_lifecycle'] != 1:
-        fail(f'bindSaveLifecycleEvents invalid: {after}')
-    if after['pagehide'] != 1 or after['visibilitychange'] != 1 or after['beforeunload'] != 1:
-        fail(f'lifecycle handler counts invalid: {after}')
-    if after['bind_call'] != 1:
-        fail(f'bindSaveLifecycleEvents call invalid: {after}')
-    if after['force_handler'] != 1 or after['save_failed_toast'] != 1:
-        fail(f'force save handler not updated: {after}')
-    if after['inline_onclick'] != 0:
-        fail(f'inline onclick must remain 0, found {after["inline_onclick"]}')
-    if after['direct_onclick'] != 0:
-        fail(f'.onclick direct assignments must remain 0, found {after["direct_onclick"]}')
-    if after['safe_click_fn'] != 0 or after['safe_click_actual'] != 0:
-        fail(f'safeClick must remain removed: {after}')
-
-
 def main():
     if not INDEX.exists() or not MAIN.exists():
         fail('index.html or js/main.js missing')
 
     index = INDEX.read_text(encoding='utf-8')
     js = MAIN.read_text(encoding='utf-8')
-
-    before = {
-        'save_fn': js.count('function save(force=false)'),
-        'save_game': js.count('function saveGame()'),
-        'pagehide': js.count('window.addEventListener("pagehide"'),
-        'visibilitychange': js.count('document.addEventListener("visibilitychange"'),
-        'beforeunload': js.count('window.addEventListener("beforeunload"'),
-        'bind_lifecycle': js.count('function bindSaveLifecycleEvents()'),
-        'inline_onclick': count_inline_onclick(index, js),
-        'direct_onclick': count_direct_onclick(js),
-        'safe_click_fn': js.count('function safeClick'),
-        'safe_click_actual': count_actual_safe_click(js),
-    }
+    before = collect(js, index)
 
     if before['inline_onclick'] != 0:
         fail(f'inline onclick must remain 0 before patch, found {before["inline_onclick"]}')
@@ -221,11 +215,11 @@ def main():
     if before['safe_click_fn'] != 0 or before['safe_click_actual'] != 0:
         fail(f'safeClick must remain removed before patch: {before}')
 
-    if is_already_applied(js):
-        after = collect_after(js, index)
-        verify_after(after)
+    if already_applied(js):
+        after = collect(js, index)
+        verify(after)
         subprocess.run(['node', '--check', str(MAIN)], check=True)
-        write_report(after)
+        write_report(after, legacy_removed='already applied')
         print('[OK] Step 2-23 already applied')
         return
 
@@ -233,13 +227,25 @@ def main():
         fail(f'expected one save function before patch, found {before["save_fn"]}')
     if before['save_game'] != 1:
         fail(f'expected saveGame alias once before patch, found {before["save_game"]}')
-    if before['pagehide'] != 0 or before['visibilitychange'] != 0 or before['beforeunload'] != 0:
-        fail(f'save lifecycle handlers already exist but full patch not detected: {before}')
     if before['bind_lifecycle'] != 0:
         fail('bindSaveLifecycleEvents already exists but full patch not detected')
+    if before['pagehide'] != 0 or before['visibilitychange'] != 0:
+        fail(f'unexpected pagehide/visibilitychange handlers before patch: {before}')
+    if before['beforeunload'] not in (0, 1):
+        fail(f'unexpected beforeunload handler count before patch: {before}')
 
-    save_matches = list(SAVE_BLOCK_RE.finditer(js))
-    save_matches = [m for m in save_matches if 'localStorage.setItem(SAVE_KEY, JSON.stringify(state))' in m.group('body')]
+    legacy_beforeunload_removed = False
+    if before['beforeunload'] == 1:
+        js2, removed = LEGACY_BEFOREUNLOAD_RE.subn('\n', js, count=1)
+        if removed != 1:
+            fail('legacy beforeunload exists but could not be removed safely')
+        js = js2
+        legacy_beforeunload_removed = True
+
+    save_matches = [
+        m for m in SAVE_BLOCK_RE.finditer(js)
+        if 'localStorage.setItem(SAVE_KEY, JSON.stringify(state))' in m.group('body')
+    ]
     if len(save_matches) != 1:
         fail(f'expected old save block exactly 1, found {len(save_matches)}')
 
@@ -251,19 +257,17 @@ def main():
     if len(init_matches) < 1:
         fail('initDOMRefs call anchor not found')
 
-    patched = js
-    patched = patched.replace(save_matches[0].group(0), NEW_SAVE, 1)
+    patched = js.replace(save_matches[0].group(0), NEW_SAVE, 1)
     patched = patched.replace(force_matches[0].group(0), NEW_FORCE, 1)
     patched = INIT_ANCHOR_RE.sub(lambda m: m.group(1) + '\n' + INIT_CALL, patched, count=1)
 
     MAIN.write_text(patched, encoding='utf-8')
-    js2 = MAIN.read_text(encoding='utf-8')
-    index2 = INDEX.read_text(encoding='utf-8')
-    after = collect_after(js2, index2)
-
-    verify_after(after)
+    js_after = MAIN.read_text(encoding='utf-8')
+    index_after = INDEX.read_text(encoding='utf-8')
+    after = collect(js_after, index_after)
+    verify(after)
     subprocess.run(['node', '--check', str(MAIN)], check=True)
-    write_report(after)
+    write_report(after, legacy_removed=str(legacy_beforeunload_removed))
     print('[OK] Step 2-23 completed')
 
 
