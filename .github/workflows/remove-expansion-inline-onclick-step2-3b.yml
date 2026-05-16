@@ -14,46 +14,54 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Verify split baseline
+      - name: Verify Step 3-2A baseline
         run: |
           test -f index.html
           test -f js/main.js
+          test -f scripts/apply-step3-2a-audio-split.py
           test "$(grep -c '<script src="./js/main.js"></script>' index.html || true)" = "1"
-          node --check js/main.js
-
-      - name: Apply Step 2-23 save stability phase1
-        run: |
-          python3 scripts/apply-step2-23-save-stability-phase1.py
-
-      - name: Verify Step 2-23 save stability phase1
-        run: |
-          test -f docs/2026-05-15-step2-23-save-stability-phase1.md
-          test "$(grep -c 'function save(force=false)' js/main.js || true)" = "1"
-          test "$(grep -c 'if(!force){ _saveDirty = true; return true; }' js/main.js || true)" = "1"
-          test "$(grep -c 'console.error("\[save\] failed", e);' js/main.js || true)" = "1"
-          test "$(grep -c 'function saveGame()' js/main.js || true)" = "1"
-          test "$(grep -c 'function bindSaveLifecycleEvents()' js/main.js || true)" = "1"
-          test "$(grep -c 'window.addEventListener("pagehide"' js/main.js || true)" = "1"
-          test "$(grep -c 'document.addEventListener("visibilitychange"' js/main.js || true)" = "1"
-          test "$(grep -c 'window.addEventListener("beforeunload"' js/main.js || true)" = "1"
-          test "$(grep -c 'const ok = save(true);' js/main.js || true)" = "1"
-          test "$(grep -c '저장 실패! 브라우저 저장 공간을 확인하세요.' js/main.js || true)" = "1"
+          test "$(grep -c '<script src="./js/core/audio.js"></script>' index.html || true)" = "0"
+          test "$(grep -c 'const SOUND' js/main.js || true)" = "1"
+          test "$(grep -c 'const AudioEngine' js/main.js || true)" = "1"
           test "$(grep -c '\.onclick[[:space:]]*=' js/main.js || true)" = "0"
           test "$(grep -c 'function safeClick' js/main.js || true)" = "0"
           test "$(grep -c 'safeClick(' js/main.js || true)" = "0"
           test "$(grep -R -c ' onclick=' index.html js/main.js | awk -F: '{s+=$2} END {print s+0}')" = "0"
           node --check js/main.js
 
-      - name: Commit Step 2-23 save stability phase1
+      - name: Apply Step 3-2A audio split
         run: |
-          if git diff --quiet -- js/main.js docs/2026-05-15-step2-23-save-stability-phase1.md; then
-            echo "No Step 2-23 changes to commit"
+          python3 scripts/apply-step3-2a-audio-split.py
+
+      - name: Verify Step 3-2A audio split
+        run: |
+          test -f js/core/audio.js
+          test -f docs/2026-05-15-step3-2a-audio-split.md
+          test "$(grep -c '<script src="./js/core/audio.js"></script>' index.html || true)" = "1"
+          test "$(grep -c '<script src="./js/main.js"></script>' index.html || true)" = "1"
+          test "$(grep -c 'const SOUND' js/core/audio.js || true)" = "1"
+          test "$(grep -c 'const AudioEngine' js/core/audio.js || true)" = "1"
+          test "$(grep -c 'function startBGM' js/core/audio.js || true)" = "1"
+          test "$(grep -c 'function unlockAudioOnce' js/core/audio.js || true)" = "1"
+          test "$(grep -c 'const SOUND' js/main.js || true)" = "0"
+          test "$(grep -c 'const AudioEngine' js/main.js || true)" = "0"
+          test "$(grep -c 'function startBGM' js/main.js || true)" = "0"
+          test "$(grep -c 'function unlockAudioOnce' js/main.js || true)" = "0"
+          test "$(grep -c '\.onclick[[:space:]]*=' js/main.js || true)" = "0"
+          test "$(grep -c 'function safeClick' js/main.js || true)" = "0"
+          test "$(grep -c 'safeClick(' js/main.js || true)" = "0"
+          test "$(grep -R -c ' onclick=' index.html js/main.js | awk -F: '{s+=$2} END {print s+0}')" = "0"
+          node --check js/core/audio.js
+          node --check js/main.js
+
+      - name: Commit Step 3-2A audio split
+        run: |
+          if git diff --quiet -- index.html js/main.js js/core/audio.js docs/2026-05-15-step3-2a-audio-split.md; then
+            echo "No Step 3-2A changes to commit"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add js/main.js docs/2026-05-15-step2-23-save-stability-phase1.md
-          git commit -m "Add save lifecycle stability hooks"
+          git add index.html js/main.js js/core/audio.js docs/2026-05-15-step3-2a-audio-split.md
+          git commit -m "Split audio helpers into core module"
           git push
-
-# retrigger: 2026-05-16T00:45:00+09:00
