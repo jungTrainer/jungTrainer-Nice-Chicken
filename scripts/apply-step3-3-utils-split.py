@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 """
-Step 3-3: Extract pure utility helpers from js/main.js to js/core/utils.js.
+Step 3-3F: Repair utils split partial state.
 
 Classic script mode is preserved. No ES module import/export is introduced.
-utils.js is loaded before audio.js and main.js, so existing global function calls remain compatible.
+This script supports partial states:
+- js/core/utils.js may already exist.
+- js/core/audio.js may still contain a temporary document.write utils loader.
+- index.html may still load audio.js -> main.js without explicit utils.js.
+- js/main.js may or may not still contain utility function declarations.
 """
 from pathlib import Path
 import re
@@ -20,7 +24,6 @@ UTILS_SCRIPT = '<script src="./js/core/utils.js"></script>'
 AUDIO_SCRIPT = '<script src="./js/core/audio.js"></script>'
 MAIN_SCRIPT = '<script src="./js/main.js"></script>'
 
-# Include compatibility helpers that the requested functions depend on or that existing code uses directly.
 UTIL_FUNCTIONS = [
     "fmtKoreanUnits",
     "fmtWon",
@@ -35,6 +38,13 @@ UTIL_FUNCTIONS = [
     "safeOn",
     "_bindSafe",
 ]
+
+AUDIO_TEMP_LOADER_RE = re.compile(
+    r"// Step 3-3E: load utility helpers before js/main.js without changing classic script mode\.\n"
+    r"// This keeps utils available before main.js even when index.html still lists audio.js first\.\n"
+    r"\(function loadUtilityHelpersBeforeMain\(\)\{.*?\}\)\(\);\n\n",
+    re.S,
+)
 
 
 def fail(msg):
@@ -83,8 +93,7 @@ def find_function_block(js, name):
         ch = js[i]
         nxt = js[i+1] if i + 1 < len(js) else ""
         if in_line_comment:
-            if ch == "\n":
-                in_line_comment = False
+            if ch == "\n": in_line_comment = False
             i += 1
             continue
         if in_block_comment:
@@ -95,12 +104,9 @@ def find_function_block(js, name):
             i += 1
             continue
         if in_str:
-            if esc:
-                esc = False
-            elif ch == "\\":
-                esc = True
-            elif ch == in_str:
-                in_str = None
+            if esc: esc = False
+            elif ch == "\\": esc = True
+            elif ch == in_str: in_str = None
             i += 1
             continue
         if ch == "/" and nxt == "/":
@@ -115,99 +121,112 @@ def find_function_block(js, name):
             in_str = ch
             i += 1
             continue
-        if ch == "{":
-            depth += 1
+        if ch == "{": depth += 1
         elif ch == "}":
             depth -= 1
             if depth == 0:
                 end = i + 1
-                # Include trailing semicolon if present, and one following newline.
-                if end < len(js) and js[end] == ";":
-                    end += 1
-                if end < len(js) and js[end] == "\n":
-                    end += 1
+                if end < len(js) and js[end] == ";": end += 1
+                if end < len(js) and js[end] == "\n": end += 1
                 return start, end, js[start:end].rstrip() + "\n"
         i += 1
     fail(f"function block not closed for {name}")
 
 
 def remove_blocks(js, blocks):
-    # Remove from bottom to top to preserve ranges.
     patched = js
-    for start, end, block in sorted(blocks, key=lambda x: x[0], reverse=True):
+    for start, end, _block in sorted(blocks, key=lambda x: x[0], reverse=True):
         patched = patched[:start] + patched[end:]
     return patched
 
 
 def ensure_script_order(index_html):
-    # Remove duplicate utils tags first.
     if index_html.count(UTILS_SCRIPT) > 1:
         fail(f"utils script tag appears too many times: {index_html.count(UTILS_SCRIPT)}")
     if index_html.count(AUDIO_SCRIPT) != 1:
         fail(f"expected audio script tag exactly 1, found {index_html.count(AUDIO_SCRIPT)}")
     if index_html.count(MAIN_SCRIPT) != 1:
         fail(f"expected main script tag exactly 1, found {index_html.count(MAIN_SCRIPT)}")
-
     if UTILS_SCRIPT not in index_html:
         index_html = index_html.replace(AUDIO_SCRIPT, UTILS_SCRIPT + "\n" + AUDIO_SCRIPT, 1)
-
     if not (index_html.find(UTILS_SCRIPT) < index_html.find(AUDIO_SCRIPT) < index_html.find(MAIN_SCRIPT)):
         fail("script order must be utils.js -> audio.js -> main.js")
     return index_html
 
 
-def main():
-    if not MAIN.exists():
-        fail("js/main.js not found")
-    if not INDEX.exists():
-        fail("index.html not found")
-    if not AUDIO.exists():
-        fail("js/core/audio.js not found; Step 3-2A must be complete first")
-    if UTILS.exists():
-        fail("js/core/utils.js already exists; refusing to overwrite")
-
-    main_js = MAIN.read_text(encoding="utf-8")
-    index_html = INDEX.read_text(encoding="utf-8")
-    assert_event_invariants(index_html, main_js)
-
+def build_utils_from_main(main_js):
     blocks = []
     for name in UTIL_FUNCTIONS:
         block = find_function_block(main_js, name)
-        if block is None:
-            fail(f"function {name} not found in js/main.js")
-        blocks.append(block)
-
-    # Validate each function appears once before extraction.
-    for name in UTIL_FUNCTIONS:
-        if main_js.count(f"function {name}") != 1:
-            fail(f"expected function {name} exactly 1 in js/main.js, found {main_js.count(f'function {name}')}")
-
+        if block is not None:
+            blocks.append(block)
+    if not blocks:
+        return None, main_js
+    found_names = [b[2].split("(", 1)[0].replace("function ", "").strip() for b in blocks]
+    missing = [name for name in UTIL_FUNCTIONS if name not in found_names]
+    if missing:
+        fail("some utils remain missing from main extraction while others exist: " + ", ".join(missing))
     extracted = "// Step 3-3: extracted from js/main.js.\n"
     extracted += "// Loaded before js/core/audio.js and js/main.js as a classic script.\n\n"
     for name in UTIL_FUNCTIONS:
         block = next(b for b in blocks if b[2].lstrip().startswith(f"function {name}"))
         extracted += block[2] + "\n"
-
     patched_main = remove_blocks(main_js, blocks)
     patched_main = patched_main.replace(
         "/* --------------------\n   Helpers\n-------------------- */\nlet toastTimer = null;",
         "/* --------------------\n   Helpers\n-------------------- */\n/* Step 3-3: pure utility helpers moved to js/core/utils.js */\nlet toastTimer = null;",
         1,
     )
+    return extracted, patched_main
+
+
+def validate_utils_file(utils_text):
+    for name in UTIL_FUNCTIONS:
+        if utils_text.count(f"function {name}") != 1:
+            fail(f"function {name} must exist exactly once in js/core/utils.js, found {utils_text.count(f'function {name}')}" )
+
+
+def main():
+    if not MAIN.exists(): fail("js/main.js not found")
+    if not INDEX.exists(): fail("index.html not found")
+    if not AUDIO.exists(): fail("js/core/audio.js not found; Step 3-2A must be complete first")
+
+    main_js = MAIN.read_text(encoding="utf-8")
+    index_html = INDEX.read_text(encoding="utf-8")
+    audio_js = AUDIO.read_text(encoding="utf-8")
+    assert_event_invariants(index_html, main_js)
+
+    extracted_utils, patched_main = build_utils_from_main(main_js)
+    if UTILS.exists():
+        utils_text = UTILS.read_text(encoding="utf-8")
+        validate_utils_file(utils_text)
+        final_utils = utils_text
+    else:
+        if extracted_utils is None:
+            fail("utils.js missing and util function blocks not found in main.js")
+        final_utils = extracted_utils
+
+    if extracted_utils is not None:
+        final_main = patched_main
+    else:
+        final_main = main_js
 
     for name in UTIL_FUNCTIONS:
-        if f"function {name}" in patched_main:
-            fail(f"function {name} still remains in js/main.js after extraction")
-        if extracted.count(f"function {name}") != 1:
-            fail(f"function {name} missing from extracted utils.js content")
+        if f"function {name}" in final_main:
+            fail(f"function {name} still remains in js/main.js after repair")
 
-    patched_index = ensure_script_order(index_html)
-    assert_event_invariants(patched_index, patched_main)
+    final_index = ensure_script_order(index_html)
+    final_audio, replaced = AUDIO_TEMP_LOADER_RE.subn("", audio_js, count=1)
+    if "loadUtilityHelpersBeforeMain" in final_audio or "document.write('<script src=\"./js/core/utils.js\"" in final_audio:
+        fail("temporary utils loader still remains in js/core/audio.js")
+
+    assert_event_invariants(final_index, final_main)
 
     UTILS.parent.mkdir(parents=True, exist_ok=True)
-    UTILS.write_text(extracted, encoding="utf-8")
-    MAIN.write_text(patched_main, encoding="utf-8")
-    INDEX.write_text(patched_index, encoding="utf-8")
+    UTILS.write_text(final_utils, encoding="utf-8")
+    MAIN.write_text(final_main, encoding="utf-8")
+    INDEX.write_text(final_index, encoding="utf-8")
+    AUDIO.write_text(final_audio, encoding="utf-8")
 
     subprocess.run(["node", "--check", str(UTILS)], check=True)
     subprocess.run(["node", "--check", str(AUDIO)], check=True)
@@ -220,6 +239,7 @@ def main():
         "## 변경 내용\n\n"
         "- 순수 유틸/호환 helper를 `js/core/utils.js`로 분리했다.\n"
         "- `index.html` script 순서를 `utils.js` → `audio.js` → `main.js`로 정리했다.\n"
+        "- `js/core/audio.js`의 임시 `document.write()` loader를 제거했다.\n"
         "- ES module 전환 없이 classic script/global 호출 호환성을 유지했다.\n\n"
         "## 분리된 함수\n\n"
         + "\n".join(f"- `{name}()`" for name in UTIL_FUNCTIONS) + "\n\n"
@@ -237,7 +257,7 @@ def main():
         "- Step 2-23 저장 안정화는 여전히 미완료 상태.\n",
         encoding="utf-8",
     )
-    print("[OK] Step 3-3 utils split applied")
+    print("[OK] Step 3-3 utils split repaired")
 
 
 if __name__ == "__main__":
