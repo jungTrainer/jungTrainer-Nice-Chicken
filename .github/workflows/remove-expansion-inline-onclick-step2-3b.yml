@@ -14,39 +14,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Verify Step 3-2A baseline
+      - name: Verify Step 3-3 baseline
         run: |
           test -f index.html
           test -f js/main.js
-          test -f scripts/apply-step3-2a-audio-split.py
-          test "$(grep -c '<script src="./js/main.js"></script>' index.html || true)" = "1"
-          test "$(grep -c '<script src="./js/core/audio.js"></script>' index.html || true)" = "0"
-          test "$(grep -c 'const SOUND' js/main.js || true)" = "1"
-          test "$(grep -c 'const AudioEngine' js/main.js || true)" = "1"
-          test "$(grep -c '\.onclick[[:space:]]*=' js/main.js || true)" = "0"
-          test "$(grep -c 'function safeClick' js/main.js || true)" = "0"
-          test "$(grep -c 'safeClick(' js/main.js || true)" = "0"
-          test "$(grep -R -c ' onclick=' index.html js/main.js | awk -F: '{s+=$2} END {print s+0}')" = "0"
-          node --check js/main.js
-
-      - name: Apply Step 3-2A audio split
-        run: |
-          python3 scripts/apply-step3-2a-audio-split.py
-
-      - name: Verify Step 3-2A audio split
-        run: |
           test -f js/core/audio.js
-          test -f docs/2026-05-15-step3-2a-audio-split.md
+          test -f scripts/apply-step3-3-utils-split.py
           test "$(grep -c '<script src="./js/core/audio.js"></script>' index.html || true)" = "1"
           test "$(grep -c '<script src="./js/main.js"></script>' index.html || true)" = "1"
-          test "$(grep -c 'const SOUND' js/core/audio.js || true)" = "1"
-          test "$(grep -c 'const AudioEngine' js/core/audio.js || true)" = "1"
-          test "$(grep -c 'function startBGM' js/core/audio.js || true)" = "1"
-          test "$(grep -c 'function unlockAudioOnce' js/core/audio.js || true)" = "1"
-          test "$(grep -c 'const SOUND' js/main.js || true)" = "0"
-          test "$(grep -c 'const AudioEngine' js/main.js || true)" = "0"
-          test "$(grep -c 'function startBGM' js/main.js || true)" = "0"
-          test "$(grep -c 'function unlockAudioOnce' js/main.js || true)" = "0"
+          test "$(grep -c '<script src="./js/core/utils.js"></script>' index.html || true)" = "0"
+          test "$(grep -c 'function fmtWon' js/main.js || true)" = "1"
+          test "$(grep -c 'function safeOn' js/main.js || true)" = "1"
           test "$(grep -c '\.onclick[[:space:]]*=' js/main.js || true)" = "0"
           test "$(grep -c 'function safeClick' js/main.js || true)" = "0"
           test "$(grep -c 'safeClick(' js/main.js || true)" = "0"
@@ -54,14 +32,42 @@ jobs:
           node --check js/core/audio.js
           node --check js/main.js
 
-      - name: Commit Step 3-2A audio split
+      - name: Apply Step 3-3 utils split
         run: |
-          if git diff --quiet -- index.html js/main.js js/core/audio.js docs/2026-05-15-step3-2a-audio-split.md; then
-            echo "No Step 3-2A changes to commit"
+          python3 scripts/apply-step3-3-utils-split.py
+
+      - name: Verify Step 3-3 utils split
+        run: |
+          test -f js/core/utils.js
+          test -f docs/2026-05-15-step3-3-utils-split.md
+          test "$(grep -c '<script src="./js/core/utils.js"></script>' index.html || true)" = "1"
+          test "$(grep -c '<script src="./js/core/audio.js"></script>' index.html || true)" = "1"
+          test "$(grep -c '<script src="./js/main.js"></script>' index.html || true)" = "1"
+          python3 - <<'PY'
+          from pathlib import Path
+          html = Path('index.html').read_text(encoding='utf-8')
+          assert html.index('<script src="./js/core/utils.js"></script>') < html.index('<script src="./js/core/audio.js"></script>') < html.index('<script src="./js/main.js"></script>')
+          PY
+          for fn in fmtKoreanUnits fmtWon fmtNoWon fmtCompactWon fmtCompact clamp clampInt dayKey nowK isHangulOnly safeOn _bindSafe; do
+            test "$(grep -c "function $fn" js/core/utils.js || true)" = "1"
+            test "$(grep -c "function $fn" js/main.js || true)" = "0"
+          done
+          test "$(grep -c '\.onclick[[:space:]]*=' js/main.js || true)" = "0"
+          test "$(grep -c 'function safeClick' js/main.js || true)" = "0"
+          test "$(grep -c 'safeClick(' js/main.js || true)" = "0"
+          test "$(grep -R -c ' onclick=' index.html js/main.js | awk -F: '{s+=$2} END {print s+0}')" = "0"
+          node --check js/core/utils.js
+          node --check js/core/audio.js
+          node --check js/main.js
+
+      - name: Commit Step 3-3 utils split
+        run: |
+          if git diff --quiet -- index.html js/main.js js/core/utils.js docs/2026-05-15-step3-3-utils-split.md; then
+            echo "No Step 3-3 changes to commit"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html js/main.js js/core/audio.js docs/2026-05-15-step3-2a-audio-split.md
-          git commit -m "Split audio helpers into core module"
+          git add index.html js/main.js js/core/utils.js docs/2026-05-15-step3-3-utils-split.md
+          git commit -m "Split utility helpers into core module"
           git push
