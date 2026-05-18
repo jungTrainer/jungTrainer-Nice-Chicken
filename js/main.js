@@ -3228,6 +3228,154 @@ function readSavePayload(){
   return null;
 }
 
+
+function exportSaveData(){
+  try{
+    const payload = {
+      app: "niceChicken",
+      type: "manual-save-export",
+      version: 1,
+      saveKey: SAVE_KEY,
+      exportedAt: Date.now(),
+      data: state
+    };
+    return JSON.stringify(payload, null, 2);
+  }catch(e){
+    console.error("[save-export] failed", e);
+    return "";
+  }
+}
+
+function isLikelyNiceChickenState(data){
+  if(!data || typeof data !== "object") return false;
+  const hasMoney = typeof data.money === "number";
+  const hasLevel = typeof data.level === "number";
+  const hasCoreObjects = !!data.upgrades && !!data.research && !!data.menuStats;
+  return hasMoney && hasLevel && hasCoreObjects;
+}
+
+function importSaveData(raw){
+  if(!raw || !String(raw).trim()){
+    showToast("불러올 백업 JSON을 붙여넣어 주세요.");
+    return false;
+  }
+
+  let parsed;
+  try{
+    parsed = JSON.parse(String(raw));
+  }catch(e){
+    console.error("[save-import] invalid json", e);
+    showToast("백업 JSON 형식이 올바르지 않아요.");
+    return false;
+  }
+
+  const imported = (parsed && parsed.app === "niceChicken" && parsed.data) ? parsed.data : parsed;
+  if(!isLikelyNiceChickenState(imported)){
+    showToast("나이스치킨 저장 데이터가 아닌 것 같아요.");
+    return false;
+  }
+
+  if(!confirm("현재 저장 데이터를 가져온 백업으로 덮어쓸까요?\n기존 진행 상황이 바뀔 수 있습니다.")){
+    return false;
+  }
+
+  try{
+    state = { ...defaultState(), ...imported };
+    sanitizeState();
+    const ok = save(true);
+    updateUI();
+    updateStatsUI();
+    if(typeof buildMenuGrid === "function") buildMenuGrid();
+    if(typeof renderPanel === "function") renderPanel("upg");
+    showToast(ok ? "백업 불러오기 완료" : "불러오기는 완료됐지만 저장에 실패했어요.");
+    return ok;
+  }catch(e){
+    console.error("[save-import] failed", e);
+    showToast("백업 불러오기에 실패했어요.");
+    return false;
+  }
+}
+
+function ensureSaveTransferUI(){
+  const modal = document.getElementById("modalSettings");
+  const box = modal ? modal.querySelector(".modal") : null;
+  if(!box || document.getElementById("saveTransferBox")) return;
+
+  const card = document.createElement("div");
+  card.className = "card";
+  card.id = "saveTransferBox";
+  card.style.cssText = "margin:10px 0; flex-direction:column; align-items:stretch; gap:8px;";
+  card.innerHTML = `
+    <div class="info" style="width:100%;">
+      <h4 style="margin:0;">💾 수동 백업 / 불러오기</h4>
+      <p style="margin-top:5px;">저장 데이터를 복사해 보관하거나, 백업 JSON을 붙여넣어 복구합니다.</p>
+    </div>
+    <textarea id="saveTransferText" rows="5" placeholder="백업 JSON이 여기에 표시되거나, 불러올 JSON을 붙여넣으세요." style="width:100%; box-sizing:border-box; resize:vertical; font-size:12px;"></textarea>
+    <div class="row">
+      <button class="btn alt" id="exportSaveBtn">백업 만들기</button>
+      <button class="btn gray" id="copySaveBtn">복사</button>
+    </div>
+    <div class="row">
+      <button class="btn" id="importSaveBtn">백업 불러오기</button>
+      <button class="btn gray" id="clearSaveTransferBtn">내용 지우기</button>
+    </div>
+    <div class="note">※ 다른 기기/브라우저로 옮길 때는 백업 만들기 → 복사 → 별도 메모장에 보관하세요.</div>
+  `;
+
+  const note = box.querySelector(".note");
+  if(note) box.insertBefore(card, note);
+  else box.appendChild(card);
+
+  const text = card.querySelector("#saveTransferText");
+  const exportBtn = card.querySelector("#exportSaveBtn");
+  const copyBtn = card.querySelector("#copySaveBtn");
+  const importBtn = card.querySelector("#importSaveBtn");
+  const clearBtn = card.querySelector("#clearSaveTransferBtn");
+  const bind = (el, evt, fn) => {
+    if(typeof safeOn === "function") safeOn(el, evt, fn);
+    else if(el && typeof el.addEventListener === "function") el.addEventListener(evt, fn);
+  };
+
+  bind(exportBtn, "click", ()=>{
+    const raw = exportSaveData();
+    if(!raw){ showToast("백업 생성에 실패했어요."); return; }
+    text.value = raw;
+    text.focus();
+    text.select();
+    showToast("백업 JSON을 만들었어요.");
+  });
+
+  bind(copyBtn, "click", async ()=>{
+    if(!text.value.trim()){
+      text.value = exportSaveData();
+    }
+    try{
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        await navigator.clipboard.writeText(text.value);
+      }else{
+        text.focus();
+        text.select();
+        document.execCommand("copy");
+      }
+      showToast("백업 JSON을 복사했어요.");
+    }catch(e){
+      console.error("[save-export] clipboard failed", e);
+      text.focus();
+      text.select();
+      showToast("복사 실패! 직접 전체 선택 후 복사해 주세요.");
+    }
+  });
+
+  bind(importBtn, "click", ()=>{
+    importSaveData(text.value);
+  });
+
+  bind(clearBtn, "click", ()=>{
+    text.value = "";
+    showToast("백업 입력창을 비웠어요.");
+  });
+}
+
 function load(){
   const payload = readSavePayload();
   if(!payload || !payload.data) return false;
@@ -5865,6 +6013,7 @@ document.addEventListener("DOMContentLoaded", () => {
   try{
     initDOMRefs();
   bindSaveLifecycleEvents();
+    ensureSaveTransferUI();
     preloadSignImages();
     init();
   }catch(e){
