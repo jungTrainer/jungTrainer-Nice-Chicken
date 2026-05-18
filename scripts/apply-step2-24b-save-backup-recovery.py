@@ -1,17 +1,4 @@
 #!/usr/bin/env python3
-"""
-Step 2-24B backup key/save recovery patch script.
-
-This script is designed to run only AFTER Step 2-23 save stability phase1.
-It refuses to modify js/main.js unless Step 2-23 markers are present.
-
-Target changes after preflight:
-1. Add SAVE_BACKUP_KEY near SAVE_KEY.
-2. Update save(true) to preserve previous primary save into backup before writing primary.
-3. Add readSavePayload() helper for primary/backup JSON parsing.
-4. Update load() to restore from backup when primary is missing/corrupted.
-5. Generate docs/2026-05-15-step2-24b-save-backup-recovery.md.
-"""
 from pathlib import Path
 import re
 import subprocess
@@ -88,18 +75,26 @@ function readSavePayload(){
 }
 '''
 
-LOAD_START_RE = re.compile(r'''function\s+load\s*\(\s*\)\s*\{\s*\n\s*try\s*\{\s*\n\s*const\s+raw\s*=\s*localStorage\.getItem\(SAVE_KEY\);\s*\n\s*if\s*\(\s*raw\s*\)\s*\{\s*\n\s*const\s+saved\s*=\s*JSON\.parse\(raw\);''', re.M)
+OLD_LOAD_START = '''function load(){
+  const raw = localStorage.getItem(SAVE_KEY);
+  if(!raw) return false;
+  try{
+    const parsed = JSON.parse(raw);'''
 
 NEW_LOAD_START = '''function load(){
+  const payload = readSavePayload();
+  if(!payload || !payload.data) return false;
   try{
-    const payload = readSavePayload();
-    if(payload && payload.data){
-      const saved = payload.data;'''
+    const parsed = payload.data;'''
 
 
 def fail(msg: str) -> None:
     print(f"[FAIL] {msg}", file=sys.stderr)
     sys.exit(1)
+
+
+def func_decl_count(text: str, name: str) -> int:
+    return len(re.findall(rf"\bfunction\s+{re.escape(name)}\s*\(", text))
 
 
 def count_actual_safe_click(js: str) -> int:
@@ -121,7 +116,7 @@ def count_inline_onclick(index_text: str, js: str) -> int:
 def preflight_step_2_23(js: str) -> dict:
     counts = {name: js.count(marker) for name, marker in REQUIRED_STEP_2_23_MARKERS.items()}
     counts["direct_onclick"] = count_direct_onclick(js)
-    counts["function_safeClick"] = js.count("function safeClick")
+    counts["function_safeClick"] = func_decl_count(js, "safeClick")
     counts["safeClick_actual"] = count_actual_safe_click(js)
     return counts
 
@@ -147,7 +142,7 @@ def verify_after(js: str) -> None:
         "SAVE_BACKUP_KEY": js.count(SAVE_BACKUP_LINE),
         "backup setItem": js.count("localStorage.setItem(SAVE_BACKUP_KEY, prevSave);"),
         "backup warning": js.count('console.warn("[save] backup failed", backupError);'),
-        "readSavePayload": js.count("function readSavePayload()"),
+        "readSavePayload": func_decl_count(js, "readSavePayload"),
         "primary corrupted log": js.count('console.error("[load] primary save corrupted", e);'),
         "backup restore warning": js.count('console.warn("[load] restored from backup save");'),
         "backup corrupted log": js.count('console.error("[load] backup save corrupted", e);'),
@@ -211,21 +206,19 @@ def main() -> None:
 
     if js.count(SAVE_BACKUP_LINE) > 0:
         fail("SAVE_BACKUP_KEY already exists; refusing to reapply")
-    if js.count("function readSavePayload()") > 0:
+    if func_decl_count(js, "readSavePayload") > 0:
         fail("readSavePayload already exists; refusing to reapply")
     if js.count(SAVE_KEY_LINE) != 1:
         fail(f"expected SAVE_KEY line exactly 1, found {js.count(SAVE_KEY_LINE)}")
     if js.count(OLD_SAVE_CORE) != 1:
         fail(f"expected Step 2-23 save core exactly 1, found {js.count(OLD_SAVE_CORE)}")
-
-    load_matches = list(LOAD_START_RE.finditer(js))
-    if len(load_matches) != 1:
-        fail(f"expected old load start exactly 1, found {len(load_matches)}")
+    if js.count(OLD_LOAD_START) != 1:
+        fail(f"expected current load start exactly 1, found {js.count(OLD_LOAD_START)}")
 
     patched = js.replace(SAVE_KEY_LINE, SAVE_KEY_LINE + "\n" + SAVE_BACKUP_LINE, 1)
     patched = patched.replace(OLD_SAVE_CORE, NEW_SAVE_CORE, 1)
     patched = patched.replace("function load(){", READ_HELPER + "\nfunction load(){", 1)
-    patched = LOAD_START_RE.sub(NEW_LOAD_START, patched, count=1)
+    patched = patched.replace(OLD_LOAD_START, NEW_LOAD_START, 1)
 
     if count_inline_onclick(index_text, patched) != 0:
         fail("inline onclick must remain 0")
