@@ -55,6 +55,7 @@
 ========================================================= */
 
 const SAVE_KEY = "niceChicken_idleServe_vFinal";
+const SAVE_BACKUP_KEY = SAVE_KEY + "_backup";
 
 /* Step 3-2A: SOUND/WebAudio moved to js/core/audio.js */
 
@@ -3170,6 +3171,14 @@ function save(force=false){
   if(!force){ _saveDirty = true; return true; }
   state.lastSeenAt = Date.now();
   try{
+    const prevSave = localStorage.getItem(SAVE_KEY);
+    if(prevSave){
+      try{
+        localStorage.setItem(SAVE_BACKUP_KEY, prevSave);
+      }catch(backupError){
+        console.warn("[save] backup failed", backupError);
+      }
+    }
     localStorage.setItem(SAVE_KEY, JSON.stringify(state));
     _saveDirty = false;
     _lastSaveWriteAt = Date.now();
@@ -3194,11 +3203,36 @@ function bindSaveLifecycleEvents(){
 }
 
 
+
+function readSavePayload(){
+  const primaryRaw = localStorage.getItem(SAVE_KEY);
+  const backupRaw = localStorage.getItem(SAVE_BACKUP_KEY);
+
+  if(primaryRaw){
+    try{
+      return { data: JSON.parse(primaryRaw), source: "primary" };
+    }catch(e){
+      console.error("[load] primary save corrupted", e);
+    }
+  }
+
+  if(backupRaw){
+    try{
+      console.warn("[load] restored from backup save");
+      return { data: JSON.parse(backupRaw), source: "backup" };
+    }catch(e){
+      console.error("[load] backup save corrupted", e);
+    }
+  }
+
+  return null;
+}
+
 function load(){
-  const raw = localStorage.getItem(SAVE_KEY);
-  if(!raw) return false;
+  const payload = readSavePayload();
+  if(!payload || !payload.data) return false;
   try{
-    const parsed = JSON.parse(raw);
+    const parsed = payload.data;
     if(!parsed || typeof parsed !== "object") return false;
     state = { ...defaultState(), ...parsed };
 
