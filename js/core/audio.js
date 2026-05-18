@@ -1,16 +1,3 @@
-// Step 3-3E: load utility helpers before js/main.js without changing classic script mode.
-// This keeps utils available before main.js even when index.html still lists audio.js first.
-(function loadUtilityHelpersBeforeMain(){
-  try{
-    if(!window.__NICE_CHICKEN_UTILS_REQUESTED__){
-      window.__NICE_CHICKEN_UTILS_REQUESTED__ = true;
-      document.write('<script src="./js/core/utils.js"><\/script>');
-    }
-  }catch(e){
-    console.error('[utils-loader] failed', e);
-  }
-})();
-
 // Step 3-2A: extracted from js/main.js.
 // Loaded before js/main.js as a classic script, so existing global calls remain compatible.
 
