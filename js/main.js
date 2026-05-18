@@ -886,10 +886,12 @@ function initDOMRefs(){
     closeSettingsBtn.addEventListener("click", ()=> modalSettings && modalSettings.classList.remove("on"));
   }
 
-  if(forceSaveBtn){
-    forceSaveBtn.addEventListener("click", ()=>{ save(true); showToast("저장 완료"); });
+    if(forceSaveBtn){
+    forceSaveBtn.addEventListener("click", ()=>{
+      const ok = save(true);
+      showToast(ok ? "저장 완료" : "저장 실패! 브라우저 저장 공간을 확인하세요.");
+    });
   }
-
   if(resetAllBtn){
     resetAllBtn.addEventListener("click", ()=>{
       if(confirm("정말 초기화할까요? (저장 데이터 삭제)")){
@@ -3163,18 +3165,32 @@ function checkLevelUp(){
 let _saveDirty = false;
 let _lastSaveWriteAt = 0;
 function save(force=false){
-  // localStorage는 동기식이라 자주 쓰면 렉 유발. 
+  // localStorage는 동기식이라 자주 쓰면 렉 유발.
   // force=false는 '저장 필요'만 표시하고 실제 write는 autosave/종료 시에만 수행.
-  if(!force){ _saveDirty = true; return; }
+  if(!force){ _saveDirty = true; return true; }
   state.lastSeenAt = Date.now();
-  try{ localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }catch(e){}
-  _saveDirty = false;
-  _lastSaveWriteAt = Date.now();
+  try{
+    localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+    _saveDirty = false;
+    _lastSaveWriteAt = Date.now();
+    return true;
+  }catch(e){
+    console.error("[save] failed", e);
+    return false;
+  }
 }
-
-// Compatibility alias for older patched code paths.
 function saveGame(){
   return save(true);
+}
+
+function bindSaveLifecycleEvents(){
+  if(window.__saveLifecycleEventsBound) return;
+  window.__saveLifecycleEventsBound = true;
+  window.addEventListener("pagehide", ()=>{ save(true); });
+  document.addEventListener("visibilitychange", ()=>{
+    if(document.visibilityState === "hidden") save(true);
+  });
+  window.addEventListener("beforeunload", ()=>{ save(true); });
 }
 
 
@@ -5814,6 +5830,7 @@ function init(){
 document.addEventListener("DOMContentLoaded", () => {
   try{
     initDOMRefs();
+  bindSaveLifecycleEvents();
     preloadSignImages();
     init();
   }catch(e){
@@ -5823,9 +5840,6 @@ document.addEventListener("DOMContentLoaded", () => {
     try{ startGameLoop(); }catch(_e){}
   }
 });
-
-// Force-save on exit
-window.addEventListener("beforeunload", () => { try{ save(true); }catch(e){} });
 
 /* --------------------
    Loop watchdog (failsafe)
