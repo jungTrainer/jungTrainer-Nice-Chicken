@@ -52,6 +52,10 @@ def fail(msg):
     sys.exit(1)
 
 
+def func_decl_count(text, name):
+    return len(re.findall(rf"\bfunction\s+{re.escape(name)}\s*\(", text))
+
+
 def actual_safe_click_count(js):
     return sum(1 for line in js.splitlines() if "safeClick(" in line and not line.strip().startswith("function safeClick"))
 
@@ -69,18 +73,18 @@ def assert_event_invariants(index_html, js):
         fail(f"inline onclick must remain 0, found {inline_onclick_count(index_html, js)}")
     if direct_onclick_count(js) != 0:
         fail(f".onclick assignments must remain 0, found {direct_onclick_count(js)}")
-    if js.count("function safeClick") != 0:
-        fail(f"function safeClick must remain 0, found {js.count('function safeClick')}")
+    if func_decl_count(js, "safeClick") != 0:
+        fail(f"function safeClick must remain 0, found {func_decl_count(js, 'safeClick')}")
     if actual_safe_click_count(js) != 0:
         fail(f"safeClick actual calls must remain 0, found {actual_safe_click_count(js)}")
 
 
 def find_function_block(js, name):
-    marker = f"function {name}"
-    start = js.find(marker)
-    if start < 0:
+    m = re.search(rf"\bfunction\s+{re.escape(name)}\s*\(", js)
+    if not m:
         return None
-    brace = js.find("{", start)
+    start = m.start()
+    brace = js.find("{", m.end())
     if brace < 0:
         fail(f"opening brace not found for {name}")
     depth = 0
@@ -155,28 +159,22 @@ def ensure_script_order(index_html):
 
 
 def build_utils_from_main(main_js):
-    """Extract whatever util function declarations still remain in main.js.
-
-    Partial states are allowed. For example, fmtCompact may already have been removed
-    while safeOn still remains. The missing declarations are not an error when
-    js/core/utils.js already exists and validates.
-    """
     blocks = []
     for name in UTIL_FUNCTIONS:
         block = find_function_block(main_js, name)
         if block is not None:
-            blocks.append(block)
+            blocks.append((name, *block))
     if not blocks:
         return None, main_js
 
     extracted = "// Step 3-3: extracted from js/main.js.\n"
     extracted += "// Loaded before js/core/audio.js and js/main.js as a classic script.\n\n"
     for name in UTIL_FUNCTIONS:
-        block = next((b for b in blocks if b[2].lstrip().startswith(f"function {name}")), None)
+        block = next((b for b in blocks if b[0] == name), None)
         if block is not None:
-            extracted += block[2] + "\n"
+            extracted += block[3] + "\n"
 
-    patched_main = remove_blocks(main_js, blocks)
+    patched_main = remove_blocks(main_js, [(b[1], b[2], b[3]) for b in blocks])
     patched_main = patched_main.replace(
         "/* --------------------\n   Helpers\n-------------------- */\nlet toastTimer = null;",
         "/* --------------------\n   Helpers\n-------------------- */\n/* Step 3-3: pure utility helpers moved to js/core/utils.js */\nlet toastTimer = null;",
@@ -187,8 +185,9 @@ def build_utils_from_main(main_js):
 
 def validate_utils_file(utils_text):
     for name in UTIL_FUNCTIONS:
-        if utils_text.count(f"function {name}") != 1:
-            fail(f"function {name} must exist exactly once in js/core/utils.js, found {utils_text.count(f'function {name}')}" )
+        count = func_decl_count(utils_text, name)
+        if count != 1:
+            fail(f"function {name} must exist exactly once in js/core/utils.js, found {count}")
 
 
 def main():
@@ -218,7 +217,7 @@ def main():
         final_main = main_js
 
     for name in UTIL_FUNCTIONS:
-        if f"function {name}" in final_main:
+        if func_decl_count(final_main, name) != 0:
             fail(f"function {name} still remains in js/main.js after repair")
 
     final_index = ensure_script_order(index_html)
