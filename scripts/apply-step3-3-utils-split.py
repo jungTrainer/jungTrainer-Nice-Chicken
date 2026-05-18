@@ -7,7 +7,7 @@ This script supports partial states:
 - js/core/utils.js may already exist.
 - js/core/audio.js may still contain a temporary document.write utils loader.
 - index.html may still load audio.js -> main.js without explicit utils.js.
-- js/main.js may or may not still contain utility function declarations.
+- js/main.js may contain all, some, or none of the utility function declarations.
 """
 from pathlib import Path
 import re
@@ -155,6 +155,12 @@ def ensure_script_order(index_html):
 
 
 def build_utils_from_main(main_js):
+    """Extract whatever util function declarations still remain in main.js.
+
+    Partial states are allowed. For example, fmtCompact may already have been removed
+    while safeOn still remains. The missing declarations are not an error when
+    js/core/utils.js already exists and validates.
+    """
     blocks = []
     for name in UTIL_FUNCTIONS:
         block = find_function_block(main_js, name)
@@ -162,15 +168,14 @@ def build_utils_from_main(main_js):
             blocks.append(block)
     if not blocks:
         return None, main_js
-    found_names = [b[2].split("(", 1)[0].replace("function ", "").strip() for b in blocks]
-    missing = [name for name in UTIL_FUNCTIONS if name not in found_names]
-    if missing:
-        fail("some utils remain missing from main extraction while others exist: " + ", ".join(missing))
+
     extracted = "// Step 3-3: extracted from js/main.js.\n"
     extracted += "// Loaded before js/core/audio.js and js/main.js as a classic script.\n\n"
     for name in UTIL_FUNCTIONS:
-        block = next(b for b in blocks if b[2].lstrip().startswith(f"function {name}"))
-        extracted += block[2] + "\n"
+        block = next((b for b in blocks if b[2].lstrip().startswith(f"function {name}")), None)
+        if block is not None:
+            extracted += block[2] + "\n"
+
     patched_main = remove_blocks(main_js, blocks)
     patched_main = patched_main.replace(
         "/* --------------------\n   Helpers\n-------------------- */\nlet toastTimer = null;",
@@ -205,6 +210,7 @@ def main():
         if extracted_utils is None:
             fail("utils.js missing and util function blocks not found in main.js")
         final_utils = extracted_utils
+        validate_utils_file(final_utils)
 
     if extracted_utils is not None:
         final_main = patched_main
@@ -216,7 +222,7 @@ def main():
             fail(f"function {name} still remains in js/main.js after repair")
 
     final_index = ensure_script_order(index_html)
-    final_audio, replaced = AUDIO_TEMP_LOADER_RE.subn("", audio_js, count=1)
+    final_audio, _replaced = AUDIO_TEMP_LOADER_RE.subn("", audio_js, count=1)
     if "loadUtilityHelpersBeforeMain" in final_audio or "document.write('<script src=\"./js/core/utils.js\"" in final_audio:
         fail("temporary utils loader still remains in js/core/audio.js")
 
