@@ -1078,6 +1078,7 @@ function processPayroll(){
     sfxTick();
   }
   state.payroll.lastDayKey = today;
+  _saveDirty = true;
   if(_saveDirty) save(true);
 }
 
@@ -2298,6 +2299,7 @@ const correct = (c.menuId === menuId);
 
   if(typeof onServeOneOnline === "function") onServeOneOnline();
   if(typeof checkLevelUp === "function") checkLevelUp();
+  _saveDirty = true;
 
   const hintEl = document.getElementById("hint");
   if(hintEl) hintEl.style.display = "none";
@@ -2331,6 +2333,7 @@ function ensureMissionReset(){
     state.cert.issuedAt = 0;
     state.cert.validUntil = 0;
     state.cert.issuedThisWeek = false;
+    _saveDirty = true;
     showToast("인증서 유효기간이 종료되었습니다.");
     if(_saveDirty) save(true);
   }
@@ -2375,6 +2378,7 @@ function ensureMissionReset(){
 
     state.offlineSalesToday = 0;
     state.todaySales = 0;
+    _saveDirty = true;
   }
 }
 
@@ -2418,6 +2422,7 @@ function startNewWeek(){
   // issuedAt/validUntil은 "발급" 시 생성
   state.cert.issuedAt = 0;
   state.cert.validUntil = 0;
+  _saveDirty = true;
 }
 
 function onServeOneOnline(){
@@ -2472,6 +2477,7 @@ function updateMissionsOnlineOnly(){
     state.coupons.veg += 1;
     logBenefit({type:"veg", qty:1, source:"daily", note:"일간 올클 보상"});
     state.missions.weeklyStamps = Math.min(7, state.missions.weeklyStamps + 1);
+    _saveDirty = true;
 
     showToast("✅ 일간 올클! 무/양배추 쿠폰 +1, 주간 스탬프 +1");
     sfxFanfare();
@@ -2501,6 +2507,7 @@ function updateMissionsOnlineOnly(){
   const weeklyAllDone = state.missions.weeklyList.every(x=>x.done);
   if(weeklyAllDone && !state.missions.weeklyCompletedAt){
     state.missions.weeklyCompletedAt = Date.now();
+    _saveDirty = true;
     showToast("🏅 주간 미션 올클! 이제 인증서 발급이 가능해요.");
     sfxFanfare();
     if(_saveDirty) save(true);
@@ -2550,6 +2557,7 @@ function startResearch(rid){
 
   const now = Date.now();
   state.research.running[slotIdx] = {activeId: rid, targetLevel: nextLvl, startAt: now, endAt: now + durMs};
+  _saveDirty = true;
 
   showToast(`연구 시작: ${r.name} Lv.${nextLvl}`);
   sfxTick();
@@ -2583,6 +2591,7 @@ function updateResearch(){
       state.research.levels[rid] = Math.min(maxL, Math.max(state.research.levels[rid]||0, tgt));
 
       state.research.running[i] = {activeId:null, targetLevel:0, startAt:0, endAt:0};
+      _saveDirty = true;
 
       const doneLvl = state.research.levels[rid]||0;
       showToast(`🎓 연구 완료: ${rinfo?.name || rid} Lv.${doneLvl}`);
@@ -2628,6 +2637,7 @@ function buyUpgrade(id){
     return;
   }
   state.money -= cost;
+  _saveDirty = true;
 
   // [특수] 배달 업그레이드
   // UI/코스트/세이브 일관성을 위해 state.upgrades와 state.delivery를 동기화합니다.
@@ -2680,6 +2690,7 @@ function maybeTriggerEvent(){
       id: evt.id, name: evt.name, desc: evt.desc, mod: evt.mod,
       endAt: Date.now() + evt.durationSec*1000
     };
+    _saveDirty = true;
     showToast(`이벤트 시작! ${evt.name}`);
     sfxFanfare();
     if(_saveDirty) save(true);
@@ -2694,6 +2705,7 @@ function updateEvent(){
   if(left <= 0){
     showToast(`이벤트 종료: ${state.event.name}`);
     state.event = null;
+    _saveDirty = true;
     eventBanner.classList.remove("on");
     if(_saveDirty) save(true);
     return;
@@ -2913,6 +2925,7 @@ function processDelivery(vehicle){
     // 기여도(시스템/배달)
     state.contrib = state.contrib || { player:0, staff:0, system:0 };
     state.contrib.system = (state.contrib.system||0) + earnings;
+    _saveDirty = true;
 
     // 연출
     if(Math.random() < 0.25) AudioEngine.sfx.coin();
@@ -2945,6 +2958,7 @@ function updateOnlineAuto(dt){
 
     state.money += earnings;
     state.contrib.system = (state.contrib.system||0) + earnings;
+    _saveDirty = true;
 
     if(Math.random() < 0.08) AudioEngine.sfx.coin();
     // 과도한 텍스트는 줄이기 위해 확률 표시
