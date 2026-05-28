@@ -71,3 +71,63 @@ function safeOn(el, evt, fn, opts){
   if(el && typeof el.addEventListener === "function") el.addEventListener(evt, fn, opts);
 }
 function _bindSafe(el, evt, fn, opts){ return safeOn(el, evt, fn, opts); }
+
+/* Step 2-23R: Branch snapshot save stabilization.
+   The game stores per-branch fields in state.branches[region].data.
+   If top-level state is saved without syncing that snapshot, BranchManager.bootstrap()
+   can load an older branch snapshot on the next boot and make progress appear lost. */
+(function installBranchSnapshotSaveStability(){
+  if(typeof document === "undefined") return;
+
+  document.addEventListener("DOMContentLoaded", ()=>{
+    try{
+      if(window.__branchSnapshotSaveStabilityApplied) return;
+
+      const syncCurrentBranchSnapshot = (reason)=>{
+        try{
+          if(typeof BranchManager !== "undefined" &&
+             BranchManager &&
+             typeof BranchManager.saveCurrent === "function" &&
+             typeof state !== "undefined" &&
+             state &&
+             state.branches){
+            BranchManager.saveCurrent();
+          }
+        }catch(e){
+          console.warn("[save-stability] branch snapshot sync failed", reason || "", e);
+        }
+      };
+
+      if(typeof BranchManager !== "undefined" &&
+         BranchManager &&
+         typeof BranchManager.bootstrap === "function" &&
+         !BranchManager.__bootstrapSaveSyncWrapped){
+        const originalBootstrap = BranchManager.bootstrap;
+        BranchManager.bootstrap = function(){
+          syncCurrentBranchSnapshot("before-bootstrap");
+          return originalBootstrap.apply(this, arguments);
+        };
+        BranchManager.__bootstrapSaveSyncWrapped = true;
+      }
+
+      if(typeof save === "function" && !window.__saveBranchSnapshotWrapped){
+        const originalSave = save;
+        save = function(force=false){
+          if(force) syncCurrentBranchSnapshot("before-save");
+          return originalSave.apply(this, arguments);
+        };
+        window.save = save;
+        window.__saveBranchSnapshotWrapped = true;
+
+        if(typeof saveGame === "function"){
+          saveGame = function(){ return save(true); };
+          window.saveGame = saveGame;
+        }
+      }
+
+      window.__branchSnapshotSaveStabilityApplied = true;
+    }catch(e){
+      console.error("[save-stability] install failed", e);
+    }
+  }, {once:true});
+})();
