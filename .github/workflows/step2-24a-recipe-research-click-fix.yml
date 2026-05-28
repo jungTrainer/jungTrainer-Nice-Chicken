@@ -1,0 +1,65 @@
+name: Step 2-24A Recipe Research Click Fix
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/step2-24a-recipe-research-click-fix.yml"
+      - "scripts/apply-step2-24a-recipe-research-click-fix.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply-recipe-research-click-fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Apply recipe research click fix
+        run: python3 scripts/apply-step2-24a-recipe-research-click-fix.py
+
+      - name: JavaScript syntax check
+        run: node --check js/main.js
+
+      - name: Regression checks
+        run: |
+          if grep -n "onclick=" index.html js/main.js; then
+            echo "[FAIL] inline onclick= remains"
+            exit 1
+          fi
+          if grep -n "\.onclick =" js/main.js; then
+            echo "[FAIL] .onclick = remains"
+            exit 1
+          fi
+          if grep -n "function safeClick" js/main.js; then
+            echo "[FAIL] function safeClick remains"
+            exit 1
+          fi
+          if grep -n "safeClick(" js/main.js; then
+            echo "[FAIL] safeClick call remains"
+            exit 1
+          fi
+          echo "[OK] regression checks passed"
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add js/main.js docs/2026-05-28-step2-24a-recipe-research-click-fix.md
+          if git diff --cached --quiet; then
+            echo "[OK] no changes to commit"
+          else
+            git commit -m "Fix recipe research click binding"
+            git push
+          fi
