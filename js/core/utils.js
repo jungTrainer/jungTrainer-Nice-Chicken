@@ -131,3 +131,149 @@ function _bindSafe(el, evt, fn, opts){ return safeOn(el, evt, fn, opts); }
     }
   }, {once:true});
 })();
+
+/* Step 2-23S: Important save action audit hotfix.
+   Some state-changing handlers call `if(_saveDirty) save(true)` without first setting
+   `_saveDirty = true`. This keeps classic script/global compatibility and marks
+   important gameplay state dirty when those fields change. */
+(function installImportantSaveActionAudit(){
+  if(typeof document === "undefined") return;
+
+  document.addEventListener("DOMContentLoaded", ()=>{
+    try{
+      if(window.__importantSaveActionAuditApplied) return;
+
+      const importantSnapshot = ()=>{
+        try{
+          if(typeof state === "undefined" || !state) return "";
+          return JSON.stringify({
+            money: state.money,
+            rep: state.rep,
+            level: state.level,
+            regionId: state.regionId,
+            regionUnlocked: state.regionUnlocked,
+            mapSelected: state.mapSelected,
+            upgrades: state.upgrades,
+            delivery: state.delivery,
+            online: state.online,
+            research: state.research,
+            missions: state.missions,
+            coupons: state.coupons,
+            cert: state.cert,
+            menuLevels: state.menuLevels,
+            menuStats: state.menuStats,
+            contrib: state.contrib,
+            stamps: state.stamps,
+            payroll: state.payroll,
+            todaySales: state.todaySales,
+            totalSales: state.totalSales,
+            offlineSalesToday: state.offlineSalesToday,
+            offlineSalesTotal: state.offlineSalesTotal,
+            benefitsLog: state.benefitsLog,
+            soundOn: state.soundOn,
+            profile: state.profile,
+            endingUnlocked: state.endingUnlocked,
+            endingPrompted: state.endingPrompted,
+            endingSeen: state.endingSeen,
+            robotGrandson: state.robotGrandson
+          });
+        }catch(e){
+          console.warn("[save-audit] snapshot failed", e);
+          return "";
+        }
+      };
+
+      const markDirty = (reason)=>{
+        try{
+          if(typeof _saveDirty !== "undefined") _saveDirty = true;
+          if(typeof window !== "undefined") window.__lastImportantSaveDirtyReason = reason || "unknown";
+        }catch(e){
+          console.warn("[save-audit] dirty mark failed", reason || "", e);
+        }
+      };
+
+      const saveIfChanged = (before, reason)=>{
+        let changed = false;
+        try{ changed = before !== importantSnapshot(); }catch(e){ changed = true; }
+        if(!changed) return;
+        markDirty(reason);
+        try{
+          if(typeof save === "function") save(true);
+        }catch(e){
+          console.warn("[save-audit] immediate save failed", reason || "", e);
+        }
+      };
+
+      const wrapImmediate = (name)=>{
+        try{
+          if(typeof window[name] !== "function" || window[name].__saveAuditWrapped) return;
+          const original = window[name];
+          const wrapped = function(){
+            const before = importantSnapshot();
+            const result = original.apply(this, arguments);
+            saveIfChanged(before, name);
+            return result;
+          };
+          wrapped.__saveAuditWrapped = true;
+          window[name] = wrapped;
+        }catch(e){
+          console.warn("[save-audit] wrap failed", name, e);
+        }
+      };
+
+      const wrapDirtyOnly = (name)=>{
+        try{
+          if(typeof window[name] !== "function" || window[name].__saveDirtyAuditWrapped) return;
+          const original = window[name];
+          const wrapped = function(){
+            const before = importantSnapshot();
+            const result = original.apply(this, arguments);
+            if(before !== importantSnapshot()) markDirty(name);
+            return result;
+          };
+          wrapped.__saveDirtyAuditWrapped = true;
+          window[name] = wrapped;
+        }catch(e){
+          console.warn("[save-audit] dirty wrap failed", name, e);
+        }
+      };
+
+      [
+        "buyUpgrade",
+        "researchMenu",
+        "useCoupon",
+        "generateWeeklyCertificate",
+        "startNewWeek",
+        "startEndingSequence",
+        "finishEndingSequence"
+      ].forEach(wrapImmediate);
+
+      [
+        "serveByMenu",
+        "processDelivery",
+        "updateOnlineAuto",
+        "checkLevelUp",
+        "maybeTriggerEvent",
+        "updateEvent",
+        "processPayroll"
+      ].forEach(wrapDirtyOnly);
+
+      let last = importantSnapshot();
+      window.__importantSaveAuditTimer = setInterval(()=>{
+        try{
+          const next = importantSnapshot();
+          if(last && next && last !== next){
+            markDirty("state-drift");
+          }
+          if(next) last = next;
+        }catch(e){
+          console.warn("[save-audit] periodic check failed", e);
+        }
+      }, 3000);
+
+      window.__importantSaveActionAuditApplied = true;
+    }catch(e){
+      console.error("[save-audit] install failed", e);
+    }
+  }, {once:true});
+})();
