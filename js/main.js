@@ -1242,18 +1242,25 @@ function renderRndList(){
 }
 
 
-const rndListEl = document.getElementById("rndList");
-if(rndListEl){
-  rndListEl.addEventListener("click", (e)=>{
-    const btn = e.target.closest('[data-action="research-menu"]');
-    if(!btn || !rndListEl.contains(btn)) return;
+function bindRecipeResearchClicks(){
+  if(window.__recipeResearchClickBound) return;
+  window.__recipeResearchClickBound = true;
+  document.addEventListener("click", (e)=>{
+    const btn = e.target?.closest?.('[data-action="research-menu"]');
+    if(!btn) return;
+    const list = document.getElementById("rndList");
+    if(list && !list.contains(btn)) return;
     e.preventDefault();
     e.stopPropagation();
+    if(typeof e.stopImmediatePropagation === "function") e.stopImmediatePropagation();
     const menuId = btn.dataset.menuId;
     if(!menuId) return;
+    unlockAudioOnce();
+    if(typeof startBGM === "function") startBGM();
     researchMenu(menuId);
-  });
+  }, true);
 }
+bindRecipeResearchClicks();
 
 // 탭 전환 (위임)
 document.addEventListener("click", (e)=>{
