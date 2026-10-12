@@ -112,7 +112,7 @@ let UPGRADES = [
   // NOTE: '동기 부여(motivation_removed)' 삭제됨 — 직원은 개별 육성(속도/서비스 교육)으로 성장
   { id:"menuUnlock", cat:"시설", name:"메뉴 해금", maxLevel:8, desc:"메뉴 1개 해금 (1회당 1개)", costFn: l => { const costs=[10000000,50000000,100000000,500000000,2000000000,8000000000,32000000000,128000000000];
  return costs[Math.min(l,costs.length-1)]; }, effect:{} },
-  { id:"expand", cat:"시설", name:"가게 확장", maxLevel:20, desc:"전체 메뉴 가격 +20% (레벨당)", costFn: l => 150000 * Math.pow(1.6, l), effect:{} },
+  { id:"expand", cat:"시설", name:"가게 확장", maxLevel:20, desc:"전체 메뉴 가격 +45% (레벨당)", costFn: l => 150000 * Math.pow(1.6, l), effect:{} },
   { id:"promo", cat:"마케팅", name:"전단지 배포", maxLevel:10, desc:"방문 속도 증가", costFn: l => 80000 * Math.pow(1.4, l), effect:{ walkSpeedMul:+0.03 } },
 
   /* --- [NEW] 배달 시스템 --- */

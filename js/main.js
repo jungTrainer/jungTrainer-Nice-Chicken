@@ -2212,7 +2212,6 @@ const correct = (c.menuId === menuId);
   }catch(e){}
 
   let price = getMenuPrice(menuId);
-  price = Math.floor(price * (1 + (eff.earningMul||0)));
 
   // --- [NEW] 사장님 20단 콤보 버프 적용 (에러 완벽 차단) ---
   if (window._fxState && window._fxState.boss && window._fxState.boss.buffUntil > Date.now()) {
@@ -2229,47 +2228,11 @@ const correct = (c.menuId === menuId);
     tip = Math.floor(price * (rates.tipMul||0));
     if(tip < 1) tip = 1;
     if(tip > 0){
-      state.money += tip;
-      state.todaySales = (state.todaySales||0) + tip;
-      state.totalSales = (state.totalSales||0) + tip;
-
-      // missions: tip counter
-      state.missions = state.missions || {};
-      if(!state.menuStats[menuId]) state.menuStats[menuId] = { count:0, earned:0 };
-      state.menuStats[menuId].earned += tip;
-      if(state.contrib){
-        if(isStaff) state.contrib.staff = (state.contrib.staff||0) + tip;
-        else state.contrib.player = (state.contrib.player||0) + tip;
-      }
-      // 직원별 누적
-      if(isStaff && state.staffStats && state.staffStats[actorKey]){
-        state.staffStats[actorKey].earned = (state.staffStats[actorKey].earned||0) + tip;
-      }
       floatText("💸 팁!", centerX + 10, centerY - 75, "#2EC4B6");
     }
   }
 
 
-  // [NEW] 메뉴별 판매 통계
-  if(!state.menuStats[menuId]) state.menuStats[menuId] = { count:0, earned:0 };
-  state.menuStats[menuId].count += 1;
-  state.menuStats[menuId].earned += price;
-  
-  // 온라인 매출만 todaySales/totalSales 반영
-  state.money += price;
-  state.todaySales += price;
-  state.totalSales += price;
-      
-  // contribution tracking
-  if(actorKey === "player"){
-    state.contrib.player += price;
-  }else if(actorKey === "system"){
-    state.contrib.system += price;
-  }else{
-    ensureStaffStats();
-    state.staffStats[actorKey].earned += price;
-    state.contrib.staff += price;
-  }
       
   // tips (scaled by tip level) - 기존 팁 로직 2
   let tipLv = 0;
@@ -2283,14 +2246,9 @@ const correct = (c.menuId === menuId);
     state.missions._weekTip=(state.missions._weekTip||0)+1;
   }
   if(tip2 > 0){
-    state.money += tip2;
-    state.todaySales += tip2;
-    state.totalSales += tip2;
-    if(actorKey === "player") state.contrib.player += tip2;
-    else if(actorKey === "system") state.contrib.system += tip2;
-    else { state.staffStats[actorKey].earned += tip2; state.contrib.staff += tip2; }
     floatText(`+${fmtCompactWon(tip2)} 팁✨`, centerX, centerY-42, "gold");
   }
+  recordIncome(price+tip+tip2,{menuId,actorKey,count:1});
 
   const repGain = CONFIG.repGainOnCorrect + (eff.repGainAdd||0);
   state.rep = clamp(state.rep + repGain, CONFIG.repMin, CONFIG.repMax);
@@ -2636,7 +2594,7 @@ function buyUpgrade(id){
     return;
   }
   const regionCostMul = (typeof getRegion==="function" ? ((getRegion()?.costMul)||1) : 1);
-  const cost = u.costFn(cur) * regionCostMul;
+  const cost = upgradeCost(id,cur);
   if(!isFinite(cost) || cost<=0){
     showToast("구매할 수 없어요!");
     return;
@@ -5132,7 +5090,7 @@ function renderPanel(key){
       for(const u of groups[cat]){
         const lvl = state.upgrades[u.id] || 0;
         const maxL = u.maxLevel ?? 99;
-        const cost = u.costFn(lvl);
+        const cost = upgradeCost(u.id,lvl);
         const can = (lvl < maxL) && state.money >= cost;
 
         const div = document.createElement("div");
@@ -5143,12 +5101,14 @@ function renderPanel(key){
             <p>${u.desc}</p>
             <div class="cost">${(lvl >= maxL) ? "최대 레벨" : fmtWon(cost)}</div>
           </div>
-          <button class="btn" ${can || lvl >= maxL ? "" : "disabled"}>${lvl >= maxL ? "완료" : "구매"}</button>
+          <button class="btn" ${can ? "" : "disabled"}>${lvl >= maxL ? "완료" : "구매"}</button>
         `;
 const upgBtn = div.querySelector("button");
     if(upgBtn){
       upgBtn.dataset.action = "buy-upgrade";
       upgBtn.dataset.upgradeId = u.id;
+      upgBtn.dataset.cost=cost;
+      upgBtn.title=cost.toLocaleString('ko-KR')+'원';
     }
         upgList.appendChild(div);
       }
@@ -5191,6 +5151,12 @@ const upgBtn = div.querySelector("button");
         tipBtn.dataset.action = "buy-staff-upgrade";
         tipBtn.dataset.staffKey = s.key;
         tipBtn.dataset.kind = "tip";
+      }
+      for(const [kind,button] of [['auto',autoBtn],['tip',tipBtn]]){
+        const cost=staffUpgradeCost(s.key,kind,st[kind]);
+        button.dataset.cost=cost;button.title=cost.toLocaleString('ko-KR')+'원';
+        button.appendChild(document.createElement('br'));button.appendChild(document.createTextNode(fmtWon(cost)));
+        button.disabled=st[kind]>=10||state.money<cost;
       }
       });
     }
