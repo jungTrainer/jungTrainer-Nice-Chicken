@@ -1,0 +1,70 @@
+name: Game CI
+
+"on":
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: game-ci-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  select:
+    name: Select push or PR checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      run: ${{ steps.select.outputs.run }}
+    steps:
+      - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        id: select
+        with:
+          script: |
+            let run = true;
+            if (context.eventName === 'push') {
+              const branch = context.ref.replace(/^refs\/heads\//, '');
+              if (branch !== context.payload.repository.default_branch) {
+                const { data: prs } = await github.rest.pulls.list({
+                  ...context.repo, state: 'open',
+                  head: `${context.repo.owner}:${branch}`, per_page: 1
+                });
+                run = prs.length === 0;
+              }
+            }
+            core.setOutput('run', String(run));
+            core.info(run ? 'Run checks for this event.' : 'Open PR owns the checks; skip duplicate push tests.');
+
+  checks:
+    name: Syntax and browser regression
+    needs: select
+    if: needs.select.outputs.run == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.cache/ms-playwright
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install, diagnose and verify
+        run: bash scripts/ci-checks.sh
+      - name: Preserve failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: game-ci-${{ github.run_id }}-${{ github.run_attempt }}
+          path: test-results/
+          if-no-files-found: warn
+          retention-days: 14

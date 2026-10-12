@@ -468,7 +468,7 @@ test("small-screen backup and import buttons preserve paid and pending rewards o
       await p.screenshot({
         path: path.join(
           __dirname,
-          "../docs/improvements/screenshots/nice-chicken-imp08-backup-small.png",
+          "../test-results/screenshots/nice-chicken-imp08-backup-small.png",
         ),
       });
       await p.reload();
