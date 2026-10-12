@@ -1,0 +1,57 @@
+{
+  "root": "/workspace/jungTrainer-Nice-Chicken",
+  "rows": [
+    {
+      "name": "updateUI",
+      "iterations": 200,
+      "counts": {
+        "ms": 9.400000005960464,
+        "stringifies": 0,
+        "queries": 0,
+        "elements": 0,
+        "writes": 0,
+        "effects": 200
+      },
+      "medianMs": 7
+    },
+    {
+      "name": "updateStatsUI",
+      "iterations": 20,
+      "counts": {
+        "ms": 2,
+        "stringifies": 0,
+        "queries": 0,
+        "elements": 20,
+        "writes": 0,
+        "effects": 0
+      },
+      "medianMs": 2.4000000059604645
+    },
+    {
+      "name": "tick",
+      "iterations": 200,
+      "counts": {
+        "ms": 8.099999994039536,
+        "stringifies": 1,
+        "queries": 0,
+        "elements": 8,
+        "writes": 2,
+        "effects": 201
+      },
+      "medianMs": 10
+    },
+    {
+      "name": "buyUpgrade",
+      "iterations": 1,
+      "counts": {
+        "ms": 1.5,
+        "stringifies": 1,
+        "queries": 0,
+        "elements": 32,
+        "writes": 2,
+        "effects": 1
+      },
+      "medianMs": 1.5
+    }
+  ]
+}

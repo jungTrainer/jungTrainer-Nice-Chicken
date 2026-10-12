@@ -1,0 +1,57 @@
+{
+  "root": "/tmp/nice-chicken-imp08-baseline",
+  "rows": [
+    {
+      "name": "updateUI",
+      "iterations": 200,
+      "counts": {
+        "ms": 81.7000000178814,
+        "stringifies": 0,
+        "queries": 400,
+        "elements": 3600,
+        "writes": 0,
+        "effects": 200
+      },
+      "medianMs": 67.59999999403954
+    },
+    {
+      "name": "updateStatsUI",
+      "iterations": 20,
+      "counts": {
+        "ms": 10,
+        "stringifies": 0,
+        "queries": 0,
+        "elements": 920,
+        "writes": 0,
+        "effects": 0
+      },
+      "medianMs": 9.799999982118607
+    },
+    {
+      "name": "tick",
+      "iterations": 200,
+      "counts": {
+        "ms": 103.89999997615814,
+        "stringifies": 1241,
+        "queries": 400,
+        "elements": 3600,
+        "writes": 2,
+        "effects": 1404
+      },
+      "medianMs": 69.09999999403954
+    },
+    {
+      "name": "buyUpgrade",
+      "iterations": 1,
+      "counts": {
+        "ms": 1.800000011920929,
+        "stringifies": 28,
+        "queries": 2,
+        "elements": 50,
+        "writes": 4,
+        "effects": 1
+      },
+      "medianMs": 1.800000011920929
+    }
+  ]
+}

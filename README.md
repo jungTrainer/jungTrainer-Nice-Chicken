@@ -11,7 +11,7 @@ HTML·CSS·JavaScript로 구성한 정적 웹게임입니다. 빌드 없이 GitH
 ├─ index.html
 ├─ css/style.css
 ├─ js/main.js
-├─ js/core/             # 기존 유틸·오디오·설정과 복구한 저장·미션·연구·정산·엔딩·UI
+├─ js/core/             # 상태·저장·성장·정산·서비스·지점·엔딩·UI·시작 책임
 ├─ tests/               # Chromium 브라우저 회귀 검사
 ├─ package.json
 ├─ README.md
@@ -68,6 +68,8 @@ http://localhost:8000
 - [IMP-06 완료 보고서와 IMP-07 프롬프트](docs/improvements/IMP-06-mobile-ui.md)
 - [본사·지점 데이터 규칙](docs/data-ownership.md)
 - [IMP-07 완료 보고서와 IMP-08 프롬프트](docs/improvements/IMP-07-staff-branches.md)
+- [실행 구조와 상태 변경 계약](docs/runtime-architecture.md)
+- [IMP-08 완료 보고서와 IMP-09 프롬프트](docs/improvements/IMP-08-state-modules.md)
 
 ## 자동 검사
 
@@ -81,18 +83,22 @@ npm test
 
 클라우드 환경에서 기본 npm 캐시 경로를 쓸 수 없으면 `npm ci --cache /tmp/nice-chicken-npm-cache`를 사용합니다. 검사는 기본 `/usr/bin/chromium`을 사용하며 다른 실행 파일은 `PLAYWRIGHT_CHROMIUM_EXECUTABLE`로 지정합니다. 설치된 시스템 Chromium이 없으면 Playwright 브라우저 설치 후 그 실행 파일 경로를 지정합니다.
 
-브라우저 회귀 검사 77개: 오프라인 6개, 미션 7개, 연구 6개, 경제 10개, 엔딩 7개, UI 22개, 직원·지점 19개. 이전 환경의 96개 검사 파일은 유실되어 동일 파일을 복원한 것이 아닙니다. `node --test tests/branches.test.cjs` 등으로 범위별 실행할 수 있습니다.
+브라우저 회귀 검사 92개: 오프라인 6개, 미션 7개, 연구 6개, 경제 10개, 엔딩 7개, UI 22개, 직원·지점 19개, 구조·저장 15개. `npm run check`는 JS 17개를 검사한다. 이전 환경의 96개 검사 파일은 유실되어 동일 파일을 복원한 것이 아닙니다. `node --test tests/branches.test.cjs` 등으로 범위별 실행할 수 있습니다.
 
 ## 현재 우선순위
 
 1. REC-01~05 기반 동작 재구현 및 IMP-06 화면·모달 개선: 완료
 2. IMP-07 직원 6명과 본사·지점별 데이터 규칙: 완료
-3. IMP-08 전역 함수 설치·저장 감시·중복 정의 정리: 다음 작업
-4. IMP-09 지속 검증, IMP-10 성장 밸런스·큰 수
-5. 전체 계획은 작업 목록 참고
+3. IMP-08 단일 실행 경로·명시적 저장·측정 기반 반복 작업 개선: 완료
+4. IMP-09 개발 문서·지속 검증: 다음 작업
+5. IMP-10 성장 밸런스·큰 수
+6. 전체 계획은 작업 목록 참고
 
-다음 작업은 원격 `improvement-imp07-20261012` 브랜치를 기준으로 진행합니다. 직원 교육·개인 누적 수익은 전 지점 공용이고, 고용·매출·기여도·미수령 보상·서비스 진행은 지점별입니다.
+다음 작업은 원격 `improvement-imp08-20261012` 브랜치를 기준으로 진행합니다. 직원 교육·개인 누적 수익은 전 지점 공용이고, 고용·매출·기여도·미수령 보상·서비스 진행은 지점별입니다.
 
 ## 참고
 
 현재 `index.html`에는 `manifest removed for file:// compatibility` 주석이 있으며, 완전한 PWA 구성을 사용하려면 `manifest.webmanifest`와 service worker 연결을 다시 정리해야 합니다.
+
+
+성능 측정은 `node scripts/measure-runtime.cjs`로 실행합니다. 고정 날짜·난수의 브라우저에서 DOM·효과 합산·문자열화·저장 연산 수와 참고 시간을 출력합니다. 비교 방법과 측정 원본은 IMP-08 보고서를 참고하세요.
