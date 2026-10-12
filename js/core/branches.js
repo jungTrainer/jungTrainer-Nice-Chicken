@@ -23,6 +23,7 @@ function _branchDefaultData() {
     offlineReward: d.offlineReward,
     unattributedSales: 0,
 
+    management: structuredClone(d.management),
     menuLevels: structuredClone(d.menuLevels),
     menuStats: structuredClone(d.menuStats),
     contrib: structuredClone(d.contrib),
@@ -59,6 +60,7 @@ function _branchKeys() {
     "offlineSalesTotal",
     "offlineReward",
     "unattributedSales",
+    "management",
     "menuLevels",
     "menuStats",
     "contrib",

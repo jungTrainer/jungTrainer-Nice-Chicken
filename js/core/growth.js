@@ -77,6 +77,13 @@ function aggregateEffects() {
     eff.earningMul += 0.5;
     eff.ordersMul += 0.5;
   }
+  // Optional decisions multiply the final growth coefficients once; defaults are neutral.
+  for (const [key,value] of Object.entries(getManagementEffects())) {
+    if (key === "patienceAfterAdd") eff[key] = (eff[key] || 0) + value;
+    else if (key === "deliveryFreqMul")
+      eff[key] = (eff[key] || 0) + value * (1 + Math.max(0, (eff.deliveryMul || 0) * .45) + Math.max(0, eff[key] || 0));
+    else eff[key] = (1 + (eff[key] || 0)) * (1 + value) - 1;
+  }
   return eff;
 }
 function computeRates() {
@@ -102,7 +109,7 @@ function computeRates() {
   const patienceBase = state.level <= 2 ? 22 : state.level <= 6 ? 16 : 12;
   let patience = patienceBase + (eff.patienceBonus || 0);
   if (eff.patienceMul) patience *= 1 + eff.patienceMul;
-  patience = Math.max(7, patience);
+  patience = Math.max(7, patience) + (eff.patienceAfterAdd || 0);
 
   const staffCount = getStaffCount();
 

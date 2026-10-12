@@ -702,3 +702,15 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
   #endingOverlay .ui-modal-head{grid-column:1 / -1;}#endingOverlay .img-viewport{width:100%;height:min(72dvh,300px);min-height:120px;}#endingOverlay .dialogue-wrapper{width:100%;}
 }
 @media(prefers-reduced-motion:reduce){.panel,#endingOverlay,#endingOverlay img{transition:none !important;}}
+
+/* IMP-11: scoped controls inside the existing report/focus owner. */
+#modalStats .tab-row{flex-wrap:wrap;}
+#modalStats .tab-btn{min-height:44px;flex:1 1 100px;}
+.management-card{border:1px solid #e8dfd5;border-radius:12px;padding:12px;margin-bottom:14px;background:#fffaf4;min-width:0;}
+.management-card h4{margin:0 0 10px;}
+.management-card p{font-size:.9rem;line-height:1.55;margin:8px 0;overflow-wrap:anywhere;}
+.management-choice{display:block;width:100%;min-height:44px;text-align:left;white-space:normal;overflow-wrap:anywhere;padding:10px;margin:8px 0;border:1px solid #cebbab;border-radius:9px;background:#fff;color:#49372c;font:inherit;cursor:pointer;touch-action:manipulation;}
+.management-choice[aria-pressed="true"]{border:2px solid #b94c00;background:#fff0d6;}
+.management-choice:disabled{opacity:.6;cursor:default;}
+.management-choice:focus-visible{outline:3px solid #146a98;outline-offset:2px;}
+.management-story{border-top:1px solid #e8dfd5;margin-top:12px;padding-top:8px;}

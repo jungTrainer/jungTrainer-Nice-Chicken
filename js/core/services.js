@@ -212,7 +212,7 @@ function updateOnlineAuto(dt) {
     while (onlineTimer >= 1) {
       onlineTimer--;
       const eff = sumEffects(),
-        pool = MENUS.slice(0, getOpenMenuCount()),
+        pool = getOrderMenuPool(),
         menu = pool[Math.floor(Math.random() * pool.length)];
       recordIncome(
         moneyScale(getMenuPrice(menu.id, eff),

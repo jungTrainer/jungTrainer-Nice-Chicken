@@ -745,6 +745,7 @@ document.addEventListener("click", (e) => {
   btn.classList.add("active");
   const target = document.getElementById(`tab-${btn.dataset.tab}`);
   if (target) target.classList.add("active");
+  if (btn.dataset.tab === "stat-management") renderManagementContent();
 });
 
 // 모달 열고 닫기
@@ -989,9 +990,7 @@ function maybeAskName() {
    - 동일 확률
 -------------------- */
 function pickMenuByRule() {
-  const openCount = getOpenMenuCount();
-  const unlocked = MENUS.slice(0, openCount);
-  if (unlocked.length === 0) return MENUS[0];
+  const unlocked = getOrderMenuPool();
   return unlocked[Math.floor(Math.random() * unlocked.length)];
 }
 
@@ -4219,6 +4218,7 @@ function updateStatsUI() {
       el("rptContribSys").innerText = fmtWon(contrib.system || 0);
 
     renderMenuStats();
+    renderManagementContent();
 
     // R&D 탭은 기존 로직 유지(있으면)
     try {

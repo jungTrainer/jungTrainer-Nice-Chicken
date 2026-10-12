@@ -319,6 +319,7 @@ function sanitizeState() {
       state.play.sessionStartAt = Date.now();
   }
   migrateLegacyResearch();
+  ensureManagementState();
   state.serviceTimers = normalizeServiceTimers(state.serviceTimers);
   ensureBranchServiceOwner();
 }

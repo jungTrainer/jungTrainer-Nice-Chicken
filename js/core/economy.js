@@ -56,7 +56,7 @@ function recordIncome(
 
 function processDelivery(vehicle) {
   const eff = sumEffects(),
-    pool = MENUS.slice(0, getOpenMenuCount()),
+    pool = getOrderMenuPool(),
     menu = pool[Math.floor(Math.random() * pool.length)];
   const earnings = moneyScale(getMenuPrice(menu.id, eff),
     Math.max(0, 1 + (eff.deliveryEarningMul || 0)),

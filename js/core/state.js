@@ -41,6 +41,7 @@ const defaultState = () => ({
   buffEndTime: 0,
 
   // [NEW] 메뉴별 연구/통계
+  management: defaultManagement(),
   menuLevels: {}, // { fried: 0, ... }
   menuStats: {}, // { fried: {count:0, earned:0}, ... }
 

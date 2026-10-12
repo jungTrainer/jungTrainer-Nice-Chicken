@@ -1,5 +1,5 @@
 {
-  "source": "IMP-10; classic script load order in index.html; top-level declarations only",
+  "source": "IMP-11; classic script load order in index.html; top-level declarations only",
   "modules": [
     {
       "file": "js/core/money.js",
@@ -87,6 +87,27 @@
         "SIGN_IMAGES",
         "VEHICLES",
         "EVENTS"
+      ]
+    },
+    {
+      "file": "js/core/content.js",
+      "functions": [
+        "defaultManagement",
+        "normalizeManagement",
+        "ensureManagementState",
+        "getManagementEffects",
+        "getOrderMenuPool",
+        "getMenuOfferSummary",
+        "getBranchStories",
+        "commitManagementChange",
+        "chooseManagement",
+        "readBranchStory",
+        "renderManagementContent"
+      ],
+      "bindings": [
+        "MANAGEMENT_FOCUS",
+        "STAFF_ROLES",
+        "REGION_CONTENT"
       ]
     },
     {

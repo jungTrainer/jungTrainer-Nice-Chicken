@@ -368,6 +368,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 <script src="./js/core/utils.js"></script>
 <script src="./js/core/audio.js"></script>
 <script src="./js/core/config.js"></script>
+<script src="./js/core/content.js"></script>
 <script src="./js/core/state.js"></script>
 <script src="./js/core/persistence.js"></script>
 <script src="./js/core/growth.js"></script>
@@ -391,6 +392,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       <button class="tab-btn active" data-tab="stat-summary">매출 요약</button>
       <button class="tab-btn" data-tab="stat-menu">메뉴 분석</button>
       <button class="tab-btn" data-tab="stat-rnd">조리법 연구</button>
+      <button class="tab-btn" data-tab="stat-management">운영·이야기</button>
     </div>
 
     <div class="scroll" style="max-height:400px; margin-top:10px;">
@@ -427,6 +429,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
         </table>
       </div>
 
+      <div id="tab-stat-management" class="tab-content"><div id="managementContent"></div></div>
       <div id="tab-stat-rnd" class="tab-content">
         <div class="note" style="margin-bottom:10px; color:#d35400;">
           🔥 <b>조리법 연구</b> 레벨당 기본 가격 +50%<br>
