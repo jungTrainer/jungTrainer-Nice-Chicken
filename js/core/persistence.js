@@ -141,7 +141,7 @@ function importSaveData(raw) {
     return false;
   }
 
-  if (!replaceGameState({ ...defaultState(), ...imported })) {
+  if (!replaceGameState({ ...defaultState(), ...imported, moneyEncoding: imported.moneyEncoding })) {
     showToast("저장 실패. 기존 진행을 유지합니다.");
     return false;
   }
@@ -162,7 +162,7 @@ function load() {
   try {
     const parsed = payload.data;
     if (!parsed || typeof parsed !== "object") return false;
-    state = { ...defaultState(), ...parsed };
+    state = { ...defaultState(), ...parsed, moneyEncoding: parsed.moneyEncoding };
 
     // deep patches
     state.profile = { ...defaultState().profile, ...(parsed.profile || {}) };
@@ -213,11 +213,8 @@ function sanitizeState() {
     if (!isFinite(v) || isNaN(v)) return fallback;
     return v;
   };
-  state.money = normalizeMoney(state.money, d.money);
   state.rep = normNum(state.rep, d.rep);
   state.level = Math.max(1, Math.floor(normNum(state.level, d.level)));
-  state.offlineReward = normalizeOfflineReward(state.offlineReward);
-  state.unattributedSales = normalizeMoney(state.unattributedSales, 0, true);
 
   // [BRANCH/REGION] ensure region state exists (v84 -> v85 migration)
   if (typeof state.regionId !== "string" || !REGION_MAP[state.regionId])

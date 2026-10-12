@@ -130,5 +130,15 @@
       "deliveryPerMin": 100,
       "incomePerMin": 1757970000000000000
     }
+  },
+  "actualTenMinutes": {
+    "seed": 12345,
+    "stepSeconds": 0.1,
+    "simulatedMinutes": 10,
+    "serveCount": 703,
+    "deliveryCount": 1000,
+    "onlineCount": 2,
+    "earned": "1.143883400259845e+22",
+    "perMinute": 1.1438834002598451e+21
   }
 }

@@ -116,6 +116,12 @@ function menuResearchCost(level) {
 // Explicit schema traversal: never touch counts, timestamps, unknown extensions,
 // paid mission/coupon flags, or orphan branch staff career values.
 function normalizeBranchMoney(data) {
+  let changed = false;
+  const assign = (object, key, fallback = 0) => {
+    const value = normalizeMoney(object[key], fallback, true);
+    if (object[key] !== value) changed = true;
+    object[key] = value;
+  };
   for (const key of [
     "todaySales",
     "totalSales",
@@ -123,46 +129,46 @@ function normalizeBranchMoney(data) {
     "offlineSalesTotal",
     "unattributedSales",
   ])
-    data[key] = normalizeMoney(data[key], 0, true);
+    assign(data, key);
   for (const row of Object.values(data.menuStats || {}))
-    if (row && typeof row === "object")
-      row.earned = normalizeMoney(row.earned, 0, true);
+    if (row && typeof row === "object") assign(row, "earned");
   for (const key of ["player", "staff", "system"])
-    if (data.contrib)
-      data.contrib[key] = normalizeMoney(data.contrib[key], 0, true);
+    if (data.contrib) assign(data.contrib, key);
   if (data.missions) {
-    data.missions._weekStartTotalSales = normalizeMoney(
-      data.missions._weekStartTotalSales,
-      0,
-      true,
-    );
+    assign(data.missions, "_weekStartTotalSales");
     for (const goal of [
       ...(data.missions.dailyList || []),
       ...(data.missions.weeklyList || []),
     ])
       if (["earn", "sales"].includes(goal.type)) {
-        goal.current = normalizeMoney(goal.current, 0, true);
-        goal.target = normalizeMoney(goal.target, 0, true);
+        assign(goal, "current");
+        assign(goal, "target");
       }
   }
-  if (data.payroll)
-    data.payroll.dailyWage = normalizeMoney(
-      data.payroll.dailyWage,
-      80000,
-      true,
-    );
-  data.offlineReward = normalizeOfflineReward(data.offlineReward);
+  if (data.payroll) assign(data.payroll, "dailyWage", 80000);
+  const previous = data.offlineReward;
+  data.offlineReward = normalizeOfflineReward(previous);
+  if (previous?.amount !== data.offlineReward.amount) changed = true;
+  for (const [id, row] of Object.entries(data.offlineReward.menus || {}))
+    if (previous?.menus?.[id]?.earned !== row.earned) changed = true;
+  return changed;
 }
 function migrateMoneyState() {
+  const previous = state.money;
   state.money = normalizeMoney(state.money);
-  normalizeBranchMoney(state);
+  let changed =
+    normalizeBranchMoney(state) ||
+    previous !== state.money ||
+    state.moneyEncoding !== MONEY_ENCODING;
   for (const branch of Object.values(state.branches || {}))
     if (branch?.data && typeof branch.data === "object")
-      normalizeBranchMoney(branch.data);
+      changed = normalizeBranchMoney(branch.data) || changed;
   for (const row of Object.values(state.staffStats || {}))
-    if (row && typeof row === "object")
-      row.earned = normalizeMoney(row.earned, 0, true);
-  if (state.moneyEncoding !== MONEY_ENCODING)
-    markStateChanged("money-migration", false);
+    if (row && typeof row === "object") {
+      const earned = normalizeMoney(row.earned, 0, true);
+      if (earned !== row.earned) changed = true;
+      row.earned = earned;
+    }
   state.moneyEncoding = MONEY_ENCODING;
+  if (changed) markStateChanged("money-migration", false);
 }
