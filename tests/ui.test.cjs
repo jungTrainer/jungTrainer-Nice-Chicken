@@ -145,7 +145,7 @@ for (const [name, width, height] of sizes) {
           );
           if (key === "upg")
             await p.screenshot({
-              path: `/tmp/nice-chicken-imp06-${name}-panel.png`,
+              path: `test-results/screenshots/nice-chicken-imp06-${name}-panel.png`,
             });
           await p.locator(`#panel-${key} .closeBtn`).tap();
           assert.equal(
@@ -185,7 +185,7 @@ for (const [name, width, height] of sizes) {
         }
         await p.locator("#openSettings").tap();
         await p.screenshot({
-          path: `/tmp/nice-chicken-imp06-${name}-settings.png`,
+          path: `test-results/screenshots/nice-chicken-imp06-${name}-settings.png`,
         });
       },
       { viewport: { width, height } },
@@ -219,7 +219,7 @@ for (const [name, width, height] of sizes) {
           "contain",
         );
         await p.screenshot({
-          path: `/tmp/nice-chicken-imp06-${name}-ending.png`,
+          path: `test-results/screenshots/nice-chicken-imp06-${name}-ending.png`,
         });
         await p.keyboard.press("Escape");
         assert.equal(await p.evaluate(() => endingPhase), "idle");

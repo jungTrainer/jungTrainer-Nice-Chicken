@@ -1,0 +1,113 @@
+# 개발·검사·CI 실행 안내
+
+기준: IMP-09, 2026-10-12. 게임은 정적 HTML/CSS/JS이며 일반 실행에는 npm 설치·빌드·백엔드가 필요 없다. 브라우저 검사에는 Node와 Playwright/Chromium을 설치한다. [데이터 규칙](data-ownership.md)과 [실행 계약](runtime-architecture.md)을 함께 따른다.
+
+## 설치와 브라우저 선택
+
+CI는 Ubuntu 24.04, `.nvmrc`의 Node **24.19.0**, lockfile의 Playwright **1.62.1**과 Chromium revision **1234**, Chrome **151.0.7922.34**를 사용한다. Node 20 이상으로 도구를 실행할 수 있지만 비교 검증은 `.nvmrc` 버전을 권장한다. 시스템 Chromium은 버전이 자동 갱신될 수 있어 기본 검사는 Playwright의 고정 브라우저를 사용한다.
+
+아래 명령은 저장소 루트에서 Bash로 실행한다. nvm이 설치되어 있다면 먼저 `nvm install && nvm use`를 실행한다.
+
+```bash
+export PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright"
+npm ci
+npx playwright install chromium --no-shell
+npm run doctor
+npm run check
+npm test
+```
+
+`doctor`는 실행 파일 존재·권한과 실제 headless 브라우저 실행/DOM을 확인하고 Node·Playwright·Chromium 버전을 출력한다. 브라우저 경로를 설치 명령과 검사 명령에 같은 값으로 전달한다. `.cache/ms-playwright`와 `test-results`는 Git에 포함하지 않는다.
+
+Linux 라이브러리가 없는 새 머신에서는 `npx playwright install-deps chromium`을 추가로 실행한다. 이 명령은 관리자 권한이 필요하며 GitHub 호스팅 runner에서는 공통 스크립트가 실행한다. 이 클라우드 머신의 기존 라이브러리는 `doctor`로 검증했다. macOS/Windows는 OS별 Playwright 설치 안내를 따르고, Bash가 없는 환경에서는 공통 Bash 스크립트 대신 위 개별 npm 명령을 실행한다.
+
+이미 설치한 시스템 브라우저를 비교하려면 실행 파일을 명시한다.
+
+```bash
+PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/chromium npm run doctor
+PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/chromium npm test
+```
+
+환경 변수가 없으면 `scripts/browser-options.cjs`가 `chromium.executablePath()`를 선택한다. `chromium --no-shell` 설치에 맞춰 전체 Chrome 실행 파일을 명시하므로 별도 headless-shell 설치는 요구하지 않는다. `measure-runtime.cjs`도 같은 브라우저 선택을 사용한다.
+
+## CI와 같은 명령 실행
+
+```bash
+export PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright"
+npm run test:ci
+```
+
+`scripts/ci-checks.sh`는 `npm ci` → 고정 Chromium 설치 → `npm run doctor` → `npm run check` → `npm test` 순서로 실행한다. `GITHUB_ACTIONS=true`인 호스팅 runner에서만 Linux OS 라이브러리 설치를 추가한다. `set -euo pipefail`로 tee에 로그를 남겨도 실패를 성공으로 바꾸지 않는다. 의존성 설치·검사 실패 후에는 다음 검사를 실행하지 않는다.
+
+기본 npm 캐시를 쓸 수 없는 클라우드에서는 현재 검증한 경로를 지정한다.
+
+```bash
+npm_config_cache=/tmp/nice-chicken-npm-cache \
+PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright" \
+npm run test:ci
+```
+
+현재 앱 JS 17개와 도구/검사 helper CJS 6개, 총 **23개 문법 검사**, **92개 회귀 검사**를 실행한다. assertion과 fixture는 유지하며 브라우저 실행·진단과 스크린샷 출력 경로만 정리했다. 범위별 재현은 `node --test tests/branches.test.cjs`, `node --test tests/refactor.test.cjs` 등을 사용한다. 범위별 통과가 전체 통과를 대신하지 않는다.
+
+검사 helper는 각 검사 파일의 HTTP 서버를 임의 포트에 열고 브라우저/context를 정리한다. 자동 검사를 위해 아래 수동 서버를 따로 실행할 필요는 없다. 날짜 fixture·Asia/Seoul·기본 rAF 정지와 필요한 live 검사를 유지한다. Google Fonts 요청은 자동 검사에서 차단하고 기본 폰트를 사용한다.
+
+## 정적 앱 실행과 확인
+
+```bash
+python3 -m http.server 8000 --bind 127.0.0.1
+```
+
+별도 터미널에서 HTTP 확인을 하고 브라우저로 루트 페이지를 연다. Python 서버는 저장소 루트에서 시작한다. 종료는 서버 터미널의 Ctrl+C다.
+
+```bash
+curl --fail --head http://127.0.0.1:8000/
+curl --fail --head http://127.0.0.1:8000/js/core/boot.js
+curl --fail --head http://127.0.0.1:8000/css/style.css
+```
+
+HTTP 200 외에 이름 입력·고객 생성·캔버스·메뉴/패널과 콘솔 page error도 확인한다. IMP-09에서는 이 서버에 실제 Chromium으로 접속해 이름 저장·고객 생성과 JS 오류 0개를 확인했다. [검증 화면](improvements/screenshots/nice-chicken-imp09-static-smoke.png)을 남겼다. `file://` 실행은 저장/리소스/권한이 달라 공식 검사 경로로 사용하지 않는다.
+
+## 실패 자료
+
+공통 스크립트의 `test-results/logs/`에는 설치, Linux 의존성(해당 runner만), 브라우저 설치, 환경/버전, 문법, 검사 로그가 있다. CI 실패 시 **14일** 보관하는 Actions artifact로 `test-results/`를 업로드한다. 성공 시 artifact step은 건너뛰고 Actions 실행 로그에 결과가 남는다.
+
+브라우저 검사 실패는 `test-results/failures/<검사파일>-<pid>-<case>/`에 다음 자료를 남기고 원래 오류를 다시 throw한다.
+
+- `failure.json`: 검사 파일/번호, browser 버전·viewport·live 여부, 오류 stack, page error, 최근 console 100개, 진단 캡처 오류.
+- `page.png`: 실패 직전 화면.
+- `trace.zip`: 해당 context의 스크린샷·DOM snapshot·소스 trace. 다른 검사 context와 저장은 섞이지 않는다.
+
+같은 파일에서 정확한 실패 이름/줄은 Node 로그와 stack을 확인한다. 소스 자체가 파싱되지 않거나 브라우저 실행 전 실패하면 PNG/trace는 만들 수 없으며 명령 로그를 사용한다. 일반 검증 스크린샷은 `test-results/screenshots/`에 저장하므로 역사 보고서의 PNG를 덮어쓰지 않는다.
+
+```bash
+npx playwright show-trace test-results/failures/<폴더>/trace.zip
+```
+
+CI artifact는 합성 fixture의 검사 자료다. 실제 사용자 백업을 진단용으로 공개 업로드하지 않는다. 이 안내의 진단 경로는 수익 지급·저장 형식이나 게임 동작을 바꾸지 않는다.
+
+## 실패 진단
+
+| 증상 | 확인·수정 |
+| --- | --- |
+| npm 캐시의 ENOENT/EACCES; tarball 재시도 경고 | 먼저 로그의 실제 mkdir/permission 오류를 확인한다. 쓰기 가능한 `npm_config_cache=/tmp/nice-chicken-npm-cache`로 재실행한다. 이 클라우드에서 확인한 원인이다. |
+| `EINTEGRITY` checksum 불일치 | 잠금 파일과 실제 registry/cache 출처를 확인하고 `npm cache verify` 또는 새 캐시 경로를 사용한다. 잠금 integrity나 TLS 검증을 제거하지 않는다. |
+| `Executable doesn't exist`, 실행 파일 접근 실패 | `npm ci` 후 같은 `PLAYWRIGHT_BROWSERS_PATH`로 브라우저를 설치한다. override 경로와 `npm run doctor` 출력을 확인한다. |
+| Chromium missing shared library | Linux에서 `npx playwright install-deps chromium` 후 doctor를 다시 실행한다. |
+| 브라우저/CDN 다운로드 실패 | 명령 로그와 네트워크/CA 설정을 확인한다. `registry.npmjs.org`, `cdn.playwright.dev` 및 실제 redirect 대상이 필요하다. TLS 검증을 끄지 않는다. |
+| HTTP 404 또는 JS MIME 오류 | 서버의 cwd·HTML 참조를 확인한다. JS/CSS 실패는 고친다. 기존 `sign_*.png/jpg`는 원본 asset이 없어 404 뒤 그리기 fallback을 사용하며 별도 콘텐츠 문제다. |
+| Node assertion 실패 | 실패 파일을 단독 재현하고 JSON/PNG/trace를 확인한다. fixture/날짜·지점·보상·엔딩 계약을 고친다. assertion 삭제나 skip으로 통과시키지 않는다. |
+| quota 저장 실패 메시지인데 검사 통과 | 실패 복구를 검증하는 합성 case는 의도적으로 저장 오류를 발생시킨다. 최종 Node의 pass/fail/skip 집계를 기준으로 판단한다. |
+| Actions의 checks가 skipped | 열린 PR이 해당 브랜치의 검사를 소유하는 push인지 select 로그와 PR run을 확인한다. PR run의 성공이 있어야 한다. |
+| Actions 취소 | 새 커밋이 이전 실행을 취소한 경우다. 취소를 통과로 기록하지 않고 새 SHA의 결과를 확인한다. |
+
+## GitHub 이벤트와 배포
+
+현재 활성 파일은 `.github/workflows/ci.yml` 하나다. 모든 브랜치 push, PR의 기본 opened/synchronize/reopened, workflow_dispatch를 정의한다. 수동 실행 UI는 이 파일이 default branch에 반영된 뒤 사용할 수 있다. 현재 개발 브랜치는 push/PR로 검증한다. default branch push는 항상 검사한다. 다른 브랜치에 열린 PR이 있으면 push의 select job만 실행하고 무거운 checks는 PR 이벤트에서 실행한다. API 조회 실패를 건너뛰기/성공으로 숨기지 않는다. 같은 이벤트/ref의 오래된 run은 concurrency로 취소한다. 서로 다른 이벤트의 run 목록은 두 개 보일 수 있지만 같은 업데이트의 전체 검사는 한 번이다.
+
+검사 job은 `contents: read`만 사용한다. select job의 `pull-requests: read`는 중복 검사 판단에만 필요하다. checkout은 `persist-credentials: false`, Actions 버전은 commit SHA 고정이다. 자동 커밋·push·merge·Pages deploy job은 없다. fork PR은 `pull_request`로 검사하며 `pull_request_target`이나 사용자 secret을 쓰지 않는다.
+
+과거 7개 워크플로는 `contents: write`로 패치 적용/자동 커밋·push를 했고 그중 `remove-expansion-inline-onclick-step2-3b.yml`은 모든 push에서 오래된 기준을 검사했다. [원본 보관 폴더](legacy-workflows/README.md)로 옮겼다. 현재 브랜치 밖의 main에는 아직 그 파일들이 남아 있으므로 main 반영은 별도 검토가 필요하다.
+
+GitHub Pages API에서 확인한 설정은 **legacy / main / 루트 `/`**, URL은 `https://jungtrainer.github.io/jungTrainer-Nice-Chicken/`이다. 이번 CI는 해당 배포 설정을 변경하지 않는다. main으로 반영하면 기존 Pages 자동 배포가 발생할 수 있으므로 main 병합·배포는 별도 승인 뒤 진행한다. CI 성공은 개발 브랜치가 배포되었다는 뜻이 아니다. 승인 후 배포 점검은 [수동 체크리스트](manual-test-checklist.md)를 따른다.
+
+성능은 `node scripts/measure-runtime.cjs [기준 트리 디렉터리]`로 참고 측정한다. 동일 브라우저/fixture/부하에서 작업 수를 비교하며 실행 시간을 CI 통과 임계값으로 사용하지 않는다. 원본 측정과 기존 보존 계약은 IMP-08 보고서에 있다.

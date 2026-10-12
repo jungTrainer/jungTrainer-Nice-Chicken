@@ -31,10 +31,9 @@ const { chromium } = require("playwright");
   await new Promise((r) => server.listen(0, "127.0.0.1", r));
   let browser;
   try {
-    browser = await chromium.launch({
-      executablePath:
-        process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || "/usr/bin/chromium",
-    });
+    browser = await chromium.launch(
+      require("./browser-options.cjs").browserOptions(),
+    );
     const page = await browser.newPage({
       viewport: { width: 390, height: 844 },
       timezoneId: "Asia/Seoul",
