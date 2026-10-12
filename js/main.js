@@ -166,6 +166,7 @@ function _branchKeys(){
 
 const BranchManager = {
   bootstrap(){
+    this.saveCurrent();
     // ensure base unlocked
     state.regionUnlocked = state.regionUnlocked || {};
     state.regionUnlocked[REGIONS[0].id] = true;
@@ -787,7 +788,8 @@ function initDOMRefs(){
       setSoundEnabled(next);
       toggleSoundBtn.textContent = next ? "ON" : "OFF";
       sfxTick();
-      if(_saveDirty) save(true);
+      markStateChanged("input-action");
+      save(true);
     });
   }
 
@@ -818,7 +820,8 @@ function initDOMRefs(){
     clearLogBtn.addEventListener("click", ()=>{
       if(confirm("혜택 내역을 정리할까요? (로그만 삭제)")){
         state.benefitsLog = [];
-        if(_saveDirty) save(true);
+        markStateChanged("input-action");
+      save(true);
         renderCoupons();
         showToast("기록 정리 완료");
       }
@@ -856,7 +859,8 @@ function initDOMRefs(){
       state.profile = state.profile || {};
       state.profile.name = v;
       if(modalProfile) modalProfile.classList.remove("on");
-      _saveDirty = true;
+      markStateChanged("profile-name");
+      save(true);
       updateUI();
       showToast("이름 저장 완료");
       sfxConfirm();
@@ -906,7 +910,8 @@ function initDOMRefs(){
       startNewWeek();
       showToast("✅ 사용되었습니다. 주간 미션이 초기화되었습니다.");
       sfxConfirm();
-      if(_saveDirty) save(true);
+      markStateChanged("input-action");
+      save(true);
       updateUI();
       renderCoupons();
       renderPanel("mis");
@@ -935,7 +940,8 @@ function initDOMRefs(){
       logBenefit({type:"drink", qty:1, source:"exchange", note:"5,000만원 교환"});
       showToast("교환 완료! 음료 쿠폰 +1");
       sfxConfirm();
-      if(_saveDirty) save(true);
+      markStateChanged("input-action");
+      save(true);
       updateUI();
       renderExchange();
       renderCoupons();
@@ -987,6 +993,7 @@ function initDOMRefs(){
       const id = node.dataset.regionId;
       if(!id) return;
       state.mapSelected = id;
+      markStateChanged("map-selection");
       renderMapUI();
     });
   }
@@ -2221,6 +2228,7 @@ const correct = (c.menuId === menuId);
     floatText("❌ 틀림!", c.x, c.y - 60, "#FF6B6B");
     showToast("메뉴가 달라요!");
     sfxWrong();
+    markStateChanged("incorrect-serve");
     return;
   }
 
@@ -2587,7 +2595,8 @@ function updateResearch(){
       const doneLvl = state.research.levels[rid]||0;
       showToast(`🎓 연구 완료: ${rinfo?.name || rid} Lv.${doneLvl}`);
       sfxFanfare();
-      if(_saveDirty) save(true);
+      markStateChanged("input-action");
+      save(true);
       renderPanel("res");
     }else{
       const mm = Math.floor(left/60000);
@@ -3012,7 +3021,10 @@ let _lastSaveWriteAt = 0;
 function save(force=false){
   // localStorage는 동기식이라 자주 쓰면 렉 유발.
   // force=false는 '저장 필요'만 표시하고 실제 write는 autosave/종료 시에만 수행.
-  if(!force){ _saveDirty = true; return true; }
+  if(!force){ markStateChanged("deferred-save"); return true; }
+  markStateChanged("save-request");
+  if(deferRecoveryWrites) return true;
+  BranchManager.saveCurrent();
   state.lastSeenAt = Date.now();
   try{
     const prevSave = localStorage.getItem(SAVE_KEY);
@@ -3075,6 +3087,7 @@ function readSavePayload(){
 
 function exportSaveData(){
   try{
+    BranchManager.saveCurrent();
     const payload = {
       app: "niceChicken",
       type: "manual-save-export",
@@ -5422,6 +5435,7 @@ window.addEventListener('unhandledrejection', ()=>{
 
 
 function tick(dt){
+  markStateChanged("active-branch-tick");
   // failsafe: prevent NaN accumulators
   if(!isFinite(state._spawnAcc)) state._spawnAcc = 0;
   if(!isFinite(state._autoServeAcc)) state._autoServeAcc = 0;
@@ -5859,8 +5873,10 @@ function initAfterLoad(fromReset=false){
 }
 
 function init(){
-  load();
-  initAfterLoad(false);
+  deferRecoveryWrites = true;
+  try{ load(); initAfterLoad(false); }
+  finally{ deferRecoveryWrites = false; }
+  if(_saveDirty) save(true);
 }
 
 // Boot after DOM is ready (prevents null refs)

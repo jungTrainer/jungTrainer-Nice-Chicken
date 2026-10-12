@@ -1,23 +1,4 @@
-/* REC-01: compatible pending receipts; installed before DOMContentLoaded. */
-let deferRecoveryWrites = false;
-const legacySave = save;
-save = function (force = false) {
-  if (deferRecoveryWrites) {
-    _saveDirty = true;
-    return true;
-  }
-  return legacySave(force);
-};
-const legacyInit = init;
-init = function () {
-  deferRecoveryWrites = true;
-  try {
-    legacyInit();
-  } finally {
-    deferRecoveryWrites = false;
-  }
-  if (_saveDirty) save(true);
-};
+/* Compatible offline receipts; invoked explicitly during boot and claiming. */
 function normalizeOfflineReward(reward) {
   const amount = Number.isFinite(reward?.amount)
     ? Math.max(0, Math.floor(reward.amount))
