@@ -56,7 +56,7 @@ function repairMissionGoals() {
         n + Math.max(0, (u.maxLevel || 0) - (state.upgrades[u.id] || 0)),
       0,
     ) +
-    STAFF_POOL.slice(0, 5).reduce(
+    STAFF_POOL.reduce(
       (n, s) =>
         n +
         ["auto", "tip"].reduce(
@@ -87,7 +87,7 @@ function repairMissionGoals() {
       }
     }
 }
-startNewWeek = function () {
+startNewWeek = function ({ resetCertificate = true } = {}) {
   const m = state.missions;
   m.weekStartAt = Date.now();
   m.weekEndAt = Date.now() + 7 * 86400000;
@@ -95,12 +95,18 @@ startNewWeek = function () {
   m.weeklyCompletedAt = 0;
   m.weeklyList = missionList(true);
   missionBaselines(true);
-  Object.assign(state.cert, {
-    issuedThisWeek: false,
-    issuedAt: 0,
-    validUntil: 0,
-    usedAt: 0,
-  });
+  // Passive branch/week initialization must not revoke an HQ certificate.
+  if (
+    resetCertificate ||
+    (state.cert.validUntil > 0 && Date.now() >= state.cert.validUntil)
+  ) {
+    Object.assign(state.cert, {
+      issuedThisWeek: false,
+      issuedAt: 0,
+      validUntil: 0,
+      usedAt: 0,
+    });
+  }
   _saveDirty = true;
 };
 ensureMissionReset = function () {
@@ -108,7 +114,8 @@ ensureMissionReset = function () {
   const end = m.weeklyCompletedAt
     ? state.cert.validUntil || m.weekEndAt
     : m.weekEndAt;
-  if (!m.weekStartAt || (end && Date.now() >= end)) startNewWeek();
+  if (!m.weekStartAt || (end && Date.now() >= end))
+    startNewWeek({ resetCertificate: false });
   if (m.dailyKey !== dayKey()) {
     m.dailyKey = dayKey();
     m.dailyList = missionList(false);

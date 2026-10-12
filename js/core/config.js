@@ -108,7 +108,7 @@ let UPGRADES = [
 
   { id:"signboard", cat:"마케팅", name:"간판 교체", maxLevel:10, desc:"주문 유입 증가", costFn: l => 20000000 * Math.pow(2.2, l), effect:{ ordersMul:+0.12 } },
   { id:"interior", cat:"시설", name:"인테리어 변경", maxLevel:10, desc:"주문 유입 증가 + 배경 밝아짐", costFn: l => 30000000 * Math.pow(2.1, l), effect:{ ordersMul:+0.10 } },
-  { id:"hire", cat:"직원", name:"알바 고용", maxLevel:6, desc:"가족 알바생 추가", costFn: l => 50000 * Math.pow(3, l), effect:{ staffCount:+1 } },
+  { id:"hire", cat:"직원", name:"알바 고용", maxLevel:STAFF_POOL.length, desc:"가족 알바생 추가 (지점별)", costFn: l => 50000 * Math.pow(3, l), effect:{ staffCount:+1 } },
   // NOTE: '동기 부여(motivation_removed)' 삭제됨 — 직원은 개별 육성(속도/서비스 교육)으로 성장
   { id:"menuUnlock", cat:"시설", name:"메뉴 해금", maxLevel:8, desc:"메뉴 1개 해금 (1회당 1개)", costFn: l => { const costs=[10000000,50000000,100000000,500000000,2000000000,8000000000,32000000000,128000000000];
  return costs[Math.min(l,costs.length-1)]; }, effect:{} },

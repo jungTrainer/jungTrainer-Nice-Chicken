@@ -149,6 +149,10 @@ function _branchDefaultData(){
     event: null,
     _spawnAcc: 0,
     _autoServeAcc: 0,
+    _eventCheckAcc: 0,
+    _staffRot: 0,
+    serviceTimers: JSON.parse(JSON.stringify(d.serviceTimers)),
+    buffEndTime: 0,
   };
 }
 function _branchKeys(){
@@ -156,7 +160,7 @@ function _branchKeys(){
     "rep","level","todaySales","totalSales","offlineSalesToday","offlineSalesTotal","offlineReward","unattributedSales",
     "menuLevels","menuStats","contrib","stamps",
     "payroll","upgrades","delivery","online","research","missions",
-    "customers","selectedCustomerId","event","_spawnAcc","_autoServeAcc"
+    "customers","selectedCustomerId","event","_spawnAcc","_autoServeAcc","_eventCheckAcc","_staffRot","serviceTimers","buffEndTime"
   ];
 }
 
@@ -211,7 +215,7 @@ const BranchManager = {
   loadFrom(id, { resetRuntime=true } = {}){
     const b = this.ensure(id);
     const keys = _branchKeys();
-    b.data = b.data || _branchDefaultData();
+    b.data = { ..._branchDefaultData(), ...(b.data||{}) };
     keys.forEach(k=>{
       const v = b.data[k];
       if(v && typeof v === "object"){
@@ -234,15 +238,26 @@ const BranchManager = {
   },
 
   move(id){
-    if(!state.regionUnlocked || !state.regionUnlocked[id]){
+    if(!REGION_MAP[id] || !state.regionUnlocked || !state.regionUnlocked[id]){
       showToast("아직 해금되지 않은 지역이에요!");
       return false;
     }
+    if(id === state.regionId) return true;
     // save current, then move
+    captureBranchServiceTimers();
+    const previous=structuredClone(state);
+    const previousEffects=structuredClone(window._fxState);
     this.saveCurrent();
     state.regionId = id;
     this.ensure(id);
     this.loadFrom(id, { resetRuntime:true });
+
+    _saveDirty = true;
+    if(!save(true)){
+      state=previous;bindBranchServiceTimers();window._fxState=previousEffects;
+      this.saveCurrent();renderOfflineReward();buildMenuGrid();updateUI();updateStatsUI();renderMapUI();
+      showToast("저장 실패. 현재 지점에 남아 있습니다.");return false;
+    }
 
     // close UI & redraw with new branch data
     closePanels();
@@ -251,8 +266,6 @@ const BranchManager = {
     updateStatsUI();
     renderMapUI();
 
-    _saveDirty = true;
-    save(true);
     const nm = REGION_MAP[id]?.name || id;
     showToast(`지역 이동: ${nm}`);
     return true;
@@ -315,10 +328,14 @@ function getMenuPrice(menuId){
 -------------------- */
 
 /* --------------------
-   Family staff (max 5)
+   Family staff: shared training/career income, branch-local hiring.
 -------------------- */
 
 // 👇👇👇 여기서부터 잃어버린 함수 복구 코드! 복사해서 끼워 넣게! 👇👇👇
+function getStaffCount(){
+  return clampInt(state?.upgrades?.hire||0, 0, STAFF_POOL.length);
+}
+function getHiredStaff(){ return STAFF_POOL.slice(0, getStaffCount()); }
 function ensureStaffStats(){
   if(!state.staffStats) state.staffStats = {};
   for(const s of STAFF_POOL){
@@ -432,6 +449,9 @@ function buyStaffUpgrade(staffKey, kind){
   ensureMissionReset();
   ensureStaffStats();
   if(kind!=="auto" && kind!=="tip") return;
+  if(!getHiredStaff().some(staff=>staff.key===staffKey)){
+    showToast("현재 지점에서 먼저 고용하세요.");return;
+  }
   const st = state.staffStats[staffKey];
   if(!st) return;
   const cur = st[kind]||0;
@@ -531,6 +551,9 @@ const defaultState = () => ({
   offlineSalesTotal: 0,
   offlineReward: {amount:0, seconds:0},
   unattributedSales: 0,
+  serviceTimers: {onlineOrders:0, deliveryMs:0, deliveryIntervalMs:null, deliverySignature:""},
+  _staffRot: 0,
+  buffEndTime: 0,
 
 
 
@@ -1073,7 +1096,7 @@ function processPayroll(){
   if(state.payroll.lastDayKey === "") state.payroll.lastDayKey = today;
   if(state.payroll.lastDayKey === today) return;
 
-  const hireLvl = clampInt(state.upgrades.hire||0, 0, 6);
+  const hireLvl = getStaffCount();
   const staffCount = hireLvl;
   if(staffCount > 0){
     const wage = staffCount * (state.payroll.dailyWage || 80000);
@@ -1563,8 +1586,7 @@ function computeRates(){
   if(eff.patienceMul) patience *= (1 + eff.patienceMul);
   patience = Math.max(7, patience);
 
-  const hireLvl = clampInt(state.upgrades.hire||0, 0, 6);
-  const staffCount = clampInt(hireLvl, 0, 6);
+  const staffCount = getStaffCount();
 
   // 직원 육성(각 직원별 2개 업그레이드)
   ensureStaffStats();
@@ -1990,8 +2012,7 @@ function bossCenter(){
 
 function staffCenters(){
   const list = [];
-  const hireLvl = clampInt((state?.upgrades?.hire)||0, 0, STAFF_POOL.length);
-  const hired = STAFF_POOL.slice(0, hireLvl);
+  const hired = getHiredStaff();
   if(hired.length === 0) return list;
 
   const h = canvas.height;
@@ -1999,12 +2020,12 @@ function staffCenters(){
   const floorY = h - floorH;
   const staffY = Math.min(h - 26, floorY + floorH - 24);
   
-  const padding = 70; 
+  const r = Math.min(49, Math.max(22, canvas.width/(hired.length*2)-6));
+  const padding = r + 6;
   const usableW = canvas.width - padding * 2;
   const count = Math.max(1, hired.length);
   
-  // [NEW] 기존 70에서 30%를 줄인 반경 49로 설정!
-  const r = 49; 
+  // Keep six touch centers distinct even on a 320px screen.
 
   let gap = 0;
   let startX = canvas.width / 2;
@@ -2725,13 +2746,13 @@ function updateCustomers(dt){
    Auto serve
 -------------------- */
 function pickStaffKey(){
-  const staffCount = clampInt(state?.upgrades?.hire||0, 0, 5);
+  const staffCount = getStaffCount();
   if(staffCount<=0) return "player";
   ensureStaffStats();
   const hired = STAFF_POOL.slice(0, staffCount);
   if(!state._staffRot) state._staffRot = 0;
   const s = hired[state._staffRot % hired.length];
-  state._staffRot = (state._staffRot + 1) % 999999;
+  state._staffRot = (state._staffRot + 1) % staffCount;
   return s?.key || "player";
 }
 
@@ -3285,7 +3306,7 @@ function sanitizeState(){
 
 
   // [마이그레이션] 구버전: hire 업그레이드만 있고 직원 개별 데이터가 없으면 기본값 생성
-  const hireLvl = clampInt(state?.upgrades?.hire||0, 0, 5);
+  const hireLvl = getStaffCount();
   if(hireLvl > 0 && (!state.staffStats || Object.keys(state.staffStats).length === 0)){
     state.staffStats = {};
     for(let i=0;i<hireLvl;i++){
@@ -5123,13 +5144,16 @@ const upgBtn = div.querySelector("button");
     }
 
     // 알바생 개별 관리 UI (업그레이드 탭 하단)
-    const hireCount = clampInt(state.upgrades.hire || 0, 0, 5);
+    const hireCount = getStaffCount();
     if (hireCount > 0) {
       const staffHeader = document.createElement("div");
       staffHeader.className = "note";
       staffHeader.style.cssText = "margin: 20px 0 10px; font-size: 1.1rem; font-weight: bold; color: #333;";
       staffHeader.innerHTML = `👥 알바 관리 <span style="font-size:0.9rem; color:#666;">(${hireCount}명)</span>`;
       upgList.appendChild(staffHeader);
+      const scopeNote=document.createElement("div");scopeNote.className="note";
+      scopeNote.textContent="고용은 지점별 · 교육과 직원 누적 수익은 전체 지점 공용";
+      scopeNote.style.marginBottom="12px";upgList.appendChild(scopeNote);
 
       ensureStaffStats();
       STAFF_POOL.slice(0, hireCount).forEach(s => {
@@ -5140,7 +5164,7 @@ const upgBtn = div.querySelector("button");
         card.innerHTML = `
           <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:10px;">
             <div style="font-weight:bold;">${s.emoji} ${s.label}</div>
-            <div style="font-size:0.85rem; color:#666;">기여: ${fmtWon(st.earned)}</div>
+            <div style="font-size:0.85rem; color:#666;">전체 지점 누적: ${fmtWon(st.earned)}</div>
           </div>
           <div style="display:flex; gap:8px; width:100%;">
             <button class="btn" id="btn-auto-${s.key}" style="flex:1; background:#fff; color:#333; border:1px solid #ddd;">👟속도 Lv.${st.auto}</button>
@@ -5823,9 +5847,10 @@ function initAfterLoad(fromReset=false){
   startGameLoop();
 
   // kickstart: 첫 손님이 너무 늦게 뜨는 현상 방지
+  const bootState=state, bootRegion=state.regionId;
   setTimeout(()=>{
     try{
-      if(state && Array.isArray(state.customers) && state.customers.length===0){
+      if(state===bootState && state.regionId===bootRegion && Array.isArray(state.customers) && state.customers.length===0){
         spawnCustomer();
       }
     }catch(e){}
