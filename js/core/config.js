@@ -37,25 +37,24 @@ const CONFIG = {
   pin: "0000",
 };
 
+// Exact anchor amounts with geometric interpolation. Levels already earned are never reduced.
 (function ensureLevelTable() {
-  const MAX_LV = 999;
-
-  // Rebuild level table to 0..MAX_LV.
-  // Threshold = lifetime sales required to reach that level.
-  // Curve: base * exp(a*lv + b*lv^2) tuned so Lv.999 is near 1e70 (still below ending 9.99e70).
-  const base = 100000; // 1e5
-  const a = 0.02;
-  const b = 0.0001299;
-
-  const arr = new Array(MAX_LV + 1).fill(0);
-  for (let lv = 1; lv <= MAX_LV; lv++) {
-    const x = a * lv + b * lv * lv;
-    const req = Math.floor(base * Math.exp(x));
-    arr[lv] = req;
+  const anchors = [
+    [10, 6500000], [100, 50000000000], [250, 20000000000000],
+    [400, "10000000000000000"], [550, "500000000000000000"],
+    [700, "20000000000000000000"], [999, "10000000000000000000000"],
+  ];
+  const arr = [0, 0, 120000, 300000, 650000, 1100000, 1700000, 2400000, 3200000, 4100000, 6500000];
+  for (let i = 1; i < anchors.length; i++) {
+    const [from, start] = anchors[i-1], [to, end] = anchors[i];
+    // Only dimensionless interpolation uses floating point; prices/ledgers do not.
+    const ratio = Math.exp(Math.log(Number(end) / Number(start)) / (to - from));
+    for (let lv = from + 1; lv < to; lv++)
+      arr[lv] = moneyGeometricCost(start, ratio, lv - from);
+    arr[to] = normalizeMoney(end);
   }
-  arr[0] = 0;
   CONFIG.levelUpTotalSales = arr;
-  CONFIG.maxLevel = MAX_LV;
+  CONFIG.maxLevel = 999;
 })();
 
 const REGIONS = [
@@ -255,7 +254,8 @@ let UPGRADES = [
     name: "간판 교체",
     maxLevel: 10,
     desc: "주문 유입 증가",
-    costFn: (l) => 20000000 * Math.pow(2.2, l),
+    costGrowth: [20000000, 2.2],
+    costFn: (l) => moneyGeometricCost(20000000, 2.2, l),
     effect: { ordersMul: +0.12 },
   },
   {
@@ -264,7 +264,8 @@ let UPGRADES = [
     name: "인테리어 변경",
     maxLevel: 10,
     desc: "주문 유입 증가 + 배경 밝아짐",
-    costFn: (l) => 30000000 * Math.pow(2.1, l),
+    costGrowth: [30000000, 2.1],
+    costFn: (l) => moneyGeometricCost(30000000, 2.1, l),
     effect: { ordersMul: +0.1 },
   },
   {
@@ -273,7 +274,8 @@ let UPGRADES = [
     name: "알바 고용",
     maxLevel: STAFF_POOL.length,
     desc: "가족 알바생 추가 (지점별)",
-    costFn: (l) => 50000 * Math.pow(3, l),
+    costGrowth: [50000, 3],
+    costFn: (l) => moneyGeometricCost(50000, 3, l),
     effect: { staffCount: +1 },
   },
   // NOTE: '동기 부여(motivation_removed)' 삭제됨 — 직원은 개별 육성(속도/서비스 교육)으로 성장
@@ -298,7 +300,8 @@ let UPGRADES = [
     name: "가게 확장",
     maxLevel: 20,
     desc: "전체 메뉴 가격 +45% (레벨당)",
-    costFn: (l) => 150000 * Math.pow(1.6, l),
+    costGrowth: [150000, 1.6],
+    costFn: (l) => moneyGeometricCost(150000, 1.6, l),
     effect: {},
   },
   {
@@ -307,7 +310,8 @@ let UPGRADES = [
     name: "전단지 배포",
     maxLevel: 10,
     desc: "방문 속도 증가",
-    costFn: (l) => 80000 * Math.pow(1.4, l),
+    costGrowth: [80000, 1.4],
+    costFn: (l) => moneyGeometricCost(80000, 1.4, l),
     effect: { walkSpeedMul: +0.03 },
   },
 
@@ -318,7 +322,8 @@ let UPGRADES = [
     name: "라이더 고용",
     maxLevel: 10,
     desc: "배달 자동 수익 +라이더(빈도↑)",
-    costFn: (l) => 120000 * Math.pow(2.2, l),
+    costGrowth: [120000, 2.2],
+    costFn: (l) => moneyGeometricCost(120000, 2.2, l),
     effect: {},
   },
   {
@@ -327,7 +332,8 @@ let UPGRADES = [
     name: "이동수단 업그레이드",
     maxLevel: 10,
     desc: "배달 수익/속도 보너스",
-    costFn: (l) => 450000 * Math.pow(2.35, l),
+    costGrowth: [450000, 2.35],
+    costFn: (l) => moneyGeometricCost(450000, 2.35, l),
     effect: {},
   },
 ];

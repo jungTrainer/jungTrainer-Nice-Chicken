@@ -1,6 +1,35 @@
 {
-  "source": "IMP-08; classic script load order in index.html; top-level declarations only",
+  "source": "IMP-10; classic script load order in index.html; top-level declarations only",
   "modules": [
+    {
+      "file": "js/core/money.js",
+      "functions": [
+        "isMoney",
+        "moneyInt",
+        "moneyValue",
+        "normalizeMoney",
+        "moneyAdd",
+        "moneySub",
+        "moneyCompare",
+        "moneyMax",
+        "moneyQuotient",
+        "moneyRatio",
+        "moneyExactText",
+        "moneyFactor",
+        "moneyCalculate",
+        "moneyScale",
+        "moneyGeometricCost",
+        "menuResearchCost",
+        "normalizeBranchMoney",
+        "migrateMoneyState"
+      ],
+      "bindings": [
+        "MONEY_ENCODING",
+        "MONEY_MAX_DIGITS",
+        "MENU_RESEARCH_LIMIT",
+        "geometricMoneyCache"
+      ]
+    },
     {
       "file": "js/core/utils.js",
       "functions": [

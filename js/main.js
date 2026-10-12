@@ -443,13 +443,13 @@ function initDOMRefs() {
     doExchangeBtn.addEventListener("click", () => {
       unlockAudioOnce();
       startBGM();
-      const cnt = Math.floor(state.money / CONFIG.exchangeUnit);
+      const cnt = moneyQuotient(state.money, CONFIG.exchangeUnit);
       if (cnt <= 0) {
         showToast("교환할 돈이 부족해요.");
         sfxWrong();
         return;
       }
-      state.money -= CONFIG.exchangeUnit;
+      state.money = moneySub(state.money, CONFIG.exchangeUnit);
       state.coupons.drink += 1;
       logBenefit({
         type: "drink",
@@ -685,7 +685,7 @@ function renderRndList() {
 
   MENUS.slice(0, openCount).forEach((m) => {
     const lvl = state.menuLevels?.[m.id] || 0;
-    const cost = Math.floor(100000 * Math.pow(1.8, lvl));
+    const cost = menuResearchCost(lvl);
 
     const div = document.createElement("div");
     div.className = "rnd-item";
@@ -694,9 +694,11 @@ function renderRndList() {
         <span class="rnd-name">${m.emoji} ${m.name}</span>
         <span class="rnd-lvl">Lv.${lvl} (가격 x${(1 + lvl * 0.5).toFixed(1)})</span>
       </div>
-      <button class="rnd-btn" data-action="research-menu" data-menu-id="${m.id}" style="pointer-events: auto !important; position: relative; z-index: 2001;">연구 (${fmtNoWon(cost)})</button>
+      <button class="rnd-btn" data-action="research-menu" data-menu-id="${m.id}" ${cost === null ? "disabled" : ""} style="pointer-events: auto !important; position: relative; z-index: 2001;">${cost === null ? "최대 단계" : `연구 (${fmtNoWon(cost)})`}</button>
     `;
 
+    const button = div.querySelector(".rnd-btn");
+    if (cost !== null) { button.dataset.cost = cost; button.title = moneyExactText(cost) + "원"; }
     list.appendChild(div);
   });
 }
@@ -797,14 +799,14 @@ function unlockBranch(id) {
   }
   const loc = REGIONS[idx];
   const need = loc.unlockCost || 0;
-  if (state.money < need) {
+  if (moneyCompare(state.money, need) < 0) {
     showToast("자금이 부족합니다!");
     sfxWrong();
     return;
   }
   unlockAudioOnce();
   startBGM();
-  state.money -= need;
+  state.money = moneySub(state.money, need);
   state.regionUnlocked = state.regionUnlocked || {};
   state.regionUnlocked[id] = true;
 
@@ -850,7 +852,7 @@ function renderExpansionCards() {
       btnHtml = `<button class="btn alt loc-btn" data-action="move-branch" data-region-id="${loc.id}" type="button">이동하기 🚀</button>`;
     } else {
       if (isNext) {
-        const canAfford = state.money >= (loc.unlockCost || 0);
+        const canAfford = moneyCompare(state.money, loc.unlockCost || 0) >= 0;
         const costText = fmtWon(loc.unlockCost || 0);
         btnHtml = `<button class="btn loc-btn" ${canAfford ? "" : "disabled"} data-action="unlock-branch" data-region-id="${loc.id}" type="button">${costText} 오픈 🔓</button>`;
       } else {
@@ -943,7 +945,7 @@ safeOn(document.getElementById("statTotal"), "click", () => {
   const online = fmtDuration(p.onlineSecTotal);
   const offline = fmtDuration(p.offlineSecTotal);
   const total = fmtDuration((p.onlineSecTotal || 0) + (p.offlineSecTotal || 0));
-  const sum = (state.totalSales || 0) + (state.offlineSalesTotal || 0);
+  const sum = getLifetimeSales();
   showInfoToast("📈 누적 매출 / 시간", [
     ["누적 매출", fmtCompactWon(sum)],
     ["온라인 시간", online],
@@ -1790,7 +1792,7 @@ function renderCoupons() {
 
 function renderExchange() {
   uiMoney2.textContent = fmtWon(state.money);
-  const cnt = Math.floor(state.money / CONFIG.exchangeUnit);
+  const cnt = moneyQuotient(state.money, CONFIG.exchangeUnit);
   uiExchangeCnt.textContent = cnt;
   doExchangeBtn.disabled = cnt <= 0;
 }
@@ -3660,7 +3662,7 @@ function renderPanel(key) {
         const lvl = state.upgrades[u.id] || 0;
         const maxL = u.maxLevel ?? 99;
         const cost = upgradeCost(u.id, lvl);
-        const can = lvl < maxL && state.money >= cost;
+        const can = lvl < maxL && moneyCompare(state.money, cost) >= 0;
 
         const div = document.createElement("div");
         div.className = "card";
@@ -3678,7 +3680,7 @@ function renderPanel(key) {
           upgBtn.dataset.action = "buy-upgrade";
           upgBtn.dataset.upgradeId = u.id;
           upgBtn.dataset.cost = cost;
-          upgBtn.title = cost.toLocaleString("ko-KR") + "원";
+          upgBtn.title = moneyExactText(cost) + "원";
         }
         upgList.appendChild(div);
       }
@@ -3735,10 +3737,10 @@ function renderPanel(key) {
         ]) {
           const cost = staffUpgradeCost(s.key, kind, st[kind]);
           button.dataset.cost = cost;
-          button.title = cost.toLocaleString("ko-KR") + "원";
+          button.title = moneyExactText(cost) + "원";
           button.appendChild(document.createElement("br"));
           button.appendChild(document.createTextNode(fmtWon(cost)));
-          button.disabled = st[kind] >= 10 || state.money < cost;
+          button.disabled = st[kind] >= 10 || moneyCompare(state.money, cost) < 0;
         }
       });
     }
@@ -3857,8 +3859,8 @@ function missionValueLabel(m, v) {
   return String(v);
 }
 function missionProgressLine(m) {
-  const cur = Number(m.current ?? m.progress ?? 0);
-  const target = Number(m.target ?? 0);
+  const cur = m.current ?? m.progress ?? 0;
+  const target = m.target ?? 0;
   return `진행: ${missionValueLabel(m, cur)} / ${missionValueLabel(m, target)}`;
 }
 
@@ -3879,7 +3881,6 @@ function missionRow(m) {
 function weeklyRow(m) {
   const wrap = document.createElement("div");
   wrap.className = "card";
-  const cur = Math.min(m.current, m.target);
   wrap.innerHTML = `
     <div class="info">
       <h4>${m.title}</h4>
@@ -4005,7 +4006,7 @@ try {
 
 /* ==========================================================
    ENDING (손주) 시스템
-   - 조건: money >= 9.99e70 (999 무량대수 근사)
+   - 조건: money >= ENDING_MONEY (100해)
    - 팝업: "나이스 치킨 게임의 엔딩 조건에 도달하였습니다. 엔딩을 보시겠습니까?"
    - 엔딩 사운드: END_SOUND.* 루핑, 엔딩 종료 시 페이드아웃
    - 엔딩 완료 보상: 로봇 손주(🤖) + 매출 50% + 손님 유입 50%
@@ -4105,6 +4106,7 @@ function updateUI() {
     const setText = setTextIfChanged;
 
     setText(elMoney, fmtCompact(state.money));
+    if (elMoney) elMoney.title = moneyExactText(state.money) + "원";
     setText(elRep, state.rep.toFixed(1));
     setText(elLvl, state.level);
     // XP bar (based on lifetime sales threshold)
@@ -4112,11 +4114,11 @@ function updateUI() {
       const total = getLifetimeSales();
       const lvl = Math.max(1, Number(state.level) || 1);
       const arr = CONFIG.levelUpTotalSales || [];
-      const curReq = arr[lvl - 1] ?? 0;
-      const nextReq = arr[lvl] ?? curReq + Math.max(500000, curReq * 0.6);
+      const curReq = arr[lvl] ?? 0;
+      const nextReq = arr[lvl + 1] ?? curReq;
       const pct =
-        nextReq > curReq
-          ? Math.max(0, Math.min(1, (total - curReq) / (nextReq - curReq)))
+        lvl >= CONFIG.maxLevel ? 1 : moneyCompare(nextReq, curReq) > 0
+          ? moneyRatio(moneySub(total, curReq), moneySub(nextReq, curReq))
           : 0;
       if (window.uiXpFill)
         window.uiXpFill.style.width = (pct * 100).toFixed(1) + "%";
@@ -4198,14 +4200,14 @@ function updateStatsUI() {
     state.offlineSalesTotal ||= 0;
     const online = state?.todaySales || 0;
     const offline = state?.offlineSalesToday || 0;
-    const totalAll = (state?.totalSales || 0) + (state?.offlineSalesTotal || 0);
+    const totalAll = getLifetimeSales();
 
     const el = (id) => document.getElementById(id);
 
     if (el("rptOnline")) el("rptOnline").innerText = fmtWon(online);
     if (el("rptOffline")) el("rptOffline").innerText = fmtWon(offline);
     if (el("rptTodayTotal"))
-      el("rptTodayTotal").innerText = fmtWon(online + offline);
+      el("rptTodayTotal").innerText = fmtWon(moneyAdd(online, offline));
     if (el("rptTotalAll")) el("rptTotalAll").innerText = fmtWon(totalAll);
 
     const contrib = state?.contrib || { player: 0, staff: 0, system: 0 };
@@ -4236,25 +4238,9 @@ function tick(dt) {
     if (!isFinite(state._autoServeAcc)) state._autoServeAcc = 0;
     if (!isFinite(state._saveAcc)) state._saveAcc = 0;
     if (!isFinite(state._eventCheckAcc)) state._eventCheckAcc = 0;
-    // money failsafe
-    if (
-      typeof state.money !== "number" ||
-      !isFinite(state.money) ||
-      isNaN(state.money)
-    )
-      state.money = 0;
-    if (
-      typeof state.todaySales !== "number" ||
-      !isFinite(state.todaySales) ||
-      isNaN(state.todaySales)
-    )
-      state.todaySales = 0;
-    if (
-      typeof state.totalSales !== "number" ||
-      !isFinite(state.totalSales) ||
-      isNaN(state.totalSales)
-    )
-      state.totalSales = 0;
+    // Valid decimal amounts survive every tick. Invalid external values cannot poison ledgers.
+    for (const key of ["money", "todaySales", "totalSales"])
+      if (!isMoney(state[key])) state[key] = 0;
     // online playtime accumulation
     if (state.play && typeof state.play.onlineSecTotal === "number")
       state.play.onlineSecTotal += dt;

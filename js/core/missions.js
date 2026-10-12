@@ -167,7 +167,7 @@ function updateMissionsOnlineOnly() {
       if (goal.type === "stamp") value = m.weeklyStamps || 0;
       if (goal.type === "earn") value = state.todaySales;
       if (goal.type === "sales")
-        value = state.totalSales - (m._weekStartTotalSales || 0);
+        value = moneySub(state.totalSales, m._weekStartTotalSales || 0);
       if (goal.type === "rep")
         value = state.rep >= (weekly ? 4.4 : 4.2) ? 1 : 0;
       if (goal.type === "tip") value = (weekly ? m._weekTip : m._tipToday) || 0;
@@ -183,8 +183,8 @@ function updateMissionsOnlineOnly() {
         value = (state.upgrades.expand || 0) - (m[prefix + "Expand"] || 0);
       const previous = goal.current,
         previousDone = goal.done;
-      goal.current = Math.max(goal.current || 0, 0, value);
-      goal.done = goal.current >= goal.target;
+      goal.current = moneyMax(moneyMax(goal.current || 0, 0), value);
+      goal.done = moneyCompare(goal.current, goal.target) >= 0;
       if (goal.current !== previous || goal.done !== previousDone)
         markStateChanged("mission-progress", false);
     }

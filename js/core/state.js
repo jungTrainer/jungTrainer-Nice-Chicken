@@ -1,6 +1,7 @@
 /* IMP-08: compatible state schema; active branch fields are a view. */
 const defaultState = () => ({
   version: CONFIG.version,
+  moneyEncoding: MONEY_ENCODING,
 
   profile: { name: "" },
   endingUnlocked: false,

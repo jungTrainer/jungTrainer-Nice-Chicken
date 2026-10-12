@@ -1,6 +1,6 @@
 # 개발·검사·CI 실행 안내
 
-기준: IMP-09, 2026-10-12. 게임은 정적 HTML/CSS/JS이며 일반 실행에는 npm 설치·빌드·백엔드가 필요 없다. 브라우저 검사에는 Node와 Playwright/Chromium을 설치한다. [데이터 규칙](data-ownership.md)과 [실행 계약](runtime-architecture.md)을 함께 따른다.
+기준: IMP-09/10, 2026-10-12. 게임은 정적 HTML/CSS/JS이며 일반 실행에는 npm 설치·빌드·백엔드가 필요 없다. 브라우저 검사에는 Node와 Playwright/Chromium을 설치한다. [데이터 규칙](data-ownership.md)과 [실행 계약](runtime-architecture.md)을 함께 따른다.
 
 ## 설치와 브라우저 선택
 
@@ -47,7 +47,7 @@ PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright" \
 npm run test:ci
 ```
 
-현재 앱 JS 17개와 도구/검사 helper CJS 6개, 총 **23개 문법 검사**, **92개 회귀 검사**를 실행한다. assertion과 fixture는 유지하며 브라우저 실행·진단과 스크린샷 출력 경로만 정리했다. 범위별 재현은 `node --test tests/branches.test.cjs`, `node --test tests/refactor.test.cjs` 등을 사용한다. 범위별 통과가 전체 통과를 대신하지 않는다.
+현재 앱 JS 18개와 도구/검사 helper CJS 7개, 총 **25개 문법 검사**, **120개 회귀 검사**를 실행한다. IMP-09의 92개 assertion/fixture를 유지하고 IMP-10 금액/마이그레이션 28개를 추가했다. 범위별 재현은 `node --test tests/branches.test.cjs`, `node --test tests/refactor.test.cjs`, `node --test tests/money.test.cjs` 등을 사용한다. 범위별 통과가 전체 통과를 대신하지 않는다.
 
 검사 helper는 각 검사 파일의 HTTP 서버를 임의 포트에 열고 브라우저/context를 정리한다. 자동 검사를 위해 아래 수동 서버를 따로 실행할 필요는 없다. 날짜 fixture·Asia/Seoul·기본 rAF 정지와 필요한 live 검사를 유지한다. Google Fonts 요청은 자동 검사에서 차단하고 기본 폰트를 사용한다.
 
@@ -111,3 +111,12 @@ CI artifact는 합성 fixture의 검사 자료다. 실제 사용자 백업을 �
 GitHub Pages API에서 확인한 설정은 **legacy / main / 루트 `/`**, URL은 `https://jungtrainer.github.io/jungTrainer-Nice-Chicken/`이다. 이번 CI는 해당 배포 설정을 변경하지 않는다. main으로 반영하면 기존 Pages 자동 배포가 발생할 수 있으므로 main 병합·배포는 별도 승인 뒤 진행한다. CI 성공은 개발 브랜치가 배포되었다는 뜻이 아니다. 승인 후 배포 점검은 [수동 체크리스트](manual-test-checklist.md)를 따른다.
 
 성능은 `node scripts/measure-runtime.cjs [기준 트리 디렉터리]`로 참고 측정한다. 동일 브라우저/fixture/부하에서 작업 수를 비교하며 실행 시간을 CI 통과 임계값으로 사용하지 않는다. 원본 측정과 기존 보존 계약은 IMP-08 보고서에 있다.
+
+## 성장·금액 측정 (IMP-10)
+
+```bash
+PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright" node scripts/measure-economy.cjs
+PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright" node scripts/measure-economy.cjs /tmp/비교할-기준-트리
+```
+
+도구는 브라우저와 정적 서버를 직접 시작/종료한다. 비교 트리는 실제 정적 앱 파일을 포함해야 하며 다른 repo에 설치할 필요는 없다. 1원 경계·지수 비용 overflow·레벨/지점/엔딩 계획 모델·실제 서비스 10분을 JSON으로 출력한다. 모델은 평균 수익의 Number 근사이며 실제 원 단위 정산 테스트와 구분한다. [성장·금액 정책](economy-policy.md)에 모델 가정/한도·새 encoding과 구 저장 호환성을 명시했다. 앱에 측정 래퍼를 설치하지 않고 CI 시간 임계값으로 쓰지 않는다.

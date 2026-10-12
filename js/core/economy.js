@@ -1,52 +1,55 @@
 function getMenuPrice(id, eff = sumEffects()) {
   const base = MENU_MAP[id]?.price || 0;
   if (!base) return 0;
-  return Math.floor(
-    (base *
-      (1 + (state.upgrades.expand || 0) * 0.45) *
-      (1 + (state.menuLevels[id] || 0) * 0.5) *
-      (1 + state.level * 0.1) *
-      (getRegion()?.priceMul || 1) +
-      (eff.priceBonus || 0)) *
-      Math.max(0, 1 + (eff.earningMul || 0)),
-  );
+  return moneyCalculate(base, [
+    1 + (state.upgrades.expand || 0) * 0.45,
+    1 + (state.menuLevels[id] || 0) * 0.5,
+    1 + state.level * 0.1,
+    getRegion()?.priceMul || 1,
+  ], eff.priceBonus || 0, Math.max(0, 1 + (eff.earningMul || 0)));
 }
 
 function upgradeCost(id, level = state.upgrades[id] || 0) {
-  const price =
-    UPGRADES.find((u) => u.id === id)?.costFn(level) *
-    (getRegion()?.costMul || 1);
-  return Number.isFinite(price) && price > 0 ? Math.floor(price) : Infinity;
+  const upgrade = UPGRADES.find(u => u.id === id);
+  if (!upgrade || !Number.isSafeInteger(level) || level < 0) return null;
+  const multiplier = getRegion()?.costMul || 1;
+  if (upgrade.costGrowth) return moneyGeometricCost(...upgrade.costGrowth, level, multiplier);
+  return moneyScale(upgrade.costFn(level), multiplier);
 }
 
 function recordIncome(
   amount,
   { menuId = null, actorKey = "system", count = 0, offline = false } = {},
 ) {
-  if (!Number.isFinite(amount) || amount <= 0) return false;
-  amount = Math.floor(amount);
-  if (!amount) return false;
+  if (!isMoney(amount) || moneyCompare(amount, 0) <= 0) return false;
+  amount = normalizeMoney(amount);
   ensureMissionReset();
   ensureStaffStats();
-  state.money += amount;
   const today = offline ? "offlineSalesToday" : "todaySales",
     total = offline ? "offlineSalesTotal" : "totalSales";
-  state[today] = (state[today] || 0) + amount;
-  state[total] = (state[total] || 0) + amount;
-  const owner =
-    actorKey === "player"
-      ? "player"
-      : actorKey === "system" || !state.staffStats[actorKey]
-        ? "system"
-        : "staff";
-  state.contrib[owner] = (state.contrib[owner] || 0) + amount;
-  if (owner === "staff") state.staffStats[actorKey].earned += amount;
-  if (MENU_MAP[menuId]) {
-    const stats = (state.menuStats[menuId] ||= { count: 0, earned: 0 });
-    stats.earned = (stats.earned || 0) + amount;
+  const owner = actorKey === "player" ? "player" :
+    actorKey === "system" || !state.staffStats[actorKey] ? "system" : "staff";
+  const stats = MENU_MAP[menuId] ? (state.menuStats[menuId] || { count: 0, earned: 0 }) : null;
+  // Calculate every new ledger value before mutating any one of them.
+  let balances;
+  try {
+    balances = [state.money, state[today] || 0, state[total] || 0,
+      state.contrib[owner] || 0,
+      owner === "staff" ? state.staffStats[actorKey].earned : 0,
+      stats ? stats.earned || 0 : state.unattributedSales || 0
+    ].map(value => moneyAdd(value, amount));
+  } catch (error) {
+    console.error("[income] amount limit; ledgers unchanged", error);
+    return false;
+  }
+  [state.money, state[today], state[total], state.contrib[owner]] = balances;
+  if (owner === "staff") state.staffStats[actorKey].earned = balances[4];
+  if (stats) {
+    state.menuStats[menuId] = stats;
+    stats.earned = balances[5];
     const key = offline ? "offlineCount" : "count";
     stats[key] = (stats[key] || 0) + count;
-  } else state.unattributedSales = (state.unattributedSales || 0) + amount;
+  } else state.unattributedSales = balances[5];
   markStateChanged("income", false);
   return true;
 }
@@ -55,11 +58,9 @@ function processDelivery(vehicle) {
   const eff = sumEffects(),
     pool = MENUS.slice(0, getOpenMenuCount()),
     menu = pool[Math.floor(Math.random() * pool.length)];
-  const earnings = Math.floor(
-    getMenuPrice(menu.id, eff) *
-      Math.max(0, 1 + (eff.deliveryEarningMul || 0)) *
-      (Date.now() < (state.buffEndTime || 0) ? 2 : 1),
-  );
+  const earnings = moneyScale(getMenuPrice(menu.id, eff),
+    Math.max(0, 1 + (eff.deliveryEarningMul || 0)),
+    Date.now() < (state.buffEndTime || 0) ? 2 : 1);
   recordIncome(earnings, { menuId: menu.id, count: 1 });
   updateMissionsOnlineOnly();
   spawnVisualRider(vehicle, false);
@@ -83,6 +84,7 @@ function updateEconomyUI() {
     const price = getMenuPrice(button.dataset.menuId);
     if (button.dataset.price !== String(price)) {
       button.dataset.price = price;
+      button.title = moneyExactText(price) + "원";
       button.querySelector(".price").textContent = fmtWon(price);
     }
   }
@@ -90,7 +92,7 @@ function updateEconomyUI() {
     const u = UPGRADES.find((u) => u.id === b.dataset.upgradeId);
     b.disabled =
       (state.upgrades[u.id] || 0) >= (u.maxLevel || 99) ||
-      state.money < upgradeCost(u.id);
+      moneyCompare(state.money, upgradeCost(u.id)) < 0;
   }
 }
 
@@ -206,7 +208,7 @@ function serveByMenu(menuId, actorKey = "player") {
     window._fxState.boss &&
     window._fxState.boss.buffUntil > Date.now()
   ) {
-    price *= 2;
+    price = moneyScale(price, 2);
   }
 
   // 팁(서비스 교육): 확률적으로 추가 수익
@@ -216,7 +218,7 @@ function serveByMenu(menuId, actorKey = "player") {
 
   // 👇 아까 실수로 날아갔던 '팁 발생 조건문' 복구!
   if (tipRoll < (rates.tipChance || 0)) {
-    tip = Math.floor(price * (rates.tipMul || 0));
+    tip = moneyScale(price, rates.tipMul || 0);
     if (tip < 1) tip = 1;
     if (tip > 0) {
       floatText("💸 팁!", centerX + 10, centerY - 75, "#2EC4B6");
@@ -229,7 +231,7 @@ function serveByMenu(menuId, actorKey = "player") {
     tipLv = state.staffStats?.[actorKey]?.tip || 0;
   }
   const tipRate = 0.01 + levelCurve(tipLv) * 0.02; // ~1% to ~4%
-  const tip2 = Math.max(0, Math.floor(price * tipRate));
+  const tip2 = moneyMax(0, moneyScale(price, tipRate));
   if (tip > 0 || tip2 > 0) {
     state.missions._tipToday = (state.missions._tipToday || 0) + 1;
     state.missions._weekTip = (state.missions._weekTip || 0) + 1;
@@ -237,7 +239,7 @@ function serveByMenu(menuId, actorKey = "player") {
   if (tip2 > 0) {
     floatText(`+${fmtCompactWon(tip2)} 팁✨`, centerX, centerY - 42, "gold");
   }
-  recordIncome(price + tip + tip2, { menuId, actorKey, count: 1 });
+  recordIncome(moneyAdd(moneyAdd(price, tip), tip2), { menuId, actorKey, count: 1 });
 
   const repGain = CONFIG.repGainOnCorrect + (eff.repGainAdd || 0);
   state.rep = clamp(state.rep + repGain, CONFIG.repMin, CONFIG.repMax);
@@ -274,8 +276,8 @@ function processPayroll() {
   const hireLvl = getStaffCount();
   const staffCount = hireLvl;
   if (staffCount > 0) {
-    const wage = staffCount * (state.payroll.dailyWage || 80000);
-    state.money -= wage;
+    const wage = moneyScale(state.payroll.dailyWage || 80000, staffCount);
+    state.money = moneySub(state.money, wage);
     showToast(`💸 알바 임금 지급: -${fmtWon(wage)} (${staffCount}명)`);
     sfxTick();
   }
@@ -329,5 +331,5 @@ async function useCoupon(type) {
 }
 
 function getLifetimeSales() {
-  return (state.totalSales || 0) + (state.offlineSalesTotal || 0);
+  return moneyAdd(state.totalSales || 0, state.offlineSalesTotal || 0);
 }
