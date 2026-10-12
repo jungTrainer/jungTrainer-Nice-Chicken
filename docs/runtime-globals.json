@@ -107,7 +107,9 @@
       "bindings": [
         "MANAGEMENT_FOCUS",
         "STAFF_ROLES",
-        "REGION_CONTENT"
+        "REGION_CONTENT",
+        "managementRenderOwner",
+        "managementRenderKey"
       ]
     },
     {

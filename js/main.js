@@ -4176,6 +4176,7 @@ function updateUI() {
     }
 
     updateEconomyUI();
+    renderManagementContent();
 
     // coupons modal quick sync
     setText(uiDrinkCoupons2, state.coupons?.drink ?? 0);

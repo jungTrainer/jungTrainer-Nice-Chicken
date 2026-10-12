@@ -639,7 +639,11 @@ for (const [name, viewport] of [
             rect = modal.getBoundingClientRect();
           const money = state.money,
             policy = state.management.menuPolicy,
-            scene = JSON.stringify({ customers: state.customers, selected: state.selectedCustomerId, rep: state.rep });
+            scene = JSON.stringify({
+              customers: state.customers,
+              selected: state.selectedCustomerId,
+              rep: state.rep,
+            });
           document.querySelector('[data-action="serve-menu"]').click();
           document
             .getElementById("stage")
@@ -827,3 +831,49 @@ test("failed import/reset retain decisions, root, service owner and pending rewa
       assert.equal(r.pending, 500);
     },
   ));
+
+test("live report refreshes growth prices and stories but reuses unchanged DOM without saving", async () =>
+  game(fixture(), async (p) => {
+    await openContent(p);
+    const r = await p.evaluate(() => {
+      const root = document.getElementById("managementContent"),
+        first = root.firstChild;
+      const original = Storage.prototype.setItem;
+      let writes = 0;
+      Storage.prototype.setItem = function (k, v) {
+        writes++;
+        return original.call(this, k, v);
+      };
+      try {
+        updateUI();
+        updateUI();
+        const stable = first === root.firstChild;
+        state.level = 10;
+        state.research.levels.training = 1;
+        markStateChanged("test-growth");
+        updateUI();
+        return {
+          stable,
+          replaced: first !== root.firstChild,
+          writes,
+          price: getMenuPrice("fried"),
+          shown: document.getElementById("managementMenuAverage").dataset
+            .amount,
+          growthEnabled: !root.querySelector(
+            '[data-management-kind="story"][data-management-value="growth"]',
+          ).disabled,
+          researchEnabled: !root.querySelector(
+            '[data-management-kind="story"][data-management-value="research"]',
+          ).disabled,
+        };
+      } finally {
+        Storage.prototype.setItem = original;
+      }
+    });
+    assert.equal(r.stable, true);
+    assert.equal(r.replaced, true);
+    assert.equal(r.writes, 0);
+    assert.equal(String(r.price), r.shown);
+    assert.equal(r.growthEnabled, true);
+    assert.equal(r.researchEnabled, true);
+  }));

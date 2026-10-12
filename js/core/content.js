@@ -353,6 +353,8 @@ function readBranchStory(id) {
   );
 }
 
+let managementRenderOwner = null,
+  managementRenderKey = "";
 function renderManagementContent() {
   const root = document.getElementById("managementContent");
   if (
@@ -370,7 +372,33 @@ function renderManagementContent() {
   const management = state.management || defaultManagement(),
     region = REGION_CONTENT[state.regionId];
   const summary = getMenuOfferSummary(),
-    rates = computeRates();
+    rates = computeRates(),
+    storyEntries = getBranchStories();
+  const renderKey = JSON.stringify([
+    state.regionId,
+    management.focus,
+    management.leadStaff,
+    management.menuPolicy,
+    management.featuredMenu,
+    management.readStories,
+    getStaffCount(),
+    STAFF_POOL.map((s) => s.label),
+    summary.prices.map((m) => [m.id, m.settledPrice]),
+    rates.autoServesPerMin,
+    rates.ordersPerMin,
+    rates.onlineOrdersPerMin,
+    storyEntries.map((s) => [s.id, s.unlocked]),
+  ]);
+  if (
+    managementRenderOwner === state &&
+    managementRenderKey === renderKey &&
+    root.childElementCount
+  )
+    return;
+  managementRenderOwner = state;
+  managementRenderKey = renderKey;
+  const scroll = root.closest(".scroll"),
+    previousScroll = scroll?.scrollTop || 0;
   root.replaceChildren();
   const card = (title) => {
     const section = document.createElement("section");
@@ -502,7 +530,7 @@ function renderManagementContent() {
   const stories = card(
     "이 지점의 성장 이야기 · 읽기는 보상을 지급하지 않습니다",
   );
-  for (const story of getBranchStories()) {
+  for (const story of storyEntries) {
     const section = document.createElement("article");
     section.className = "management-story";
     stories.append(section);
@@ -519,6 +547,7 @@ function renderManagementContent() {
       read || !story.unlocked,
     );
   }
+  if (scroll) scroll.scrollTop = previousScroll;
   if (focusKey) {
     const target =
       [...root.querySelectorAll("button")].find(
