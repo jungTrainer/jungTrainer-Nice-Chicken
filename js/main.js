@@ -429,6 +429,7 @@ function upStaff(key, kind, cost){
 
 
 function buyStaffUpgrade(staffKey, kind){
+  ensureMissionReset();
   ensureStaffStats();
   if(kind!=="auto" && kind!=="tip") return;
   const st = state.staffStats[staffKey];
@@ -2156,6 +2157,7 @@ function updateFloats(dt){
 
 
 function serveByMenu(menuId, actorKey='player') {
+  ensureMissionReset();
   const sel = state.selectedCustomerId;
   if(!sel){
     showToast("손님을 먼저 선택하세요!");
@@ -2233,8 +2235,6 @@ const correct = (c.menuId === menuId);
 
       // missions: tip counter
       state.missions = state.missions || {};
-      state.missions._tipToday = (state.missions._tipToday||0) + 1;
-      state.missions._weekTip  = (state.missions._weekTip||0) + 1;
       if(!state.menuStats[menuId]) state.menuStats[menuId] = { count:0, earned:0 };
       state.menuStats[menuId].earned += tip;
       if(state.contrib){
@@ -2278,6 +2278,10 @@ const correct = (c.menuId === menuId);
   }
   const tipRate = 0.01 + levelCurve(tipLv) * 0.02; // ~1% to ~4%
   const tip2 = Math.max(0, Math.floor(price * tipRate));
+  if(tip>0 || tip2>0){
+    state.missions._tipToday=(state.missions._tipToday||0)+1;
+    state.missions._weekTip=(state.missions._weekTip||0)+1;
+  }
   if(tip2 > 0){
     state.money += tip2;
     state.todaySales += tip2;
@@ -2622,6 +2626,7 @@ function updateResearch(){
    Upgrades purchase
 -------------------- */
 function buyUpgrade(id){
+  ensureMissionReset();
   const u = UPGRADES.find(x=>x.id===id);
   if(!u) return;
   const cur = state.upgrades[id] || 0;
@@ -2644,6 +2649,8 @@ function buyUpgrade(id){
   _saveDirty = true;
 
   // [특수] 배달 업그레이드
+  state.missions._upgBuysToday=(state.missions._upgBuysToday||0)+1;
+  state.missions._weekUpgBuys=(state.missions._weekUpgBuys||0)+1;
   // UI/코스트/세이브 일관성을 위해 state.upgrades와 state.delivery를 동기화합니다.
   if(id === "deliVehicle"){
     const next = clampInt((state.delivery?.level||0) + 1, 0, 10);
@@ -5044,7 +5051,7 @@ function updateUI(){
     // daily / weekly stamp rows
     if(dailyStampRow){
       setHTML(dailyStampRow, "");
-      for(let i=0;i<3;i++){
+      for(let i=0;i<state.missions.dailyList.length;i++){
         const d = document.createElement("div");
         d.style.height = "44px";
         d.style.borderRadius = "14px";
@@ -5249,7 +5256,7 @@ const upgBtn = div.querySelector("button");
   else if(key === "mis"){
     misGuide.innerHTML = `
       <b>📌 스탬프 받는 방법</b><br>
-      1) <b>일간 미션 3개</b>를 모두 완료하면 <b>주간 스탬프 +1</b> (하루 1회)<br>
+      1) <b>일간 미션 8개</b>를 모두 완료하면 <b>주간 스탬프 +1</b> (하루 1회)<br>
       2) <b>주간 스탬프 7/7</b> + <b>주간 미션 올클</b> 시 인증서 발급 가능<br>
       <span style="color:#666;">※ 미션 진행은 접속 중(온라인 플레이)에서만 반영됩니다.</span>
     `;

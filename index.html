@@ -135,8 +135,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
     </div>
     <div class="note" style="margin:10px 12px 0 12px; line-height:1.35;">
       <b>미션은 “온라인 플레이 중”에만 진행</b>돼요.<br>
-      • <b>일간 미션</b>: 오늘 3개 중 3개 완료하면 보상 + 주간스탬프 1개 획득<br>
-      • <b>주간 미션</b>: 일간 올클 7번(주간스탬프 7/7) 달성 시 인증서 발급 가능<br>
+      • <b>일간 미션</b>: 8종 모두 완료하면 보상 + 주간스탬프 1개 획득<br>
+      • <b>주간 미션</b>: 일간 올클 7번을 포함한 8종 모두 완료하면 인증서 발급 가능<br>
       각 미션 카드의 <b>조건</b>을 만족하면 자동 체크됩니다.
     </div>
     <div class="scroll">
@@ -149,9 +149,9 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
         <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
           <div style="color:#555;">일간 스탬프</div>
-          <div><b id="uiDailyStampText">0</b>/3</div>
+          <div><b id="uiDailyStampText">0</b>/8</div>
         </div>
-        <div id="dailyStampRow" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-top:8px;"></div>
+        <div id="dailyStampRow" style="display:grid; grid-template-columns:repeat(8, 1fr); gap:4px; margin-top:8px;"></div>
       </div>
 
       <div class="card" style="flex-direction:column; align-items:stretch;">
@@ -369,6 +369,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 <script src="./js/core/config.js"></script>
 <script src="./js/main.js"></script>
 <script src="./js/core/offline.js"></script>
+<script src="./js/core/missions.js"></script>
 
 <!-- [NEW] Management Report Modal -->
 <div class="dim" id="modalStats">
