@@ -76,6 +76,8 @@ http://localhost:8000
 - [IMP-09 완료 보고서와 IMP-10 프롬프트](docs/improvements/IMP-09-ci-docs.md)
 - [성장·정확한 금액 정책](docs/economy-policy.md)
 - [IMP-10 완료 보고서와 IMP-11 프롬프트](docs/improvements/IMP-10-balance-money.md)
+- [직원/지역/메뉴 콘텐츠 설계](docs/content-design.md)
+- [IMP-11 완료 보고서와 IMP-12 프롬프트](docs/improvements/IMP-11-content-choices.md)
 
 ## 자동 검사
 
@@ -92,7 +94,7 @@ npm test
 
 공통 설치·진단·검사는 `npm run test:ci`로 실행합니다. 기본 npm 캐시를 쓸 수 없는 클라우드에서는 `npm_config_cache=/tmp/nice-chicken-npm-cache`를 지정합니다. 시스템 Chromium을 비교하려면 `PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/chromium`을 지정합니다. 자세한 Linux 의존성·서버 실행·실패 로그와 trace 재현은 개발 안내를 참고하세요.
 
-회귀 검사 120개: 오프라인 6개, 미션 7개, 연구 6개, 경제 10개, 엔딩 7개, UI 22개, 직원·지점 19개, 구조·저장 15개, 금액 경계·마이그레이션 28개(11개 정수 연산 + 17개 브라우저). 문법 검사는 앱 JS 18개와 도구/helper CJS 7개, 총 25개입니다. 이전 환경의 96개 검사 파일을 동일하게 복원한 것은 아닙니다.
+회귀 검사 147개: 오프라인 6개, 미션 7개, 연구 6개, 경제 10개, 엔딩 7개, UI 22개, 직원·지점 19개, 구조·저장 15개, 금액 경계·마이그레이션 28개(11개 정수 연산 + 17개 브라우저), 콘텐츠/운영 27개 브라우저. 문법 검사는 앱 JS 19개와 도구/helper CJS 8개, 총 27개입니다. 이전 환경의 96개 검사 파일을 동일하게 복원한 것은 아닙니다.
 
 Game CI는 일반 push/PR에서 같은 명령을 실행하며 열린 PR의 중복 push 검사를 생략합니다. 실패 자료는 Actions artifact에서 14일간 보관합니다. 과거 자동 패치·commit/push 워크플로 7개는 `docs/legacy-workflows/`에 보관했습니다.
 
@@ -103,7 +105,8 @@ Game CI는 일반 push/PR에서 같은 명령을 실행하며 열린 PR의 중�
 3. IMP-08 단일 실행 경로·명시적 저장·측정 기반 반복 작업 개선: 완료
 4. IMP-09 개발 문서·지속 검증: 완료
 5. IMP-10 성장 밸런스·큰 수: 완료
-6. IMP-11 이야기·지역 선택: 다음 작업
+6. IMP-11 이야기·지역 선택: 완료
+7. IMP-12 PWA·운영 기능: 다음 작업
 6. 전체 계획은 작업 목록 참고
 
 다음 작업은 원격 `improvement-imp09-20261012` 브랜치를 기준으로 진행합니다. 직원 교육·개인 누적 수익은 전 지점 공용이고, 고용·매출·기여도·미수령 보상·서비스 진행은 지점별입니다.

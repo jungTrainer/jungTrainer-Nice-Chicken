@@ -1,6 +1,6 @@
 # 개발·검사·CI 실행 안내
 
-기준: IMP-09/10, 2026-10-12. 게임은 정적 HTML/CSS/JS이며 일반 실행에는 npm 설치·빌드·백엔드가 필요 없다. 브라우저 검사에는 Node와 Playwright/Chromium을 설치한다. [데이터 규칙](data-ownership.md)과 [실행 계약](runtime-architecture.md)을 함께 따른다.
+기준: IMP-09/10/11, 2026-10-13. 게임은 정적 HTML/CSS/JS이며 일반 실행에는 npm 설치·빌드·백엔드가 필요 없다. 브라우저 검사에는 Node와 Playwright/Chromium을 설치한다. [데이터 규칙](data-ownership.md)과 [실행 계약](runtime-architecture.md)을 함께 따른다.
 
 ## 설치와 브라우저 선택
 
@@ -47,7 +47,7 @@ PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright" \
 npm run test:ci
 ```
 
-현재 앱 JS 18개와 도구/검사 helper CJS 7개, 총 **25개 문법 검사**, **120개 회귀 검사**를 실행한다. IMP-09의 92개 assertion/fixture를 유지하고 IMP-10 금액/마이그레이션 28개를 추가했다. 범위별 재현은 `node --test tests/branches.test.cjs`, `node --test tests/refactor.test.cjs`, `node --test tests/money.test.cjs` 등을 사용한다. 범위별 통과가 전체 통과를 대신하지 않는다.
+현재 앱 JS 19개와 도구/검사 helper CJS 8개, 총 **27개 문법 검사**, **147개 회귀 검사**를 실행한다. IMP-10의 120개 assertion/fixture를 유지하고 콘텐츠 27개를 추가했다. 범위별 재현은 `node --test tests/branches.test.cjs`, `node --test tests/refactor.test.cjs`, `node --test tests/money.test.cjs`, `node --test tests/content.test.cjs` 등을 사용한다. 범위별 통과가 전체 통과를 대신하지 않는다.
 
 검사 helper는 각 검사 파일의 HTTP 서버를 임의 포트에 열고 브라우저/context를 정리한다. 자동 검사를 위해 아래 수동 서버를 따로 실행할 필요는 없다. 날짜 fixture·Asia/Seoul·기본 rAF 정지와 필요한 live 검사를 유지한다. Google Fonts 요청은 자동 검사에서 차단하고 기본 폰트를 사용한다.
 
@@ -120,3 +120,15 @@ PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright" node scripts/measure-econom
 ```
 
 도구는 브라우저와 정적 서버를 직접 시작/종료한다. 비교 트리는 실제 정적 앱 파일을 포함해야 하며 다른 repo에 설치할 필요는 없다. 1원 경계·지수 비용 overflow·레벨/지점/엔딩 계획 모델·실제 서비스 10분을 JSON으로 출력한다. 모델은 평균 수익의 Number 근사이며 실제 원 단위 정산 테스트와 구분한다. [성장·금액 정책](economy-policy.md)에 모델 가정/한도·새 encoding과 구 저장 호환성을 명시했다. 앱에 측정 래퍼를 설치하지 않고 CI 시간 임계값으로 쓰지 않는다.
+
+## 콘텐츠·선택 측정 (IMP-11)
+
+```bash
+PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright" node scripts/measure-content.cjs
+PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright" node scripts/measure-economy.cjs . legacy
+PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright" node scripts/measure-economy.cjs . service-neighbor
+PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright" node scripts/measure-economy.cjs . dispatch-soninlaw
+PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright" node scripts/measure-economy.cjs . signature-fried
+```
+
+측정은 자체 HTTP 서버/Chromium을 정리한다. 세 번째 policy 인자만 바꿔 같은 성장/급여/연구/구매 모델로 비교한다. `measure-content`는 연구 0/1/10과 메뉴 해금 수별 가격 희석, 운영/담당자 조합의 실제 계수를 출력한다. 실제 입력/스크린샷/실패 복구는 content.test의 별도 브라우저 문맥으로 검증한다. [콘텐츠 설계](content-design.md)와 [IMP-11 보고서](improvements/IMP-11-content-choices.md)의 가정·한계를 따른다. 다음 PWA/캐시 작업은 현재 정적 서버/저장 계약을 유지하면서 별도로 검증한다.
