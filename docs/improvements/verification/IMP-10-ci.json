@@ -1,0 +1,70 @@
+{
+  "baseline": "b233b92964ecc62b6bbda1e5f101fad37ea6735d",
+  "branch": "improvement-imp10-20261012",
+  "pr": 4,
+  "node": "24.19.0",
+  "playwright": "1.62.1",
+  "chromium": "151.0.7922.34",
+  "localSharedCI": {
+    "syntax": 25,
+    "tests": 120,
+    "fail": 0,
+    "skip": 0
+  },
+  "runs": [
+    {
+      "id": 38219937150,
+      "event": "push",
+      "head_sha": "7be693f78029364229cb73b2df4ee6128108311e",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/jungTrainer/jungTrainer-Nice-Chicken/actions/runs/38219937150",
+      "jobs": [
+        {
+          "name": "Select push or PR checks",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Syntax and browser regression",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "syntaxCount": 25,
+      "tests": {
+        "total": 120,
+        "pass": 120,
+        "fail": 0,
+        "skip": 0
+      }
+    },
+    {
+      "id": 38220297485,
+      "event": "pull_request",
+      "head_sha": "7be693f78029364229cb73b2df4ee6128108311e",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/jungTrainer/jungTrainer-Nice-Chicken/actions/runs/38220297485",
+      "jobs": [
+        {
+          "name": "Select push or PR checks",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Syntax and browser regression",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "syntaxCount": 25,
+      "tests": {
+        "total": 120,
+        "pass": 120,
+        "fail": 0,
+        "skip": 0
+      }
+    }
+  ]
+}
