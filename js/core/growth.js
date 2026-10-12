@@ -80,6 +80,7 @@ function aggregateEffects() {
   // Optional decisions multiply the final growth coefficients once; defaults are neutral.
   for (const [key,value] of Object.entries(getManagementEffects())) {
     if (key === "patienceAfterAdd") eff[key] = (eff[key] || 0) + value;
+    else if (key === "autoServeMul") eff.managementAutoMul = value;
     else if (key === "deliveryFreqMul")
       eff[key] = (eff[key] || 0) + value * (1 + Math.max(0, (eff.deliveryMul || 0) * .45) + Math.max(0, eff[key] || 0));
     else eff[key] = (1 + (eff[key] || 0)) * (1 + value) - 1;
@@ -150,7 +151,7 @@ function computeRates() {
     const resist = eff.eventAutoResist || 0;
     autoMul = 1 + Math.min(0, (eff.autoServeMul || 0) + resist);
   }
-  autoServesPerMin *= autoMul;
+  autoServesPerMin *= autoMul * (1 + (eff.managementAutoMul || 0));
   autoServesPerMin = Math.max(0, autoServesPerMin);
 
   return {
