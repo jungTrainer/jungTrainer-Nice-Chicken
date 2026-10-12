@@ -7,7 +7,7 @@
   "chromium": "151.0.7922.34",
   "localSharedCI": {
     "syntax": 27,
-    "tests": 147,
+    "tests": 148,
     "fail": 0,
     "skip": 0
   },
@@ -61,6 +61,33 @@
       "tests": {
         "total": 147,
         "pass": 147,
+        "fail": 0,
+        "skip": 0
+      },
+      "syntax": 27
+    },
+    {
+      "id": 38323179236,
+      "event": "pull_request",
+      "head_sha": "be10f2bd73798c4da852ecff5f53bb0887f993a5",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/jungTrainer/jungTrainer-Nice-Chicken/actions/runs/38323179236",
+      "jobs": [
+        {
+          "name": "Select push or PR checks",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Syntax and browser regression",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "tests": {
+        "total": 148,
+        "pass": 148,
         "fail": 0,
         "skip": 0
       },

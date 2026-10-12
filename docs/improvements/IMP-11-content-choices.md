@@ -14,7 +14,7 @@
 - 전체 메뉴의 동일 확률과 해금된 대표 메뉴 한 종 중 새 주문의 후보를 선택한다. 방문/배달/온라인/새 오프라인 추정이 한 원본을 사용한다. 기존 손님의 메뉴나 확정 receipt는 바꾸지 않는다. 평균 기본 가격/정산 가격/실제 능력을 같은 함수로 표시하고 지정 메뉴 미션 안내를 제공한다.
 - 각 지역에 도착/직원 1명/메뉴 2종/첫 연구/지점 Lv.10/6명 고용/엔딩 완료의 7개 이야기 단계를 제공한다. 성장 조건에 따라 열리며 읽기 표시는 지점에 저장한다. 직원마다 짧은 역할 이야기도 있다. 읽기·닫기·전환은 금전/쿠폰/미션 보상을 지급하지 않는다.
 
-새 효과는 기존 연구·이벤트·엔딩 계수에 한 번 적용한다. 자동 서빙 방향은 기존 이벤트 저항을 계산한 뒤 곱하고 인내 +1초는 기존 인내 계산 뒤 더한다. 배달 빈도는 기존 전체 빈도 계수에 적용하고 0.6초 하한은 유지한다. 보여 주는 능력과 실제 고객 공급/이벤트의 제한을 구분한다. 메뉴 가격과 정산은 IMP-10 정수 원 API를 사용한다. 과거 누락 수익은 보정하지 않았다.
+새 효과는 기존 연구·이벤트·엔딩 계수에 한 번 적용한다. 자동 서빙 방향은 기존 이벤트 저항을 계산한 뒤 곱하고 인내 +1초는 기존 인내 계산 뒤 더한다. 배달 빈도는 기존 전체 빈도 계수에 적용하고 0.6초 하한은 유지한다. 보여 주는 능력과 실제 고객 공급/이벤트의 제한을 구분한다. 열린 탭은 기존 UI 갱신에 연결해 자동 성장 뒤에도 가격/조건을 갱신하고 같은 표시 값은 DOM을 재사용한다. 이 조회는 dirty/저장을 추가하지 않는다. 메뉴 가격과 정산은 IMP-10 정수 원 API를 사용한다. 과거 누락 수익은 보정하지 않았다.
 
 ## 저장·서비스·입력 보존
 
@@ -45,19 +45,21 @@ IMP-10의 자동 구매 후보/우선순위, 연구 실제 시간, 지점 재시
 ## 검증 결과
 
 - 기준 설치·doctor·문법·**120개**를 먼저 통과했다. 기존 assertion/fixture와 저장/정산/엔딩 규칙을 바꾸지 않았다.
-- 새 `tests/content.test.cjs` **27개**는 실제 Chromium 문맥을 사용한다. 총 **147개**, 실패/skip 0개로 기존 공통 CI 명령을 통과했다. 실제 완료 결과는 CI 기록 및 최종 보관 JSON에 보관한다.
+- 새 `tests/content.test.cjs` **28개**는 실제 Chromium 문맥을 사용한다. 총 **148개**, 실패/skip 0개로 기존 공통 CI 명령을 통과했다. 마지막 UI 보완 이후에도 공통 설치/doctor/check/test 전체에서 148개를 통과했다. 실제 완료 결과는 CI 기록 및 최종 보관 JSON에 보관한다.
 - 직원 6명 각각의 실제 계수, 연구/로봇과 1회 결합, 이벤트 중 운영 계수, 미고용/잠긴 선택, 네 주문 경로와 표시 평균, 큰 금액 정산, 기존 손님/확정 receipt/메뉴 미션 보존을 검증했다.
 - 역할 변경 후 배달 비율·이동·재접속, 지점별 방향/읽음과 공용 교육, 선택/읽기 저장 실패와 재시도·중복 write 없음, 잠금 조건/읽기 반복/닫기 무보상을 검증했다.
 - 320×568 세로·568×320 가로·1280×800 데스크톱의 실제 터치/스크롤·선택·읽음·포커스·배경 입력 차단·닫기/재접속을 검증했다. 실제 export/import 버튼과 초기화, 실패 import/reset의 root/서비스/미수령/지급 완료 인증서/미션·쿠폰 보존도 확인했다.
 - [세로 선택](screenshots/nice-chicken-imp11-portrait-choices.png), [세로 이야기](screenshots/nice-chicken-imp11-portrait.png), [가로 선택](screenshots/nice-chicken-imp11-landscape-choices.png), [가로 이야기](screenshots/nice-chicken-imp11-landscape.png), [데스크톱](screenshots/nice-chicken-imp11-desktop.png)을 보관했다. 성공 검사에서 page error 0개를 확인했다. 기존 보고서 화면을 덮어쓰지 않았다.
-- `npm run test:ci`는 npm ci → 고정 Chromium → doctor → check → test다. Node 24.19.0/Playwright 1.62.1/Chromium 151.0.7922.34, 문법 **27개**(앱 JS 19 + 도구/helper CJS 8)다. lockfile·CI workflow·환경 설치/시작 명령은 그대로 사용한다. `bc2d301`의 [push CI](https://github.com/jungTrainer/jungTrainer-Nice-Chicken/actions/runs/38321118405)와 [PR CI](https://github.com/jungTrainer/jungTrainer-Nice-Chicken/actions/runs/38321813520)는 설치/doctor/문법 27개/검사 147개를 모두 통과했다. 마지막 문서 커밋의 실행은 별도 최종 JSON에 기록한다. 실제 CI SHA/결론/집계는 [CI 기록](verification/IMP-11-ci.json)과 `/workspace/nice-chicken-imp11-ci-results.json`에 보관한다.
+- `npm run test:ci`는 npm ci → 고정 Chromium → doctor → check → test다. Node 24.19.0/Playwright 1.62.1/Chromium 151.0.7922.34, 문법 **27개**(앱 JS 19 + 도구/helper CJS 8)다. lockfile·CI workflow·환경 설치/시작 명령은 그대로 사용한다. `bc2d301`의 [push CI](https://github.com/jungTrainer/jungTrainer-Nice-Chicken/actions/runs/38321118405)와 [PR CI](https://github.com/jungTrainer/jungTrainer-Nice-Chicken/actions/runs/38321813520)는 설치/doctor/문법 27개/검사 147개를 모두 통과했다. 열린 화면 보완 `be10f2b`의 [PR CI](https://github.com/jungTrainer/jungTrainer-Nice-Chicken/actions/runs/38323179236)는 148개·문법 27개를 통과했다. 마지막 문서 커밋의 실행은 별도 최종 JSON에 기록한다. 실제 CI SHA/결론/집계는 [CI 기록](verification/IMP-11-ci.json)과 `/workspace/nice-chicken-imp11-ci-results.json`에 보관한다.
 
 ## 커밋과 복구 자료
 
 1. `b90aacf`: 구현 전 메뉴 희석/콘텐츠/기준 성장 측정.
 2. `87fdafb`: 지점 운영·담당자·메뉴 선택·지역/성장 이야기·호환 저장/UI와 설계.
 3. `bc2d301`: 경계·실제 브라우저/스크린샷·같은 성장 모델·이벤트/저장/입력 검증.
-4. 작업 목록·이 보고서·계약/개발 안내·CI 결과·IMP-12 프롬프트는 마지막 문서 커밋이다.
+4. `303f5c8`: 초기 완료 보고서·CI 증거·IMP-12 범위.
+5. `be10f2b`: 열린 리포트의 실시간 성장/가격 갱신·DOM 재사용과 28번째 콘텐츠 검사.
+6. 최종 문서/검사 수·CI 결과와 복구 자료를 갱신한다.
 
 전체 `/workspace/nice-chicken-imp11.patch`, 단계별 `/workspace/nice-chicken-imp11-patches/`, `/workspace/nice-chicken-imp11.bundle`을 남긴다. prerequisite는 위 IMP-10 SHA다. 전체/순차 패치의 최종 파일 트리와 bundle을 검증하고 `/workspace/nice-chicken-imp11-artifacts.json`에 최종 SHA/해시를 보관한다. 최종 CI 결과는 같은 HEAD의 별도 JSON이다. 기존 사용자 편집과 이전 단계의 자료는 보존한다.
 
@@ -94,6 +96,6 @@ docs/improvements/IMP-11-content-choices.md를 읽고 IMP-12를 구현해줘.
 
 서비스워커를 실제 Chromium에서 실행하고 온라인→오프라인·재접속·새 버전/실패한 업데이트,
 작은 세로/가로 화면·미수령/엔딩 중 업데이트·지점 이동·백업/import/reset을 검증해줘.
-현재 147개와 새 PWA/운영 검사, npm run doctor, npm run check, npm test 및 CI를 통과시켜줘.
+현재 148개와 새 PWA/운영 검사, npm run doctor, npm run check, npm test 및 CI를 통과시켜줘.
 단계별 커밋·패치·번들, 작업 목록·보고서·남은 문제와 다음 작업 프롬프트를 남겨줘.
 ```

@@ -47,7 +47,7 @@
 
 ## 변경 시 검증
 
-`npm run doctor`, `npm run check`, `npm test`를 실행한다. 현재 147개 검사는 IMP-10의 120개와 콘텐츠/선택 27개다. IMP-09부터 고정 Playwright Chromium을 기본으로 사용하고 문법 검사는 앱 JS 19개와 도구/helper CJS 8개, 총 27개를 포함한다. 설치/정의 중복 검사는 `tests/refactor.test.cjs`, 지점/저장 원본의 규칙은 `tests/branches.test.cjs`에 있다. 브라우저 검사는 자체 HTTP 서버와 Chromium을 열고 종료한다.
+`npm run doctor`, `npm run check`, `npm test`를 실행한다. 현재 148개 검사는 IMP-10의 120개와 콘텐츠/선택 28개다. IMP-09부터 고정 Playwright Chromium을 기본으로 사용하고 문법 검사는 앱 JS 19개와 도구/helper CJS 8개, 총 27개를 포함한다. 설치/정의 중복 검사는 `tests/refactor.test.cjs`, 지점/저장 원본의 규칙은 `tests/branches.test.cjs`에 있다. 브라우저 검사는 자체 HTTP 서버와 Chromium을 열고 종료한다.
 
 측정은 `node scripts/measure-runtime.cjs [비교할 정적 웹앱 디렉터리]`를 사용한다. 게임 API를 계측하는 래퍼는 이 별도 브라우저 측정 페이지에만 존재하며 앱에 설치되지 않는다. 연산 수와 표시 정확도를 먼저 비교하고 실행 시간은 동일 기기/부하에서 참고한다. CI의 시간 성능 임계값으로 사용하지 않는다.
 
@@ -69,3 +69,5 @@ content는 config 다음, state 이전에 정의한다. 등록하는 클릭은 �
 `getManagementEffects()`는 선택한 고용 직원 한 명과 지점 방향을 반환한다. aggregateEffects는 기존 연구/이벤트/로봇 후 이 계수를 한 번 결합한다. computeRates에서 운영 자동 계수는 기존 이벤트 저항 후, 새 손님 인내 +1초는 기존 평판/연구/이벤트의 인내 계산 후 적용한다. 배달 간격은 기존 ServiceRuntime의 입력/서명/비율 갱신 경로를 그대로 사용한다. 선택 클릭에서 updateDelivery나 정산을 실행하지 않는다.
 
 `getOrderMenuPool()`은 방문/배달/온라인/새 오프라인의 유일한 후보 원본이다. 기존 손님/확정 receipt를 다시 쓰지 않는다. `getMenuOfferSummary`는 실제 가격 함수와 정수 합계를 사용하며 UI 평균은 원 미만 내림이다. 리포트가 열리고 해당 탭이 활성일 때만 콘텐츠 DOM을 만든다. 표시는 경제 상태를 지급하거나 이야기 읽음으로 바꾸지 않는다. [콘텐츠 설계](content-design.md)에 선택·소유권·모델 한계를 기록했다.
+
+열린 운영 탭은 기존 updateUI에서 성장/가격/조건을 갱신한다. managementRenderOwner/Key는 저장되지 않는 UI 표시 캐시다. 상태 소유자와 표시 원본 값이 같으면 DOM을 재사용하며 값이 바뀌면 포커스와 스크롤을 보존해 갱신한다. 서비스 캐시/dirty/타이머와 공유하지 않는다.
