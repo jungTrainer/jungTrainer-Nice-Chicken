@@ -126,6 +126,8 @@ function _branchDefaultData(){
     totalSales: d.totalSales,
     offlineSalesToday: d.offlineSalesToday,
     offlineSalesTotal: d.offlineSalesTotal,
+    offlineReward: d.offlineReward,
+    unattributedSales: 0,
 
     menuLevels: JSON.parse(JSON.stringify(d.menuLevels)),
     menuStats: JSON.parse(JSON.stringify(d.menuStats)),
@@ -151,7 +153,7 @@ function _branchDefaultData(){
 }
 function _branchKeys(){
   return [
-    "rep","level","todaySales","totalSales","offlineSalesToday","offlineSalesTotal",
+    "rep","level","todaySales","totalSales","offlineSalesToday","offlineSalesTotal","offlineReward","unattributedSales",
     "menuLevels","menuStats","contrib","stamps",
     "payroll","upgrades","delivery","online","research","missions",
     "customers","selectedCustomerId","event","_spawnAcc","_autoServeAcc"
@@ -226,6 +228,9 @@ const BranchManager = {
       try{ floats = []; }catch(e){}
       try{ selectedId = null; }catch(e){}
     }
+    state.offlineReward = normalizeOfflineReward(state.offlineReward);
+    state.unattributedSales = state.unattributedSales || 0;
+    renderOfflineReward();
   },
 
   move(id){
@@ -519,6 +524,8 @@ const defaultState = () => ({
 
   offlineSalesToday: 0,
   offlineSalesTotal: 0,
+  offlineReward: {amount:0, seconds:0},
+  unattributedSales: 0,
 
 
 
@@ -830,17 +837,7 @@ function initDOMRefs(){
   if(claimOfflineBtn){
     claimOfflineBtn.addEventListener("click", ()=>{
       unlockAudioOnce(); startBGM();
-      if(modalOffline) modalOffline.classList.remove("on");
-      if(offlinePending > 0){
-        state.money += offlinePending;
-        state.offlineSalesToday = (state.offlineSalesToday || 0) + offlinePending;
-        state.offlineSalesTotal = (state.offlineSalesTotal || 0) + offlinePending;
-        offlinePending = 0;
-        if(_saveDirty) save(true);
-        updateUI();
-        showToast("오프라인 수익 수령!");
-        sfxConfirm();
-      }
+      claimOfflineReward();
     });
   }
 
@@ -3300,6 +3297,8 @@ function sanitizeState(){
   state.money = normNum(state.money, d.money);
   state.rep   = normNum(state.rep, d.rep);
   state.level = Math.max(1, Math.floor(normNum(state.level, d.level)));
+  state.offlineReward = normalizeOfflineReward(state.offlineReward);
+  state.unattributedSales = Math.max(0,normNum(state.unattributedSales,0));
 
 
   // [BRANCH/REGION] ensure region state exists (v84 -> v85 migration)
