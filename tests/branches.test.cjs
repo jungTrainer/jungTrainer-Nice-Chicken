@@ -433,6 +433,15 @@ test("import immediately replaces old runtime progress without paying an order",
 test("failed or invalid branch moves preserve funds, receipt and source progress", async () =>
   game(fixture({ offlineReward: { amount: 500, seconds: 60 } }), async (p) => {
     const r = await p.evaluate(() => {
+      const schedule = window.setTimeout,
+        queued = [];
+      window.setTimeout = (callback, delay, ...args) =>
+        delay === 700
+          ? (queued.push(callback), 0)
+          : schedule(callback, delay, ...args);
+      initAfterLoad(false);
+      window.setTimeout = schedule;
+      state.customers = [];
       state.regionUnlocked.busan = true;
       updateOnlineAuto((0.8 * 60) / computeRates().onlineOrdersPerMin);
       window._fxState.boss.buffUntil = Date.now() + 1000;
@@ -444,6 +453,7 @@ test("failed or invalid branch moves preserve funds, receipt and source progress
       Storage.prototype.setItem = original;
       const invalid = BranchManager.move("unknown"),
         locked = BranchManager.move("seoul");
+      queued.forEach((callback) => callback());
       return {
         moved,
         invalid,
@@ -452,6 +462,7 @@ test("failed or invalid branch moves preserve funds, receipt and source progress
         online: onlineTimer,
         pending: state.offlineReward.amount,
         buff: window._fxState.boss.buffUntil,
+        startupCustomers: state.customers.length,
       };
     });
     assert.equal(r.moved, false);
@@ -461,6 +472,7 @@ test("failed or invalid branch moves preserve funds, receipt and source progress
     assert.ok(Math.abs(r.online - 0.8) < 1e-9);
     assert.equal(r.pending, 500);
     assert.equal(r.buff, NOW + 1000);
+    assert.equal(r.startupCustomers, 1);
   }));
 
 test("reset clears every service timer and shared employee progression", async () =>

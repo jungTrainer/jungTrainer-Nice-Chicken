@@ -254,7 +254,7 @@ const BranchManager = {
 
     _saveDirty = true;
     if(!save(true)){
-      state=previous;bindBranchServiceTimers();window._fxState=previousEffects;
+      Object.assign(state,previous);bindBranchServiceTimers();window._fxState=previousEffects;
       this.saveCurrent();renderOfflineReward();buildMenuGrid();updateUI();updateStatsUI();renderMapUI();
       showToast("저장 실패. 현재 지점에 남아 있습니다.");return false;
     }
