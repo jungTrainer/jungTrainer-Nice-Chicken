@@ -4,11 +4,16 @@
 
 ## 프로젝트 구조
 
-현재 버전은 GitHub Pages 배포를 쉽게 하기 위해 `index.html` 단일 파일 중심으로 구성되어 있습니다.
+HTML·CSS·JavaScript로 구성한 정적 웹게임입니다. 빌드 없이 GitHub Pages에서 실행합니다.
 
 ```text
 /
 ├─ index.html
+├─ css/style.css
+├─ js/main.js
+├─ js/core/             # 기존 유틸·오디오·설정과 복구한 저장·미션·연구·정산·엔딩·UI
+├─ tests/               # Chromium 브라우저 회귀 검사
+├─ package.json
 ├─ README.md
 └─ docs/
    ├─ 2026-05-15-project-review-and-next-steps.md
@@ -58,14 +63,31 @@ http://localhost:8000
 
 - `docs/2026-05-15-project-review-and-next-steps.md`: 현재 구조 점검, 핵심 버그, 리팩터링 방향
 - `docs/manual-test-checklist.md`: 배포 전 수동 테스트 체크리스트
+- [현재 작업 목록](docs/improvement-roadmap.md)
+- [복구 과정과 기준](docs/improvements/REC-recovery.md)
+- [IMP-06 완료 보고서와 IMP-07 프롬프트](docs/improvements/IMP-06-mobile-ui.md)
+
+## 자동 검사
+
+Node.js 20 이상과 Chromium이 필요합니다. 일반 게임 실행에는 npm 의존성이 필요하지 않습니다.
+
+```bash
+npm ci
+npm run check
+npm test
+```
+
+클라우드 환경에서 기본 npm 캐시 경로를 쓸 수 없으면 `npm ci --cache /tmp/nice-chicken-npm-cache`를 사용합니다. 검사는 기본 `/usr/bin/chromium`을 사용하며 다른 실행 파일은 `PLAYWRIGHT_CHROMIUM_EXECUTABLE`로 지정합니다. 설치된 시스템 Chromium이 없으면 Playwright 브라우저 설치 후 그 실행 파일 경로를 지정합니다.
+
+새 회귀 검사 58개: 오프라인 6개, 미션 7개, 연구 6개, 경제 10개, 엔딩 7개, UI 22개. 이전 환경의 96개 검사 파일은 유실되어 동일 파일을 복원한 것이 아닙니다. `node --test tests/ui.test.cjs` 등으로 범위별 실행할 수 있습니다.
 
 ## 현재 우선순위
 
-1. `staffUpgradeCost` 중복 함수명 정리
-2. CSS/JS 파일 분리
-3. 핵심 게임 루프 수동 QA
-4. 직원/배달/지역 확장 밸런스 조정
-5. PWA manifest/service worker 복구 여부 결정
+1. REC-01~05 기반 동작 재구현 및 IMP-06 화면·모달 개선: 완료
+2. IMP-07 직원 5명/6명과 본사·지점별 데이터 규칙
+3. IMP-08 전역 함수 설치·저장 감시·중복 정의 정리
+4. IMP-09 지속 검증, IMP-10 성장 밸런스·큰 수
+5. 전체 계획은 작업 목록 참고
 
 ## 참고
 

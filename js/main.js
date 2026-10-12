@@ -3563,6 +3563,7 @@ async function useCoupon(type){
     return;
   }
   state.coupons[type] -= 1;
+  _saveDirty = true;
   logBenefit({type, qty:1, source:"coupon_use", note:"쿠폰함에서 사용 처리"});
   showToast("✅ 사용되었습니다.");
   sfxConfirm();

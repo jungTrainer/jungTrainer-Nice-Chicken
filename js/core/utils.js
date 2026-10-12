@@ -169,6 +169,8 @@ function _bindSafe(el, evt, fn, opts){ return safeOn(el, evt, fn, opts); }
             totalSales: state.totalSales,
             offlineSalesToday: state.offlineSalesToday,
             offlineSalesTotal: state.offlineSalesTotal,
+            offlineReward: state.offlineReward,
+            unattributedSales: state.unattributedSales,
             benefitsLog: state.benefitsLog,
             soundOn: state.soundOn,
             profile: state.profile,
