@@ -45,6 +45,11 @@
 
 ## 변경 시 검증
 
-`npm run check`, `npm test`를 실행한다. 현재 92개 검사는 이전 77개와 refactor 15개다. 설치/정의 중복 검사는 `tests/refactor.test.cjs`, 지점/저장 원본의 규칙은 `tests/branches.test.cjs`에 있다. 브라우저 검사는 자체 HTTP 서버와 Chromium을 열고 종료한다.
+`npm run doctor`, `npm run check`, `npm test`를 실행한다. 현재 92개 검사는 이전 77개와 refactor 15개다. IMP-09부터 고정 Playwright Chromium을 기본으로 사용하고 문법 검사는 앱 JS 17개와 도구/helper CJS 6개를 포함한다. 설치/정의 중복 검사는 `tests/refactor.test.cjs`, 지점/저장 원본의 규칙은 `tests/branches.test.cjs`에 있다. 브라우저 검사는 자체 HTTP 서버와 Chromium을 열고 종료한다.
 
 측정은 `node scripts/measure-runtime.cjs [비교할 정적 웹앱 디렉터리]`를 사용한다. 게임 API를 계측하는 래퍼는 이 별도 브라우저 측정 페이지에만 존재하며 앱에 설치되지 않는다. 연산 수와 표시 정확도를 먼저 비교하고 실행 시간은 동일 기기/부하에서 참고한다. CI의 시간 성능 임계값으로 사용하지 않는다.
+
+
+## IMP-09 지속 검증
+
+[개발 안내](development.md)에 고정 Node/Chromium, 공통 `scripts/ci-checks.sh`, 로그·PNG·trace와 실제 Pages 설정을 기록했다. 게임의 함수 정의·시작 순서·dirty/정산·저장 형식은 변경하지 않았다. 브라우저 helper의 실행 파일 선택·실패 자료 캡처와 성공 스크린샷 출력 위치만 변경했다. CI는 앱을 패치·커밋·배포하지 않는다. 과거 자동 패치 YAML은 `docs/legacy-workflows`의 원본 기록이며 실행 경로에 포함되지 않는다.

@@ -25,7 +25,7 @@ HTML·CSS·JavaScript로 구성한 정적 웹게임입니다. 빌드 없이 GitH
 정적 웹앱이므로 별도 빌드 없이 로컬 서버로 실행할 수 있습니다.
 
 ```bash
-python3 -m http.server 8000
+python3 -m http.server 8000 --bind 127.0.0.1
 ```
 
 브라우저에서 아래 주소로 접속합니다.
@@ -35,6 +35,8 @@ http://localhost:8000
 ```
 
 ## GitHub Pages 배포
+
+현재 확인한 설정은 legacy / main / 루트 `/`입니다. main 병합·배포는 별도 승인 뒤 진행합니다. 개발 브랜치 CI는 배포를 수행하지 않습니다.
 
 1. GitHub repo > Settings > Pages
 2. Build and deployment: `Deploy from a branch`
@@ -69,32 +71,38 @@ http://localhost:8000
 - [본사·지점 데이터 규칙](docs/data-ownership.md)
 - [IMP-07 완료 보고서와 IMP-08 프롬프트](docs/improvements/IMP-07-staff-branches.md)
 - [실행 구조와 상태 변경 계약](docs/runtime-architecture.md)
+- [설치·브라우저·CI·실패 진단 안내](docs/development.md)
 - [IMP-08 완료 보고서와 IMP-09 프롬프트](docs/improvements/IMP-08-state-modules.md)
 
 ## 자동 검사
 
-Node.js 20 이상과 Chromium이 필요합니다. 일반 게임 실행에는 npm 의존성이 필요하지 않습니다.
+CI는 Node 24.19.0(`.nvmrc`), Playwright 1.62.1과 고정 Chromium을 사용합니다. 일반 게임 실행에는 npm 설치가 필요하지 않습니다.
 
 ```bash
+export PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright"
 npm ci
+npx playwright install chromium --no-shell
+npm run doctor
 npm run check
 npm test
 ```
 
-클라우드 환경에서 기본 npm 캐시 경로를 쓸 수 없으면 `npm ci --cache /tmp/nice-chicken-npm-cache`를 사용합니다. 검사는 기본 `/usr/bin/chromium`을 사용하며 다른 실행 파일은 `PLAYWRIGHT_CHROMIUM_EXECUTABLE`로 지정합니다. 설치된 시스템 Chromium이 없으면 Playwright 브라우저 설치 후 그 실행 파일 경로를 지정합니다.
+공통 설치·진단·검사는 `npm run test:ci`로 실행합니다. 기본 npm 캐시를 쓸 수 없는 클라우드에서는 `npm_config_cache=/tmp/nice-chicken-npm-cache`를 지정합니다. 시스템 Chromium을 비교하려면 `PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/chromium`을 지정합니다. 자세한 Linux 의존성·서버 실행·실패 로그와 trace 재현은 개발 안내를 참고하세요.
 
-브라우저 회귀 검사 92개: 오프라인 6개, 미션 7개, 연구 6개, 경제 10개, 엔딩 7개, UI 22개, 직원·지점 19개, 구조·저장 15개. `npm run check`는 JS 17개를 검사한다. 이전 환경의 96개 검사 파일은 유실되어 동일 파일을 복원한 것이 아닙니다. `node --test tests/branches.test.cjs` 등으로 범위별 실행할 수 있습니다.
+브라우저 회귀 검사 92개: 오프라인 6개, 미션 7개, 연구 6개, 경제 10개, 엔딩 7개, UI 22개, 직원·지점 19개, 구조·저장 15개. 문법 검사는 앱 JS 17개와 도구/helper CJS 6개, 총 23개입니다. 이전 환경의 96개 검사 파일을 동일하게 복원한 것은 아닙니다.
+
+Game CI는 일반 push/PR에서 같은 명령을 실행하며 열린 PR의 중복 push 검사를 생략합니다. 실패 자료는 Actions artifact에서 14일간 보관합니다. 과거 자동 패치·commit/push 워크플로 7개는 `docs/legacy-workflows/`에 보관했습니다.
 
 ## 현재 우선순위
 
 1. REC-01~05 기반 동작 재구현 및 IMP-06 화면·모달 개선: 완료
 2. IMP-07 직원 6명과 본사·지점별 데이터 규칙: 완료
 3. IMP-08 단일 실행 경로·명시적 저장·측정 기반 반복 작업 개선: 완료
-4. IMP-09 개발 문서·지속 검증: 다음 작업
-5. IMP-10 성장 밸런스·큰 수
+4. IMP-09 개발 문서·지속 검증: 완료
+5. IMP-10 성장 밸런스·큰 수: 다음 작업
 6. 전체 계획은 작업 목록 참고
 
-다음 작업은 원격 `improvement-imp08-20261012` 브랜치를 기준으로 진행합니다. 직원 교육·개인 누적 수익은 전 지점 공용이고, 고용·매출·기여도·미수령 보상·서비스 진행은 지점별입니다.
+다음 작업은 원격 `improvement-imp09-20261012` 브랜치를 기준으로 진행합니다. 직원 교육·개인 누적 수익은 전 지점 공용이고, 고용·매출·기여도·미수령 보상·서비스 진행은 지점별입니다.
 
 ## 참고
 
