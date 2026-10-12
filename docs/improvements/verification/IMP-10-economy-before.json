@@ -1,0 +1,134 @@
+{
+  "root": "/tmp/nice-chicken-imp10-baseline",
+  "browser": "151.0.7922.34",
+  "precision": {
+    "start": 9007199254740992,
+    "after": 9007199254740992,
+    "sales": 1
+  },
+  "overflowCost": "Infinity",
+  "thresholds": [
+    {
+      "level": 1,
+      "required": "102033"
+    },
+    {
+      "level": 10,
+      "required": "123737"
+    },
+    {
+      "level": 100,
+      "required": "2708553"
+    },
+    {
+      "level": 500,
+      "required": "2.7967787992962243e+23"
+    },
+    {
+      "level": 999,
+      "required": "9.534186788129568e+69"
+    }
+  ],
+  "endingTarget": "9.99e+70",
+  "checkpoints": [
+    {
+      "region": "changnyeong",
+      "avgPrice": 44921218133.333336,
+      "servedPerMin": 70.38,
+      "deliveryPerMin": 100,
+      "incomePerMin": 11997442143883.521,
+      "nextUnlockMinutes": 0.004167555000504066,
+      "endingYearsFromZero": 1.58424179813682e+52
+    },
+    {
+      "region": "busan",
+      "avgPrice": 2246060906666.6665,
+      "servedPerMin": 70.38,
+      "deliveryPerMin": 100,
+      "incomePerMin": 599872107194176,
+      "nextUnlockMinutes": 0.03334044000403254,
+      "endingYearsFromZero": 3.1684835962736405e+50
+    },
+    {
+      "region": "seoul",
+      "avgPrice": 89842436266666.67,
+      "servedPerMin": 70.38,
+      "deliveryPerMin": 100,
+      "incomePerMin": 23994884287767044,
+      "nextUnlockMinutes": 0.4167555000504066,
+      "endingYearsFromZero": 7.921208990684098e+48
+    },
+    {
+      "region": "japan",
+      "avgPrice": 2246060906666666.8,
+      "servedPerMin": 70.38,
+      "deliveryPerMin": 100,
+      "incomePerMin": 599872107194176000,
+      "nextUnlockMinutes": 0.8335110001008135,
+      "endingYearsFromZero": 3.1684835962736406e+47
+    },
+    {
+      "region": "usa",
+      "avgPrice": 89842436266666670,
+      "servedPerMin": 70.38,
+      "deliveryPerMin": 100,
+      "incomePerMin": 23994884287767044000,
+      "nextUnlockMinutes": 0.8335110001008132,
+      "endingYearsFromZero": 7.921208990684101e+45
+    },
+    {
+      "region": "mars",
+      "avgPrice": 4492121813333333500,
+      "servedPerMin": 70.38,
+      "deliveryPerMin": 100,
+      "incomePerMin": 1.1997442143883522e+21,
+      "nextUnlockMinutes": 0.016670220002016265,
+      "endingYearsFromZero": 1.5842417981368198e+44
+    }
+  ],
+  "model": {
+    "horizonMinutes": 43200,
+    "endingMinute": null,
+    "milestones": [
+      {
+        "region": "busan",
+        "minute": 45
+      },
+      {
+        "region": "seoul",
+        "minute": 131
+      },
+      {
+        "region": "japan",
+        "minute": 783
+      },
+      {
+        "region": "usa",
+        "minute": 1855
+      },
+      {
+        "region": "mars",
+        "minute": 2868
+      }
+    ],
+    "levels": [
+      {
+        "level": 14,
+        "minute": 2
+      },
+      {
+        "level": 125,
+        "minute": 5
+      }
+    ],
+    "finalRegion": "mars",
+    "finalMoney": "6.9050874464791985e+22",
+    "finalLevel": 490,
+    "finalRate": {
+      "avgPrice": 7200000000000000,
+      "servedPerMin": 51.75,
+      "deliveryPerMin": 100,
+      "incomePerMin": 1757970000000000000
+    }
+  }
+}
