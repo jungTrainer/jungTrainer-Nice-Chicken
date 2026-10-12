@@ -502,6 +502,10 @@ const defaultState = () => ({
   version: CONFIG.version,
 
   profile: { name: "" },
+  endingUnlocked:false,
+  endingPrompted:false,
+  endingSeen:false,
+  robotGrandson:false,
 
   soundOn: true,
 
@@ -631,6 +635,8 @@ let forceSaveBtn, resetAllBtn, closeSettingsBtn;
    initDOMRefs: 모든 HTML 요소 연결 및 버튼 기능 설정
 -------------------- */
 function initDOMRefs(){
+  if(window.gameInputsBound) return;
+  window.gameInputsBound=true;
   // 1. 기본 UI 연결
   elMoney = document.getElementById("uiMoney");
   elRep = document.getElementById("uiRep");
@@ -1112,8 +1118,6 @@ function openPanel(key){
   closePanels();
   if(!isOn){
     sanitizeState();
-  try{ applyRobotGrandson(); }catch(_){ }
-  try{ bindEndingUI(); }catch(_){ }
     panel.classList.add("on");
     const btn = navBtns.find(b=>b.dataset.panel===key);
     if(btn) btn.classList.add("active");
@@ -3100,7 +3104,10 @@ function importSaveData(raw){
 
   try{
     state = { ...defaultState(), ...imported };
+    cancelEndingRuntime();
     sanitizeState();
+    restoreEndingUI();
+    renderOfflineReward();
     const ok = save(true);
     updateUI();
     updateStatsUI();
@@ -5423,6 +5430,7 @@ function tick(dt){
 
   try{ updateMissionsOnlineOnly(); }catch(e){ console.error('missions error', e); }
   try{ updateResearch(); }catch(e){ console.error('research error', e); }
+  checkEndingCondition();
 
   state._saveAcc += dt;
   if(state._saveAcc >= CONFIG.autosaveSec){
