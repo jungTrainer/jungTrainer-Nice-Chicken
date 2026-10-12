@@ -1,0 +1,54 @@
+{
+  "baseline": "7c0494455b2126419a8375c507e419568d4f36bf",
+  "verified_commit": "9d7266bfe909d80b68f5c1e2b379e27b2874bfd3",
+  "event": "pull_request",
+  "run_id": 38215336313,
+  "url": "https://github.com/jungTrainer/jungTrainer-Nice-Chicken/actions/runs/38215336313",
+  "status": "completed",
+  "conclusion": "success",
+  "jobs": [
+    {
+      "name": "Select push or PR checks",
+      "conclusion": "success"
+    },
+    {
+      "name": "Syntax and browser regression",
+      "conclusion": "success"
+    }
+  ],
+  "same_commit_push_run": {
+    "id": 38215332206,
+    "jobs": [
+      {
+        "name": "Select push or PR checks",
+        "conclusion": "success"
+      },
+      {
+        "name": "Syntax and browser regression",
+        "conclusion": "skipped"
+      }
+    ]
+  },
+  "node": "24.19.0",
+  "playwright": "1.62.1",
+  "chromium": "151.0.7922.34",
+  "tests": 92,
+  "failed": 0,
+  "skipped": 0,
+  "syntax_files": 23,
+  "local_tests": {
+    "tests": 92,
+    "failed": 0,
+    "skipped": 0
+  },
+  "intentional_failure_probe": {
+    "scope": "local only, outside normal test suite",
+    "exit_code": 1,
+    "outputs": [
+      "page.png",
+      "failure.json",
+      "trace.zip"
+    ],
+    "capture_errors": 0
+  }
+}

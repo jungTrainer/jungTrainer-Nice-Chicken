@@ -73,6 +73,7 @@ http://localhost:8000
 - [실행 구조와 상태 변경 계약](docs/runtime-architecture.md)
 - [설치·브라우저·CI·실패 진단 안내](docs/development.md)
 - [IMP-08 완료 보고서와 IMP-09 프롬프트](docs/improvements/IMP-08-state-modules.md)
+- [IMP-09 완료 보고서와 IMP-10 프롬프트](docs/improvements/IMP-09-ci-docs.md)
 
 ## 자동 검사
 
