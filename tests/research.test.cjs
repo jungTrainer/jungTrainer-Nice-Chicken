@@ -1,0 +1,12 @@
+const assert=require('node:assert/strict');const {test}=require('node:test');const {harness}=require('./helpers/game.cjs');const {game,fixture}=harness();
+for(const level of [0,1,10]) test(`training and delivery research level ${level} changes actual rate and payout`,async()=>game(fixture(),async p=>{
+  const r=await p.evaluate(level=>{state.upgrades.hire=1;state.research.levels={training:level,deliveryOpt:level};const base=CONFIG.baseAutoServesPerMin;const training=computeRates().autoServesPerMin;const rid=RESEARCH.find(r=>r.effectPerLevel?.deliveryEarningMul&&r.effectPerLevel?.deliveryFreqMul).id;state.research.levels={[rid]:level};Math.random=()=>.5;state.delivery.riders=1;const interval=computeDeliveryIntervalMs(VEHICLES[0]);const price=getMenuPrice('fried');const before=state.money;processDelivery(VEHICLES[0]);return {base,training,interval,paid:state.money-before,price};},level);
+  assert.ok(Math.abs(r.training-(r.base+1.4*(1+level*.03)))<1e-8);assert.ok(Math.abs(r.interval-10000/(1+level*.04))<1e-8);assert.equal(r.paid,Math.floor(r.price*(1+level*.05)));
+  await p.evaluate(()=>save(true));await p.reload();assert.equal(await p.evaluate(()=>state.research.levels[RESEARCH.find(r=>r.effectPerLevel?.deliveryEarningMul&&r.effectPerLevel?.deliveryFreqMul).id]),level);
+}));
+test('delivery cache preserves progress on research and resets on branch replacement',async()=>game(fixture(),async p=>{
+  const r=await p.evaluate(()=>{Math.random=()=>.5;state.delivery.riders=1;updateDelivery(2,Date.now());const before=deliveryTimer/deliveryNextIntervalMs;state.research.levels.deliveryOpt=10;const rid=RESEARCH.find(r=>r.effectPerLevel?.deliveryFreqMul).id;state.research.levels[rid]=10;updateDelivery(0,Date.now());const after=deliveryTimer/deliveryNextIntervalMs;state.delivery={...state.delivery};updateDelivery(0,Date.now());return {before,after,timer:deliveryTimer};});assert.equal(r.before,r.after);assert.equal(r.timer,0);
+}));
+test('legacy completed research migrates on import without changing pending and coupons',async()=>game(fixture(),async p=>{
+  p.on('dialog',d=>d.accept());const r=await p.evaluate(()=>{const raw=JSON.parse(exportSaveData());raw.data.research.levels={};raw.data.research.completed=['training'];raw.data.offlineReward={amount:321,seconds:60};raw.data.coupons.veg=7;importSaveData(JSON.stringify(raw));return {level:state.research.levels.training,pending:state.offlineReward.amount,veg:state.coupons.veg};});assert.deepEqual(r,{level:10,pending:321,veg:7});
+}));

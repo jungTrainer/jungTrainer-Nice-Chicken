@@ -2922,7 +2922,7 @@ function processDelivery(vehicle){
     const basePrice = (typeof getMenuPrice === "function") ? getMenuPrice(menuId) : (pick?.price||19000);
 
     // "그대로" 메뉴가격을 받되, 배달 수익 업그레이드는 보너스 배율로만 반영(원가 자체는 메뉴가격 기반)
-    let earnings = basePrice; // 메뉴 가격 그대로
+    let earnings = basePrice * Math.max(0,1+(eff.deliveryEarningMul||0));
 
     // 버프 적용
     if(Date.now() < (state.buffEndTime||0)) earnings *= 2;
