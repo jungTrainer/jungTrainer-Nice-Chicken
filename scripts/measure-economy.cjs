@@ -5,6 +5,17 @@ const path = require("node:path");
 const { chromium } = require("playwright");
 (async () => {
   const root = path.resolve(process.argv[2] || ".");
+  const policy = process.argv[3] || "legacy";
+  if (
+    ![
+      "legacy",
+      "service-neighbor",
+      "dispatch-ato",
+      "dispatch-soninlaw",
+      "signature-fried",
+    ].includes(policy)
+  )
+    throw Error("Unknown measured policy");
   const server = http.createServer((req, res) => {
     const file = path.resolve(
       root,
@@ -47,20 +58,32 @@ const { chromium } = require("playwright");
       cancelAnimationFrame = () => {};
     });
     await page.goto("http://127.0.0.1:" + server.address().port);
-    const result = await page.evaluate(() => {
+    const result = await page.evaluate((policy) => {
       const num = (v) => Number(v);
       const rows = [];
       const reset = () => {
         state = defaultState();
         sanitizeState();
         state.soundOn = false;
+        if (typeof defaultManagement === "function" && policy !== "legacy") {
+          const [focus, staff] = policy.split("-");
+          if (focus === "signature") {
+            state.management.menuPolicy = "signature";
+            state.management.featuredMenu = staff;
+          } else {
+            state.management.focus = focus;
+            state.management.leadStaff = staff;
+          }
+        }
       };
       const rate = () => {
         const r = computeRates(),
           e = r.eff;
-        const prices = MENUS.slice(0, getOpenMenuCount()).map((m) =>
-          num(getMenuPrice(m.id, e)),
-        );
+        const prices = (
+          typeof getOrderMenuPool === "function"
+            ? getOrderMenuPool()
+            : MENUS.slice(0, getOpenMenuCount())
+        ).map((m) => num(getMenuPrice(m.id, e)));
         const avg = prices.reduce((a, b) => a + b, 0) / prices.length;
         // 40 midpoint samples of the real random interval, including the 12% rest.
         let ms = 0;
@@ -313,7 +336,16 @@ const { chromium } = require("playwright");
             if (state.customers.length < CONFIG.maxCustomers)
               state.customers.push({
                 id: "measure-" + step,
-                menuId: MENUS[Math.floor(Math.random() * MENUS.length)].id,
+                menuId: (typeof getOrderMenuPool === "function"
+                  ? getOrderMenuPool()
+                  : MENUS)[
+                  Math.floor(
+                    Math.random() *
+                      (typeof getOrderMenuPool === "function"
+                        ? getOrderMenuPool().length
+                        : MENUS.length),
+                  )
+                ].id,
                 state: "waiting",
                 x: 50,
                 y: 50,
@@ -356,10 +388,14 @@ const { chromium } = require("playwright");
         model,
         actualTenMinutes,
       };
-    });
+    }, policy);
     if (errors.length) throw new Error(errors.join("\n"));
     console.log(
-      JSON.stringify({ root, browser: browser.version(), ...result }, null, 2),
+      JSON.stringify(
+        { root, policy, browser: browser.version(), ...result },
+        null,
+        2,
+      ),
     );
   } finally {
     await browser?.close();

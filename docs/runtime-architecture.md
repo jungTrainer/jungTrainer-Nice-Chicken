@@ -1,25 +1,26 @@
 # 실행 구조와 상태 변경 계약
 
-적용: IMP-08/10, 2026-10-12. 데이터 범위는 [본사·지점 규칙](data-ownership.md), 금액은 [성장·금액 정책](economy-policy.md)을 따른다. 모듈 분리는 [IMP-08 보고서](improvements/IMP-08-state-modules.md)에 기록했다.
+적용: IMP-08/10/11, 2026-10-13. 데이터 범위는 [본사·지점 규칙](data-ownership.md), 금액은 [성장·금액 정책](economy-policy.md)을 따른다. 모듈 분리는 [IMP-08 보고서](improvements/IMP-08-state-modules.md)에 기록했다.
 
 ## 정의와 시작 순서
 
-`index.html`은 아래 순서로 클래식 스크립트를 불러온다. 함수는 한 곳에서 정의하며 설치 과정에서 교체하거나 감싸지 않는다. 기존 브라우저 API를 보존하기 위해 ES module로 전환하지 않았다. 전체 전역 함수 235개와 최상위 변수의 소유 파일은 [전역 목록](runtime-globals.json)에 기록했다. 목록에는 UI 콜백 안의 지역 함수와 객체 메서드는 제외했다.
+`index.html`은 아래 순서로 클래식 스크립트를 불러온다. 함수는 한 곳에서 정의하며 설치 과정에서 교체하거나 감싸지 않는다. 기존 브라우저 API를 보존하기 위해 ES module로 전환하지 않았다. 전체 전역 함수 246개와 최상위 변수의 소유 파일은 [전역 목록](runtime-globals.json)에 기록했다. 목록에는 UI 콜백 안의 지역 함수와 객체 메서드는 제외했다.
 
 | 순서 | 파일 | 소유하는 정의·데이터 | 호출 시 의존성 |
 | --- | --- | --- | --- |
 | 1 | `money.js` | 정수 원 표현·연산·비용·명시적 금액 migration | 연산은 독립적; migration 호출 시 상태/오프라인/dirty 정의 필요 |
 | 2–4 | `utils.js`, `audio.js`, `config.js` | 표시/날짜/입력 도우미, 오디오 런타임, 설정·정확한 레벨 앵커 | 금액 모듈, 브라우저 API; 설정은 데이터 생성만 실행 |
-| 5 | `state.js` | `defaultState`, `state`; 호환 schema와 moneyEncoding | 설정/금액 encoding |
-| 6 | `persistence.js` | dirty·저장·로드·내보내기·가져오기·초기화·sanitize | 본사/지점 상태, 금액 migration, BranchManager, 미션/연구, 엔딩/화면 복원 |
-| 7–8 | `growth.js`, `research.js` | 효과 합산·처리량, 고용/교육/업그레이드·연구·레벨, 구 연구 migration | 설정/상태, 정확한 비용/비교, 저장, 패널 렌더링 |
-| 9–10 | `offline.js`, `missions.js` | 미수령 확정/수령, 목표/진행/보상, 인증서 지급과 미리보기 | 처리량/가격/정확한 공통 수익 기록, 저장, 지점 snapshot |
-| 11 | `economy.js` | `getMenuPrice`, `upgradeCost`, `recordIncome`, 서빙/팁/배달 지급·급여·쿠폰, 수익 화면 갱신 | 정확한 원 연산, 성장 효과, 미션, 저장, 서비스 연출, DOM refs |
-| 12 | `ending.js` | 정확한 목표 비교/재생/완료, 취소 가능한 음원·타이핑·페이드·완료 타이머 | 금액/상태/저장, STAFF_POOL 원본, UI |
-| 13–14 | `branches.js`, `services.js` | snapshot 교체, ServiceRuntime 소유권, 온라인/배달/자동/생성 진행 | sanitize·연구 slots, 성장/정산, 장면/연출 |
-| 15 | `main.js` | DOM refs와 입력, 고객·장면·패널·통계 렌더링, `tick`/`frame` | 위 단일 사업 함수들 |
-| 16 | `ui.js` | 모달/패널의 포커스·닫기·배경 입력·안전 영역 | 장면·엔딩 함수, DOM |
-| 17 | `boot.js` | `init`/`initAfterLoad`, 오류 복구와 watchdog | 모든 정의가 로드된 뒤 시작 |
+| 5 | `content.js` | 지역/직원 콘텐츠·운영/메뉴 선택·정규화·명시적 저장/읽기·리포트 UI | 설정, 호출 시 상태/성장/정산/저장/DOM |
+| 6 | `state.js` | `defaultState`, `state`; 호환 schema와 moneyEncoding | 설정/금액 encoding |
+| 7 | `persistence.js` | dirty·저장·로드·내보내기·가져오기·초기화·sanitize | 본사/지점 상태, 금액 migration, BranchManager, 미션/연구, 엔딩/화면 복원 |
+| 8–9 | `growth.js`, `research.js` | 효과 합산·처리량, 고용/교육/업그레이드·연구·레벨, 구 연구 migration | 설정/상태, 정확한 비용/비교, 저장, 패널 렌더링 |
+| 10–11 | `offline.js`, `missions.js` | 미수령 확정/수령, 목표/진행/보상, 인증서 지급과 미리보기 | 처리량/가격/정확한 공통 수익 기록, 저장, 지점 snapshot |
+| 12 | `economy.js` | `getMenuPrice`, `upgradeCost`, `recordIncome`, 서빙/팁/배달 지급·급여·쿠폰, 수익 화면 갱신 | 정확한 원 연산, 성장 효과, 미션, 저장, 서비스 연출, DOM refs |
+| 13 | `ending.js` | 정확한 목표 비교/재생/완료, 취소 가능한 음원·타이핑·페이드·완료 타이머 | 금액/상태/저장, STAFF_POOL 원본, UI |
+| 14–15 | `branches.js`, `services.js` | snapshot 교체, ServiceRuntime 소유권, 온라인/배달/자동/생성 진행 | sanitize·연구 slots, 성장/정산, 장면/연출 |
+| 16 | `main.js` | DOM refs와 입력, 고객·장면·패널·통계 렌더링, `tick`/`frame` | 위 단일 사업 함수들 |
+| 17 | `ui.js` | 모달/패널의 포커스·닫기·배경 입력·안전 영역 | 장면·엔딩 함수, DOM |
+| 18 | `boot.js` | `init`/`initAfterLoad`, 오류 복구와 watchdog | 모든 정의가 로드된 뒤 시작 |
 
 이 표의 core 파일은 `js/core/`에 있다. 실행 시 상호 호출은 남아 있으나 이전 함수의 캡처·재할당 체인은 없다. `main.js`의 DOM 입력 delegation은 평가 시 연결되고, `ui.js`는 DOMContentLoaded에서 입력 소유권을 구성한다. 마지막 `boot.js`의 DOMContentLoaded가 DOM refs·저장 lifecycle을 연결한 뒤 load → sanitize/bootstrap → 오프라인 확정 → 엔딩 UI 복원 → 단일 rAF를 시작한다. 이벤트 연결 guard와 엔딩 WeakSet은 버튼을 여러 번 연결하지 않는다.
 
@@ -46,7 +47,7 @@
 
 ## 변경 시 검증
 
-`npm run doctor`, `npm run check`, `npm test`를 실행한다. 현재 120개 검사는 IMP-09의 92개와 IMP-10의 금액 경계/마이그레이션 28개다. IMP-09부터 고정 Playwright Chromium을 기본으로 사용하고 문법 검사는 앱 JS 18개와 도구/helper CJS 7개, 총 25개를 포함한다. 설치/정의 중복 검사는 `tests/refactor.test.cjs`, 지점/저장 원본의 규칙은 `tests/branches.test.cjs`에 있다. 브라우저 검사는 자체 HTTP 서버와 Chromium을 열고 종료한다.
+`npm run doctor`, `npm run check`, `npm test`를 실행한다. 현재 148개 검사는 IMP-10의 120개와 콘텐츠/선택 28개다. IMP-09부터 고정 Playwright Chromium을 기본으로 사용하고 문법 검사는 앱 JS 19개와 도구/helper CJS 8개, 총 27개를 포함한다. 설치/정의 중복 검사는 `tests/refactor.test.cjs`, 지점/저장 원본의 규칙은 `tests/branches.test.cjs`에 있다. 브라우저 검사는 자체 HTTP 서버와 Chromium을 열고 종료한다.
 
 측정은 `node scripts/measure-runtime.cjs [비교할 정적 웹앱 디렉터리]`를 사용한다. 게임 API를 계측하는 래퍼는 이 별도 브라우저 측정 페이지에만 존재하며 앱에 설치되지 않는다. 연산 수와 표시 정확도를 먼저 비교하고 실행 시간은 동일 기기/부하에서 참고한다. CI의 시간 성능 임계값으로 사용하지 않는다.
 
@@ -60,3 +61,13 @@
 `money.js`는 첫 스크립트이며 기본 정수 연산은 상태와 DOM에 의존하지 않는다. `config.js`는 정확한 앵커/비용을 생성하고 `state.js`는 encoding을 포함한다. 모든 스크립트가 로드된 뒤 sanitize가 알려진 본사/지점 금액과 확정 미수령을 변환한다. 변환한 값이나 encoding이 바뀔 때만 `markStateChanged("money-migration", false)`를 호출하고 초기 boot는 기존 write 지연 계약을 따른다. 매출 기록은 ledger 값을 모두 계산한 뒤 대입하며 범위 오류는 부분 지급하지 않는다.
 
 가격·구매·급여·교환·통계 합계·매출 미션·엔딩 비교는 금액 모듈을 호출한다. 효과와 서비스 속도는 기존 Number이며 타이머/연구 캐시 소유권을 바꾸지 않는다. 메뉴 비용 캐시는 상태가 아닌 base/ratio/level/지역 배율 키의 순수 계산 결과 최대 256개다. 이동/import/reset에서 같은 입력은 같은 비용이고 효과 캐시나 추첨 간격과 섞이지 않는다. JSON 원본에는 캐시나 BigInt를 넣지 않는다. 자세한 단위·내림·상한·구 저장 변환과 성장 가정은 [금액 정책](economy-policy.md)을 따른다.
+
+## IMP-11 콘텐츠 의존성
+
+content는 config 다음, state 이전에 정의한다. 등록하는 클릭은 기존 report/tab/input owner 아래의 delegation 한 번이며 새로운 모달/loop/타이머를 설치하지 않는다. `defaultManagement`/`normalizeManagement`는 지점별 알려진 선택만 처리한다. sanitize에서 필요할 때만 migration dirty를 표시한다. 선택/읽기는 no-op guard → 명시적 dirty/force save → 실패 시 이전 management/snapshot/시각/dirty 복구를 따른다.
+
+`getManagementEffects()`는 선택한 고용 직원 한 명과 지점 방향을 반환한다. aggregateEffects는 기존 연구/이벤트/로봇 후 이 계수를 한 번 결합한다. computeRates에서 운영 자동 계수는 기존 이벤트 저항 후, 새 손님 인내 +1초는 기존 평판/연구/이벤트의 인내 계산 후 적용한다. 배달 간격은 기존 ServiceRuntime의 입력/서명/비율 갱신 경로를 그대로 사용한다. 선택 클릭에서 updateDelivery나 정산을 실행하지 않는다.
+
+`getOrderMenuPool()`은 방문/배달/온라인/새 오프라인의 유일한 후보 원본이다. 기존 손님/확정 receipt를 다시 쓰지 않는다. `getMenuOfferSummary`는 실제 가격 함수와 정수 합계를 사용하며 UI 평균은 원 미만 내림이다. 리포트가 열리고 해당 탭이 활성일 때만 콘텐츠 DOM을 만든다. 표시는 경제 상태를 지급하거나 이야기 읽음으로 바꾸지 않는다. [콘텐츠 설계](content-design.md)에 선택·소유권·모델 한계를 기록했다.
+
+열린 운영 탭은 기존 updateUI에서 성장/가격/조건을 갱신한다. managementRenderOwner/Key는 저장되지 않는 UI 표시 캐시다. 상태 소유자와 표시 원본 값이 같으면 DOM을 재사용하며 값이 바뀌면 포커스와 스크롤을 보존해 갱신한다. 서비스 캐시/dirty/타이머와 공유하지 않는다.

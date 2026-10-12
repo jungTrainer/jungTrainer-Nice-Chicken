@@ -40,7 +40,7 @@ function applyOfflineProgress() {
     const reward = structuredClone(state.offlineReward);
     const rates = computeRates(),
       served = Math.floor((rates.autoServesPerMin / 60) * usedSec);
-    const menus = MENUS.slice(0, clampInt(getOpenMenuCount(), 1, MENUS.length));
+    const menus = getOrderMenuPool();
     try {
       for (let i = 0; i < menus.length; i++) {
         const count =

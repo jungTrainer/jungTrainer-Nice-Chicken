@@ -1,0 +1,97 @@
+{
+  "baseline": "68437f1a2a3d03e8e9b5905af1ac45c2fbc3a124",
+  "branch": "improvement-imp11-20261013",
+  "pr": 5,
+  "node": "24.19.0",
+  "playwright": "1.62.1",
+  "chromium": "151.0.7922.34",
+  "localSharedCI": {
+    "syntax": 27,
+    "tests": 148,
+    "fail": 0,
+    "skip": 0
+  },
+  "runs": [
+    {
+      "id": 38321118405,
+      "event": "push",
+      "head_sha": "bc2d301244b4c0c87a3a0f9b5593d82c8670235e",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/jungTrainer/jungTrainer-Nice-Chicken/actions/runs/38321118405",
+      "jobs": [
+        {
+          "name": "Select push or PR checks",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Syntax and browser regression",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "tests": {
+        "total": 147,
+        "pass": 147,
+        "fail": 0,
+        "skip": 0
+      },
+      "syntax": 27
+    },
+    {
+      "id": 38321813520,
+      "event": "pull_request",
+      "head_sha": "bc2d301244b4c0c87a3a0f9b5593d82c8670235e",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/jungTrainer/jungTrainer-Nice-Chicken/actions/runs/38321813520",
+      "jobs": [
+        {
+          "name": "Select push or PR checks",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Syntax and browser regression",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "tests": {
+        "total": 147,
+        "pass": 147,
+        "fail": 0,
+        "skip": 0
+      },
+      "syntax": 27
+    },
+    {
+      "id": 38323179236,
+      "event": "pull_request",
+      "head_sha": "be10f2bd73798c4da852ecff5f53bb0887f993a5",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/jungTrainer/jungTrainer-Nice-Chicken/actions/runs/38323179236",
+      "jobs": [
+        {
+          "name": "Select push or PR checks",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Syntax and browser regression",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "tests": {
+        "total": 148,
+        "pass": 148,
+        "fail": 0,
+        "skip": 0
+      },
+      "syntax": 27
+    }
+  ]
+}

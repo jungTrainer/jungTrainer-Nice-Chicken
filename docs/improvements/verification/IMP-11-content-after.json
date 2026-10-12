@@ -1,0 +1,1152 @@
+{
+  "root": "/workspace/jungTrainer-Nice-Chicken",
+  "browser": "151.0.7922.34",
+  "decisions": [
+    {
+      "focus": "balanced",
+      "lead": null,
+      "price": "26400",
+      "autoPerMin": 14.886800000000001,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.5,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "balanced",
+      "lead": "neighbor",
+      "price": "26400",
+      "autoPerMin": 15.450272000000002,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.5,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "balanced",
+      "lead": "ato",
+      "price": "26400",
+      "autoPerMin": 14.886800000000001,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.5,
+      "deliveryFreqMul": 0.45600000000000007
+    },
+    {
+      "focus": "balanced",
+      "lead": "daughter1",
+      "price": "26400",
+      "autoPerMin": 14.886800000000001,
+      "onlinePerMin": 0.31200000000000006,
+      "patience": 22,
+      "deliveryEarningMul": 0.5,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "balanced",
+      "lead": "daughter2",
+      "price": "26400",
+      "autoPerMin": 14.886800000000001,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 23,
+      "deliveryEarningMul": 0.5,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "balanced",
+      "lead": "soninlaw",
+      "price": "26400",
+      "autoPerMin": 14.886800000000001,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.56,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "balanced",
+      "lead": "grandson",
+      "price": "26928",
+      "autoPerMin": 14.886800000000001,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.5,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "service",
+      "lead": null,
+      "price": "26400",
+      "autoPerMin": 15.482272000000002,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.43999999999999995,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "service",
+      "lead": "neighbor",
+      "price": "26400",
+      "autoPerMin": 16.06828288,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.43999999999999995,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "service",
+      "lead": "ato",
+      "price": "26400",
+      "autoPerMin": 15.482272000000002,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.43999999999999995,
+      "deliveryFreqMul": 0.45600000000000007
+    },
+    {
+      "focus": "service",
+      "lead": "daughter1",
+      "price": "26400",
+      "autoPerMin": 15.482272000000002,
+      "onlinePerMin": 0.31200000000000006,
+      "patience": 22,
+      "deliveryEarningMul": 0.43999999999999995,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "service",
+      "lead": "daughter2",
+      "price": "26400",
+      "autoPerMin": 15.482272000000002,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 23,
+      "deliveryEarningMul": 0.43999999999999995,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "service",
+      "lead": "soninlaw",
+      "price": "26400",
+      "autoPerMin": 15.482272000000002,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.4975999999999998,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "service",
+      "lead": "grandson",
+      "price": "26928",
+      "autoPerMin": 15.482272000000002,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.43999999999999995,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "dispatch",
+      "lead": null,
+      "price": "26400",
+      "autoPerMin": 14.291328,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.56,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "dispatch",
+      "lead": "neighbor",
+      "price": "26400",
+      "autoPerMin": 14.832261120000002,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.56,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "dispatch",
+      "lead": "ato",
+      "price": "26400",
+      "autoPerMin": 14.291328,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.56,
+      "deliveryFreqMul": 0.45600000000000007
+    },
+    {
+      "focus": "dispatch",
+      "lead": "daughter1",
+      "price": "26400",
+      "autoPerMin": 14.291328,
+      "onlinePerMin": 0.31200000000000006,
+      "patience": 22,
+      "deliveryEarningMul": 0.56,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "dispatch",
+      "lead": "daughter2",
+      "price": "26400",
+      "autoPerMin": 14.291328,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 23,
+      "deliveryEarningMul": 0.56,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "dispatch",
+      "lead": "soninlaw",
+      "price": "26400",
+      "autoPerMin": 14.291328,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.6224000000000003,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "dispatch",
+      "lead": "grandson",
+      "price": "26928",
+      "autoPerMin": 14.291328,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.56,
+      "deliveryFreqMul": 0.4
+    }
+  ],
+  "scenarios": [
+    {
+      "research": 0,
+      "unlock": 0,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "16500"
+        }
+      ],
+      "allMeanWon": "16500",
+      "signatureFriedWon": "16500",
+      "selectedMeanWon": "16500"
+    },
+    {
+      "research": 0,
+      "unlock": 1,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "16500"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        }
+      ],
+      "allMeanWon": "23650",
+      "signatureFriedWon": "16500",
+      "selectedMeanWon": "16500"
+    },
+    {
+      "research": 0,
+      "unlock": 2,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "16500"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        },
+        {
+          "id": "soy_hot",
+          "price": "49500"
+        }
+      ],
+      "allMeanWon": "32266",
+      "signatureFriedWon": "16500",
+      "selectedMeanWon": "16500"
+    },
+    {
+      "research": 0,
+      "unlock": 8,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "16500"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        },
+        {
+          "id": "soy_hot",
+          "price": "49500"
+        },
+        {
+          "id": "boneless_feet",
+          "price": "165000"
+        },
+        {
+          "id": "roast",
+          "price": "385000"
+        },
+        {
+          "id": "garlic_roast",
+          "price": "715000"
+        },
+        {
+          "id": "gizzard_s",
+          "price": "2750000"
+        },
+        {
+          "id": "doritang",
+          "price": "8800000"
+        },
+        {
+          "id": "buldak",
+          "price": "33000000"
+        }
+      ],
+      "allMeanWon": "5101311",
+      "signatureFriedWon": "16500",
+      "selectedMeanWon": "16500"
+    },
+    {
+      "research": 1,
+      "unlock": 0,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "24750"
+        }
+      ],
+      "allMeanWon": "24750",
+      "signatureFriedWon": "24750",
+      "selectedMeanWon": "24750"
+    },
+    {
+      "research": 1,
+      "unlock": 1,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "24750"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        }
+      ],
+      "allMeanWon": "27775",
+      "signatureFriedWon": "24750",
+      "selectedMeanWon": "24750"
+    },
+    {
+      "research": 1,
+      "unlock": 2,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "24750"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        },
+        {
+          "id": "soy_hot",
+          "price": "49500"
+        }
+      ],
+      "allMeanWon": "35016",
+      "signatureFriedWon": "24750",
+      "selectedMeanWon": "24750"
+    },
+    {
+      "research": 1,
+      "unlock": 8,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "24750"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        },
+        {
+          "id": "soy_hot",
+          "price": "49500"
+        },
+        {
+          "id": "boneless_feet",
+          "price": "165000"
+        },
+        {
+          "id": "roast",
+          "price": "385000"
+        },
+        {
+          "id": "garlic_roast",
+          "price": "715000"
+        },
+        {
+          "id": "gizzard_s",
+          "price": "2750000"
+        },
+        {
+          "id": "doritang",
+          "price": "8800000"
+        },
+        {
+          "id": "buldak",
+          "price": "33000000"
+        }
+      ],
+      "allMeanWon": "5102227",
+      "signatureFriedWon": "24750",
+      "selectedMeanWon": "24750"
+    },
+    {
+      "research": 10,
+      "unlock": 0,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "99000"
+        }
+      ],
+      "allMeanWon": "99000",
+      "signatureFriedWon": "99000",
+      "selectedMeanWon": "99000"
+    },
+    {
+      "research": 10,
+      "unlock": 1,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "99000"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        }
+      ],
+      "allMeanWon": "64900",
+      "signatureFriedWon": "99000",
+      "selectedMeanWon": "99000"
+    },
+    {
+      "research": 10,
+      "unlock": 2,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "99000"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        },
+        {
+          "id": "soy_hot",
+          "price": "49500"
+        }
+      ],
+      "allMeanWon": "59766",
+      "signatureFriedWon": "99000",
+      "selectedMeanWon": "99000"
+    },
+    {
+      "research": 10,
+      "unlock": 8,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "99000"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        },
+        {
+          "id": "soy_hot",
+          "price": "49500"
+        },
+        {
+          "id": "boneless_feet",
+          "price": "165000"
+        },
+        {
+          "id": "roast",
+          "price": "385000"
+        },
+        {
+          "id": "garlic_roast",
+          "price": "715000"
+        },
+        {
+          "id": "gizzard_s",
+          "price": "2750000"
+        },
+        {
+          "id": "doritang",
+          "price": "8800000"
+        },
+        {
+          "id": "buldak",
+          "price": "33000000"
+        }
+      ],
+      "allMeanWon": "5110477",
+      "signatureFriedWon": "99000",
+      "selectedMeanWon": "99000"
+    }
+  ],
+  "staff": [
+    {
+      "key": "neighbor",
+      "grade": "C",
+      "baseSpeed": 1
+    },
+    {
+      "key": "ato",
+      "grade": "C",
+      "baseSpeed": 1.2
+    },
+    {
+      "key": "daughter1",
+      "grade": "B",
+      "baseSpeed": 1.1
+    },
+    {
+      "key": "daughter2",
+      "grade": "B",
+      "baseSpeed": 1.1
+    },
+    {
+      "key": "soninlaw",
+      "grade": "A",
+      "baseSpeed": 1.25
+    },
+    {
+      "key": "grandson",
+      "grade": "S",
+      "baseSpeed": 1.5
+    }
+  ],
+  "regions": [
+    {
+      "id": "changnyeong",
+      "priceMul": 1,
+      "costMul": 1,
+      "unlockCost": "0"
+    },
+    {
+      "id": "busan",
+      "priceMul": 50,
+      "costMul": 5,
+      "unlockCost": "50000000000"
+    },
+    {
+      "id": "seoul",
+      "priceMul": 2000,
+      "costMul": 50,
+      "unlockCost": "20000000000000"
+    },
+    {
+      "id": "japan",
+      "priceMul": 50000,
+      "costMul": 500,
+      "unlockCost": "10000000000000000"
+    },
+    {
+      "id": "usa",
+      "priceMul": 2000000,
+      "costMul": 5000,
+      "unlockCost": "500000000000000000"
+    },
+    {
+      "id": "mars",
+      "priceMul": 100000000,
+      "costMul": 100000,
+      "unlockCost": "20000000000000000000"
+    }
+  ]
+}
+{
+  "root": "/workspace/jungTrainer-Nice-Chicken",
+  "browser": "151.0.7922.34",
+  "decisions": [
+    {
+      "focus": "balanced",
+      "lead": null,
+      "price": "26400",
+      "autoPerMin": 14.886800000000001,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.5,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "balanced",
+      "lead": "neighbor",
+      "price": "26400",
+      "autoPerMin": 15.450272000000002,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.5,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "balanced",
+      "lead": "ato",
+      "price": "26400",
+      "autoPerMin": 14.886800000000001,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.5,
+      "deliveryFreqMul": 0.45600000000000007
+    },
+    {
+      "focus": "balanced",
+      "lead": "daughter1",
+      "price": "26400",
+      "autoPerMin": 14.886800000000001,
+      "onlinePerMin": 0.31200000000000006,
+      "patience": 22,
+      "deliveryEarningMul": 0.5,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "balanced",
+      "lead": "daughter2",
+      "price": "26400",
+      "autoPerMin": 14.886800000000001,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 23,
+      "deliveryEarningMul": 0.5,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "balanced",
+      "lead": "soninlaw",
+      "price": "26400",
+      "autoPerMin": 14.886800000000001,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.56,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "balanced",
+      "lead": "grandson",
+      "price": "26928",
+      "autoPerMin": 14.886800000000001,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.5,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "service",
+      "lead": null,
+      "price": "26400",
+      "autoPerMin": 15.482272000000002,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.43999999999999995,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "service",
+      "lead": "neighbor",
+      "price": "26400",
+      "autoPerMin": 16.06828288,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.43999999999999995,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "service",
+      "lead": "ato",
+      "price": "26400",
+      "autoPerMin": 15.482272000000002,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.43999999999999995,
+      "deliveryFreqMul": 0.45600000000000007
+    },
+    {
+      "focus": "service",
+      "lead": "daughter1",
+      "price": "26400",
+      "autoPerMin": 15.482272000000002,
+      "onlinePerMin": 0.31200000000000006,
+      "patience": 22,
+      "deliveryEarningMul": 0.43999999999999995,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "service",
+      "lead": "daughter2",
+      "price": "26400",
+      "autoPerMin": 15.482272000000002,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 23,
+      "deliveryEarningMul": 0.43999999999999995,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "service",
+      "lead": "soninlaw",
+      "price": "26400",
+      "autoPerMin": 15.482272000000002,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.4975999999999998,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "service",
+      "lead": "grandson",
+      "price": "26928",
+      "autoPerMin": 15.482272000000002,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.43999999999999995,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "dispatch",
+      "lead": null,
+      "price": "26400",
+      "autoPerMin": 14.291328,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.56,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "dispatch",
+      "lead": "neighbor",
+      "price": "26400",
+      "autoPerMin": 14.832261120000002,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.56,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "dispatch",
+      "lead": "ato",
+      "price": "26400",
+      "autoPerMin": 14.291328,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.56,
+      "deliveryFreqMul": 0.45600000000000007
+    },
+    {
+      "focus": "dispatch",
+      "lead": "daughter1",
+      "price": "26400",
+      "autoPerMin": 14.291328,
+      "onlinePerMin": 0.31200000000000006,
+      "patience": 22,
+      "deliveryEarningMul": 0.56,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "dispatch",
+      "lead": "daughter2",
+      "price": "26400",
+      "autoPerMin": 14.291328,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 23,
+      "deliveryEarningMul": 0.56,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "dispatch",
+      "lead": "soninlaw",
+      "price": "26400",
+      "autoPerMin": 14.291328,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.6224000000000003,
+      "deliveryFreqMul": 0.4
+    },
+    {
+      "focus": "dispatch",
+      "lead": "grandson",
+      "price": "26928",
+      "autoPerMin": 14.291328,
+      "onlinePerMin": 0.30000000000000004,
+      "patience": 22,
+      "deliveryEarningMul": 0.56,
+      "deliveryFreqMul": 0.4
+    }
+  ],
+  "scenarios": [
+    {
+      "research": 0,
+      "unlock": 0,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "16500"
+        }
+      ],
+      "allMeanWon": "16500",
+      "signatureFriedWon": "16500",
+      "selectedMeanWon": "16500"
+    },
+    {
+      "research": 0,
+      "unlock": 1,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "16500"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        }
+      ],
+      "allMeanWon": "23650",
+      "signatureFriedWon": "16500",
+      "selectedMeanWon": "16500"
+    },
+    {
+      "research": 0,
+      "unlock": 2,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "16500"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        },
+        {
+          "id": "soy_hot",
+          "price": "49500"
+        }
+      ],
+      "allMeanWon": "32266",
+      "signatureFriedWon": "16500",
+      "selectedMeanWon": "16500"
+    },
+    {
+      "research": 0,
+      "unlock": 8,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "16500"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        },
+        {
+          "id": "soy_hot",
+          "price": "49500"
+        },
+        {
+          "id": "boneless_feet",
+          "price": "165000"
+        },
+        {
+          "id": "roast",
+          "price": "385000"
+        },
+        {
+          "id": "garlic_roast",
+          "price": "715000"
+        },
+        {
+          "id": "gizzard_s",
+          "price": "2750000"
+        },
+        {
+          "id": "doritang",
+          "price": "8800000"
+        },
+        {
+          "id": "buldak",
+          "price": "33000000"
+        }
+      ],
+      "allMeanWon": "5101311",
+      "signatureFriedWon": "16500",
+      "selectedMeanWon": "16500"
+    },
+    {
+      "research": 1,
+      "unlock": 0,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "24750"
+        }
+      ],
+      "allMeanWon": "24750",
+      "signatureFriedWon": "24750",
+      "selectedMeanWon": "24750"
+    },
+    {
+      "research": 1,
+      "unlock": 1,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "24750"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        }
+      ],
+      "allMeanWon": "27775",
+      "signatureFriedWon": "24750",
+      "selectedMeanWon": "24750"
+    },
+    {
+      "research": 1,
+      "unlock": 2,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "24750"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        },
+        {
+          "id": "soy_hot",
+          "price": "49500"
+        }
+      ],
+      "allMeanWon": "35016",
+      "signatureFriedWon": "24750",
+      "selectedMeanWon": "24750"
+    },
+    {
+      "research": 1,
+      "unlock": 8,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "24750"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        },
+        {
+          "id": "soy_hot",
+          "price": "49500"
+        },
+        {
+          "id": "boneless_feet",
+          "price": "165000"
+        },
+        {
+          "id": "roast",
+          "price": "385000"
+        },
+        {
+          "id": "garlic_roast",
+          "price": "715000"
+        },
+        {
+          "id": "gizzard_s",
+          "price": "2750000"
+        },
+        {
+          "id": "doritang",
+          "price": "8800000"
+        },
+        {
+          "id": "buldak",
+          "price": "33000000"
+        }
+      ],
+      "allMeanWon": "5102227",
+      "signatureFriedWon": "24750",
+      "selectedMeanWon": "24750"
+    },
+    {
+      "research": 10,
+      "unlock": 0,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "99000"
+        }
+      ],
+      "allMeanWon": "99000",
+      "signatureFriedWon": "99000",
+      "selectedMeanWon": "99000"
+    },
+    {
+      "research": 10,
+      "unlock": 1,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "99000"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        }
+      ],
+      "allMeanWon": "64900",
+      "signatureFriedWon": "99000",
+      "selectedMeanWon": "99000"
+    },
+    {
+      "research": 10,
+      "unlock": 2,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "99000"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        },
+        {
+          "id": "soy_hot",
+          "price": "49500"
+        }
+      ],
+      "allMeanWon": "59766",
+      "signatureFriedWon": "99000",
+      "selectedMeanWon": "99000"
+    },
+    {
+      "research": 10,
+      "unlock": 8,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "99000"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        },
+        {
+          "id": "soy_hot",
+          "price": "49500"
+        },
+        {
+          "id": "boneless_feet",
+          "price": "165000"
+        },
+        {
+          "id": "roast",
+          "price": "385000"
+        },
+        {
+          "id": "garlic_roast",
+          "price": "715000"
+        },
+        {
+          "id": "gizzard_s",
+          "price": "2750000"
+        },
+        {
+          "id": "doritang",
+          "price": "8800000"
+        },
+        {
+          "id": "buldak",
+          "price": "33000000"
+        }
+      ],
+      "allMeanWon": "5110477",
+      "signatureFriedWon": "99000",
+      "selectedMeanWon": "99000"
+    }
+  ],
+  "staff": [
+    {
+      "key": "neighbor",
+      "grade": "C",
+      "baseSpeed": 1
+    },
+    {
+      "key": "ato",
+      "grade": "C",
+      "baseSpeed": 1.2
+    },
+    {
+      "key": "daughter1",
+      "grade": "B",
+      "baseSpeed": 1.1
+    },
+    {
+      "key": "daughter2",
+      "grade": "B",
+      "baseSpeed": 1.1
+    },
+    {
+      "key": "soninlaw",
+      "grade": "A",
+      "baseSpeed": 1.25
+    },
+    {
+      "key": "grandson",
+      "grade": "S",
+      "baseSpeed": 1.5
+    }
+  ],
+  "regions": [
+    {
+      "id": "changnyeong",
+      "priceMul": 1,
+      "costMul": 1,
+      "unlockCost": "0"
+    },
+    {
+      "id": "busan",
+      "priceMul": 50,
+      "costMul": 5,
+      "unlockCost": "50000000000"
+    },
+    {
+      "id": "seoul",
+      "priceMul": 2000,
+      "costMul": 50,
+      "unlockCost": "20000000000000"
+    },
+    {
+      "id": "japan",
+      "priceMul": 50000,
+      "costMul": 500,
+      "unlockCost": "10000000000000000"
+    },
+    {
+      "id": "usa",
+      "priceMul": 2000000,
+      "costMul": 5000,
+      "unlockCost": "500000000000000000"
+    },
+    {
+      "id": "mars",
+      "priceMul": 100000000,
+      "costMul": 100000,
+      "unlockCost": "20000000000000000000"
+    }
+  ]
+}
