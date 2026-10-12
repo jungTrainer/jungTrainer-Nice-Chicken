@@ -53,6 +53,7 @@ REC-04 정산·REC-05 엔딩 규칙은 변경하지 않았다. 비동기 PIN 처
 ## 다음 작업 프롬프트
 
 ```text
+origin/recovery-imp06-20261012 브랜치를 작업 기준으로 선택한 뒤,
 docs/improvement-roadmap.md와 docs/improvements/REC-recovery.md,
 docs/improvements/IMP-06-mobile-ui.md를 읽고 IMP-07을 구현해줘.
 

@@ -35,4 +35,9 @@ npm run check
 npm test
 ```
 
-번들은 기준 커밋을 prerequisite으로 삼아 새 커밋과 변경 객체를 보관한다. 공개 원격 브랜치에도 보관할 수 있지만 main 병합·배포는 별도 작업이다.
+번들은 기준 커밋을 prerequisite으로 삼아 새 커밋과 변경 객체를 보관한다. 원격 [`recovery-imp06-20261012`](https://github.com/jungTrainer/jungTrainer-Nice-Chicken/tree/recovery-imp06-20261012)에 푸시했다. 다음 클라우드 작업의 기준 브랜치로 사용한다. main 병합·배포는 별도 작업이다.
+
+```bash
+git fetch origin
+git switch recovery-imp06-20261012
+```

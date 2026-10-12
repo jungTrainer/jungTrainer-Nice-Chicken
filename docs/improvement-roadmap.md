@@ -2,6 +2,8 @@
 
 갱신일: 2026-10-12 (한국 시간). 기준 저장소 `6b602e583644ec4ba21f4ed74924cc0b684c0c92`.
 
+현재 작업본은 원격 [`recovery-imp06-20261012`](https://github.com/jungTrainer/jungTrainer-Nice-Chicken/tree/recovery-imp06-20261012) 브랜치에 보관했다. 다음 환경에서도 이 브랜치를 작업 기준으로 선택한다. main 병합·배포는 수행하지 않았다.
+
 이전 환경의 IMP-01~05 코드·문서와 검사 96개는 로컬/원격/Git 복구 객체에서 찾을 수 없었다. 사용자 승인 후 REC-01~05로 기능을 재구현하고 새 회귀 검사를 만들었다. 과거 완료 기록과 현재 재검증을 동일한 것으로 취급하지 않는다. [복구 보고서](improvements/REC-recovery.md)를 참고한다.
 
 | ID | 작업 | 상태 | 현재 근거 |
