@@ -1,7 +1,370 @@
 /* IMP-08: explicit dirty ownership; write batching only during initial boot. */
 let deferRecoveryWrites = false;
 let lastStateChangeReason = "";
-function markStateChanged(reason) {
+function markStateChanged(reason, effectsChanged = true) {
   _saveDirty = true;
   lastStateChangeReason = reason;
+  if (effectsChanged) invalidateDerivedEffects();
+}
+const SAVE_KEY = "niceChicken_idleServe_vFinal";
+const SAVE_BACKUP_KEY = SAVE_KEY + "_backup";
+let _saveDirty = false;
+let _lastSaveWriteAt = 0;
+
+function save(force = false) {
+  // localStorage는 동기식이라 자주 쓰면 렉 유발.
+  // force=false는 '저장 필요'만 표시하고 실제 write는 autosave/종료 시에만 수행.
+  if (!force) {
+    markStateChanged("deferred-save");
+    return true;
+  }
+  markStateChanged("save-request", false);
+  if (deferRecoveryWrites) return true;
+  try {
+    BranchManager.saveCurrent();
+    state.lastSeenAt = Date.now();
+    const prevSave = localStorage.getItem(SAVE_KEY);
+    if (prevSave) {
+      try {
+        localStorage.setItem(SAVE_BACKUP_KEY, prevSave);
+      } catch (backupError) {
+        console.warn("[save] backup failed", backupError);
+      }
+    }
+    localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+    _saveDirty = false;
+    _lastSaveWriteAt = Date.now();
+    return true;
+  } catch (e) {
+    console.error("[save] failed", e);
+    return false;
+  }
+}
+
+function saveGame() {
+  return save(true);
+}
+
+function bindSaveLifecycleEvents() {
+  if (window.__saveLifecycleEventsBound) return;
+  window.__saveLifecycleEventsBound = true;
+  window.addEventListener("pagehide", () => {
+    save(true);
+  });
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") save(true);
+  });
+  window.addEventListener("beforeunload", () => {
+    save(true);
+  });
+}
+
+function readSavePayload() {
+  const primaryRaw = localStorage.getItem(SAVE_KEY);
+  const backupRaw = localStorage.getItem(SAVE_BACKUP_KEY);
+
+  if (primaryRaw) {
+    try {
+      return { data: JSON.parse(primaryRaw), source: "primary" };
+    } catch (e) {
+      console.error("[load] primary save corrupted", e);
+    }
+  }
+
+  if (backupRaw) {
+    try {
+      console.warn("[load] restored from backup save");
+      return { data: JSON.parse(backupRaw), source: "backup" };
+    } catch (e) {
+      console.error("[load] backup save corrupted", e);
+    }
+  }
+
+  return null;
+}
+
+function exportSaveData() {
+  try {
+    BranchManager.saveCurrent();
+    const payload = {
+      app: "niceChicken",
+      type: "manual-save-export",
+      version: 1,
+      saveKey: SAVE_KEY,
+      exportedAt: Date.now(),
+      data: state,
+    };
+    return JSON.stringify(payload, null, 2);
+  } catch (e) {
+    console.error("[save-export] failed", e);
+    return "";
+  }
+}
+
+function isLikelyNiceChickenState(data) {
+  if (!data || typeof data !== "object") return false;
+  const hasMoney = typeof data.money === "number";
+  const hasLevel = typeof data.level === "number";
+  const hasCoreObjects = !!data.upgrades && !!data.research && !!data.menuStats;
+  return hasMoney && hasLevel && hasCoreObjects;
+}
+
+function importSaveData(raw) {
+  if (!raw || !String(raw).trim()) {
+    showToast("불러올 백업 JSON을 붙여넣어 주세요.");
+    return false;
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(String(raw));
+  } catch (e) {
+    console.error("[save-import] invalid json", e);
+    showToast("백업 JSON 형식이 올바르지 않아요.");
+    return false;
+  }
+
+  const imported =
+    parsed && parsed.app === "niceChicken" && parsed.data
+      ? parsed.data
+      : parsed;
+  if (!isLikelyNiceChickenState(imported)) {
+    showToast("나이스치킨 저장 데이터가 아닌 것 같아요.");
+    return false;
+  }
+
+  if (
+    !confirm(
+      "현재 저장 데이터를 가져온 백업으로 덮어쓸까요?\n기존 진행 상황이 바뀔 수 있습니다.",
+    )
+  ) {
+    return false;
+  }
+
+  if (!replaceGameState({ ...defaultState(), ...imported })) {
+    showToast("저장 실패. 기존 진행을 유지합니다.");
+    return false;
+  }
+  cancelEndingRuntime();
+  restoreEndingUI();
+  renderOfflineReward();
+  buildMenuGrid();
+  updateUI();
+  updateStatsUI();
+  renderPanel("upg");
+  showToast("백업 불러오기 완료");
+  return true;
+}
+
+function load() {
+  const payload = readSavePayload();
+  if (!payload || !payload.data) return false;
+  try {
+    const parsed = payload.data;
+    if (!parsed || typeof parsed !== "object") return false;
+    state = { ...defaultState(), ...parsed };
+
+    // deep patches
+    state.profile = { ...defaultState().profile, ...(parsed.profile || {}) };
+    state.coupons = { ...defaultState().coupons, ...(parsed.coupons || {}) };
+    state.cert = { ...defaultState().cert, ...(parsed.cert || {}) };
+
+    // [추가] 배달/온라인 초기화(세이브 데이터 호환)
+    state.delivery = { ...defaultState().delivery, ...(parsed.delivery || {}) };
+    state.online = { ...defaultState().online, ...(parsed.online || {}) };
+
+    state.upgrades = parsed.upgrades || {};
+    state.customers = parsed.customers || [];
+    state.research = { ...defaultState().research, ...(parsed.research || {}) };
+
+    state.missions = { ...defaultState().missions, ...(parsed.missions || {}) };
+
+    // sound
+    state.soundOn = typeof parsed.soundOn === "boolean" ? parsed.soundOn : true;
+
+    // benefits log
+    state.benefitsLog = parsed.benefitsLog || [];
+
+    sanitizeState();
+
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function sanitizeState() {
+  // [ending flags]
+  if (typeof state.endingUnlocked !== "boolean") state.endingUnlocked = false;
+  if (typeof state.endingPrompted !== "boolean") state.endingPrompted = false;
+  if (typeof state.endingSeen !== "boolean") state.endingSeen = false;
+  if (typeof state.robotGrandson !== "boolean") state.robotGrandson = false;
+
+  const d = defaultState();
+
+  // shallow merge critical top-level objects
+  if (!state || typeof state !== "object") state = d;
+  if (!state.profile) state.profile = d.profile;
+  if (typeof state.soundOn !== "boolean") state.soundOn = d.soundOn;
+
+  // money/rep/level
+  const normNum = (v, fallback = 0) => {
+    if (typeof v !== "number") return fallback;
+    if (!isFinite(v) || isNaN(v)) return fallback;
+    return v;
+  };
+  state.money = normNum(state.money, d.money);
+  state.rep = normNum(state.rep, d.rep);
+  state.level = Math.max(1, Math.floor(normNum(state.level, d.level)));
+  state.offlineReward = normalizeOfflineReward(state.offlineReward);
+  state.unattributedSales = Math.max(0, normNum(state.unattributedSales, 0));
+
+  // [BRANCH/REGION] ensure region state exists (v84 -> v85 migration)
+  if (typeof state.regionId !== "string" || !REGION_MAP[state.regionId])
+    state.regionId = REGIONS[0].id;
+  if (!state.regionUnlocked || typeof state.regionUnlocked !== "object")
+    state.regionUnlocked = {};
+  if (state.regionUnlocked[REGIONS[0].id] !== true)
+    state.regionUnlocked[REGIONS[0].id] = true;
+  if (typeof state.mapSelected !== "string") state.mapSelected = state.regionId;
+
+  // branches container
+  if (!state.branches || typeof state.branches !== "object")
+    state.branches = {};
+
+  // [마이그레이션] 구버전: hire 업그레이드만 있고 직원 개별 데이터가 없으면 기본값 생성
+  const hireLvl = getStaffCount();
+  if (
+    hireLvl > 0 &&
+    (!state.staffStats || Object.keys(state.staffStats).length === 0)
+  ) {
+    state.staffStats = {};
+    for (let i = 0; i < hireLvl; i++) {
+      const s = STAFF_POOL[i];
+      if (!s) break;
+      state.staffStats[s.key] = { auto: 0, tip: 0, earned: 0 };
+    }
+  }
+
+  if (typeof state.todaySales !== "number") state.todaySales = 0;
+  if (typeof state.totalSales !== "number") state.totalSales = 0;
+  if (typeof state.offlineSalesToday !== "number") state.offlineSalesToday = 0;
+  if (typeof state.offlineSalesTotal !== "number") state.offlineSalesTotal = 0;
+
+  // payroll / coupons / cert
+  if (!state.payroll || typeof state.payroll !== "object")
+    state.payroll = JSON.parse(JSON.stringify(d.payroll));
+  if (typeof state.payroll.dailyWage !== "number")
+    state.payroll.dailyWage = d.payroll.dailyWage;
+  if (typeof state.payroll.lastDayKey !== "string")
+    state.payroll.lastDayKey = d.payroll.lastDayKey;
+
+  if (!state.coupons || typeof state.coupons !== "object")
+    state.coupons = JSON.parse(JSON.stringify(d.coupons));
+  if (typeof state.coupons.drink !== "number") state.coupons.drink = 0;
+  if (typeof state.coupons.veg !== "number") state.coupons.veg = 0;
+
+  if (!state.cert || typeof state.cert !== "object")
+    state.cert = JSON.parse(JSON.stringify(d.cert));
+  for (const k of ["issuedAt", "validUntil", "usedAt"]) {
+    if (typeof state.cert[k] !== "number") state.cert[k] = 0;
+  }
+  if (typeof state.cert.issuedThisWeek !== "boolean")
+    state.cert.issuedThisWeek = false;
+
+  if (!Array.isArray(state.benefitsLog)) state.benefitsLog = [];
+
+  // upgrades
+  if (!state.upgrades || typeof state.upgrades !== "object")
+    state.upgrades = {};
+  // delivery / online
+  if (!state.delivery || typeof state.delivery !== "object")
+    state.delivery = JSON.parse(JSON.stringify(d.delivery));
+  if (typeof state.delivery.level !== "number") state.delivery.level = 0;
+  if (typeof state.delivery.riders !== "number") state.delivery.riders = 0;
+
+  if (!state.online || typeof state.online !== "object")
+    state.online = JSON.parse(JSON.stringify(d.online));
+  if (typeof state.online.level !== "number") state.online.level = 0;
+
+  // customers
+  if (!Array.isArray(state.customers)) state.customers = [];
+  if (state.selectedCustomerId === undefined) state.selectedCustomerId = null;
+
+  // research
+  if (!state.research || typeof state.research !== "object")
+    state.research = JSON.parse(JSON.stringify(d.research));
+  if (typeof state.research.slots !== "number") state.research.slots = 1;
+  if (!Array.isArray(state.research.running)) state.research.running = [];
+  if (!state.research.levels || typeof state.research.levels !== "object")
+    state.research.levels = {};
+  if (!Array.isArray(state.research.completed)) state.research.completed = [];
+
+  // missions
+  if (!state.missions || typeof state.missions !== "object")
+    state.missions = JSON.parse(JSON.stringify(d.missions));
+  if (!Array.isArray(state.missions.dailyList)) state.missions.dailyList = [];
+  if (!Array.isArray(state.missions.weeklyList)) state.missions.weeklyList = [];
+  ensureMissionReset();
+
+  // staff stats (per-staff earnings)
+  ensureStaffStats();
+
+  // playtime
+  if (!state.play || typeof state.play !== "object") {
+    state.play = {
+      onlineSecTotal: 0,
+      offlineSecTotal: 0,
+      sessionStartAt: Date.now(),
+    };
+  } else {
+    if (typeof state.play.onlineSecTotal !== "number")
+      state.play.onlineSecTotal = 0;
+    if (typeof state.play.offlineSecTotal !== "number")
+      state.play.offlineSecTotal = 0;
+    if (typeof state.play.sessionStartAt !== "number")
+      state.play.sessionStartAt = Date.now();
+  }
+  migrateLegacyResearch();
+  state.serviceTimers = normalizeServiceTimers(state.serviceTimers);
+  ensureBranchServiceOwner();
+}
+
+// Import/reset replace the state only when its synchronized snapshot is durable.
+// The original root is retained on failure, keeping valid delayed callbacks owned.
+function replaceGameState(next) {
+  captureBranchServiceTimers();
+  const previous = state,
+    wasDirty = _saveDirty;
+  const previousEffects = structuredClone(window._fxState);
+  try {
+    state = next;
+    sanitizeState();
+    if (save(true)) return true;
+  } catch (error) {
+    console.error("[state-replacement] failed", error);
+  }
+  state = previous;
+  bindBranchServiceTimers();
+  window._fxState = previousEffects;
+  invalidateDerivedEffects();
+  _saveDirty = wasDirty;
+  return false;
+}
+function resetGame() {
+  if (!replaceGameState(defaultState())) {
+    showToast("저장 실패. 초기화하지 않았습니다.");
+    return false;
+  }
+  // Never leave the old backup as a recovery source for a completed reset.
+  try {
+    localStorage.removeItem(SAVE_BACKUP_KEY);
+  } catch (error) {
+    console.warn("[reset] backup cleanup failed", error);
+  }
+  stopBGM();
+  initAfterLoad(true);
+  modalSettings?.classList.remove("on");
+  showToast("초기화 완료");
+  return true;
 }

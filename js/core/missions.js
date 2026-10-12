@@ -1,4 +1,3 @@
-/* REC-02: eight latched objectives, with compatible reward guards. */
 function missionList(weekly) {
   const types = weekly
     ? ["stamp", "sales", "rep", "tip", "menu", "upg", "sign", "expand"]
@@ -29,6 +28,7 @@ function missionList(weekly) {
     ...(type === "menu" ? { menuId: mid } : {}),
   }));
 }
+
 function missionBaselines(weekly) {
   const m = state.missions,
     prefix = weekly ? "_weekStart" : "_dayStart";
@@ -48,6 +48,7 @@ function missionBaselines(weekly) {
     m._serveToday = 0;
   }
 }
+
 function repairMissionGoals() {
   const m = state.missions;
   const buys =
@@ -78,6 +79,7 @@ function repairMissionGoals() {
               ? 20 - (state.upgrades.expand || 0)
               : Infinity;
       if (left < goal.target - current) {
+        markStateChanged("mission-retarget", false);
         goal.originalType = goal.type;
         goal.type = "serve";
         goal.target = Math.max(6, goal.target * 2);
@@ -87,7 +89,8 @@ function repairMissionGoals() {
       }
     }
 }
-startNewWeek = function ({ resetCertificate = true } = {}) {
+
+function startNewWeek({ resetCertificate = true } = {}) {
   const m = state.missions;
   m.weekStartAt = Date.now();
   m.weekEndAt = Date.now() + 7 * 86400000;
@@ -107,9 +110,10 @@ startNewWeek = function ({ resetCertificate = true } = {}) {
       usedAt: 0,
     });
   }
-  _saveDirty = true;
-};
-ensureMissionReset = function () {
+  markStateChanged("missions");
+}
+
+function ensureMissionReset() {
   const m = state.missions;
   const end = m.weeklyCompletedAt
     ? state.cert.validUntil || m.weekEndAt
@@ -124,7 +128,7 @@ ensureMissionReset = function () {
     missionBaselines(false);
     state.todaySales = 0;
     state.offlineSalesToday = 0;
-    _saveDirty = true;
+    markStateChanged("missions");
   }
   if (!Number.isFinite(m._serveToday)) {
     m._serveToday = Math.max(
@@ -135,13 +139,16 @@ ensureMissionReset = function () {
     );
   }
   repairMissionGoals();
-};
-onServeOneOnline = function () {
+}
+
+function onServeOneOnline() {
+  markStateChanged("serve-mission", false);
   state.missions._serveToday = (state.missions._serveToday || 0) + 1;
   state.missions._weekServe = (state.missions._weekServe || 0) + 1;
   updateMissionsOnlineOnly();
-};
-updateMissionsOnlineOnly = function () {
+}
+
+function updateMissionsOnlineOnly() {
   ensureMissionReset();
   const m = state.missions;
   function update(weekly) {
@@ -174,8 +181,12 @@ updateMissionsOnlineOnly = function () {
         value = (state.upgrades.signboard || 0) - (m[prefix + "Sign"] || 0);
       if (goal.type === "expand")
         value = (state.upgrades.expand || 0) - (m[prefix + "Expand"] || 0);
+      const previous = goal.current,
+        previousDone = goal.done;
       goal.current = Math.max(goal.current || 0, 0, value);
       goal.done = goal.current >= goal.target;
+      if (goal.current !== previous || goal.done !== previousDone)
+        markStateChanged("mission-progress", false);
     }
   }
   update(false);
@@ -194,7 +205,7 @@ updateMissionsOnlineOnly = function () {
     state.coupons.veg++;
     m.weeklyStamps = Math.min(7, (m.weeklyStamps || 0) + 1);
     logBenefit({ type: "veg", source: "daily", note: "일간 올클" });
-    _saveDirty = true;
+    markStateChanged("missions");
     if (!save(true)) {
       Object.assign(state, previous);
       BranchManager.saveCurrent();
@@ -208,14 +219,14 @@ updateMissionsOnlineOnly = function () {
     !m.weeklyCompletedAt
   ) {
     m.weeklyCompletedAt = Date.now();
-    _saveDirty = true;
+    markStateChanged("missions");
     save(true);
   }
-};
-const legacyCertificate = generateWeeklyCertificate;
-generateWeeklyCertificate = function () {
+}
+
+function generateWeeklyCertificate() {
   ensureMissionReset();
-  if (state.cert.issuedThisWeek) return legacyCertificate();
+  if (state.cert.issuedThisWeek) return renderWeeklyCertificate();
   if (!certStatusText().okIssue) return;
   const previous = {
     cert: { ...state.cert },
@@ -229,12 +240,94 @@ generateWeeklyCertificate = function () {
   });
   state.coupons.drink++;
   logBenefit({ type: "drink", source: "weekly_cert", note: "주간 인증서" });
-  _saveDirty = true;
+  markStateChanged("missions");
   if (!save(true)) {
     Object.assign(state, previous);
     BranchManager.saveCurrent();
     showToast("저장 실패. 다시 발급해 주세요.");
     return;
   }
-  return legacyCertificate();
-};
+  return renderWeeklyCertificate();
+}
+
+function renderWeeklyCertificate() {
+  const c = document.getElementById("shareCanvas");
+  const x = c.getContext("2d");
+
+  x.fillStyle = "#FF9F1C";
+  x.fillRect(0, 0, 1080, 1920);
+  x.fillStyle = "#FFF";
+  x.fillRect(60, 80, 960, 1760);
+
+  x.fillStyle = "#222";
+  x.textAlign = "center";
+  x.font = "bold 86px sans-serif";
+  x.fillText("나이스치킨", 540, 250);
+  x.font = "42px sans-serif";
+  x.fillStyle = "#555";
+  x.fillText("경남 창녕군 계성면", 540, 315);
+
+  // 이름 표시(입력한 내용만 그대로)
+  const uname = (state.profile?.name || "").trim();
+  if (uname) {
+    x.fillStyle = "#222";
+    x.font = "bold 44px sans-serif";
+    x.fillText(uname, 540, 380);
+  }
+
+  x.fillStyle = "#2EC4B6";
+  roundRect2(x, 250, 430, 580, 90, 24);
+  x.fill();
+  x.fillStyle = "#fff";
+  x.font = "bold 44px sans-serif";
+  x.fillText("주간 인증서", 540, 492);
+
+  const issuedAt = new Date(state.cert.issuedAt || Date.now());
+  const validUntil = new Date(state.cert.validUntil || Date.now());
+  const wStart = new Date(state.missions.weekStartAt).toLocaleDateString(
+    "ko-KR",
+  );
+  const wEnd = new Date(state.missions.weekEndAt).toLocaleDateString("ko-KR");
+
+  const lines = [
+    ["주간 시작", wStart],
+    ["주간 종료", wEnd],
+    ["발급일", issuedAt.toLocaleDateString("ko-KR")],
+    ["유효기한", validUntil.toLocaleDateString("ko-KR")],
+    ["현재 레벨", `Lv.${state.level}`],
+    ["평점", `${state.rep.toFixed(1)} / 5.0`],
+    ["온라인 누적 매출", `${fmtWon(state.totalSales)}`],
+    ["온라인 오늘 매출", `${fmtWon(state.todaySales)}`],
+  ];
+
+  let y = 640;
+  x.textAlign = "left";
+  x.font = "bold 48px sans-serif";
+  x.fillStyle = "#222";
+  x.fillText("주간 성과", 140, y);
+  y += 60;
+
+  x.font = "40px sans-serif";
+  for (const [k, v] of lines) {
+    x.fillStyle = "#777";
+    x.fillText(k, 160, y);
+    x.fillStyle = "#222";
+    x.fillText(v, 520, y);
+    y += 78;
+  }
+
+  x.fillStyle = "#333";
+  x.textAlign = "center";
+  x.font = "34px sans-serif";
+  x.fillText("※ 인증서 사용 처리는 PIN CODE 확인 후 처리됩니다.", 540, 1710);
+
+  const dataUrl = c.toDataURL("image/png");
+  sharePreview.src = dataUrl;
+  sharePreview.style.display = "block";
+  downloadLink.href = dataUrl;
+  downloadLink.download = `nicechicken_cert_${Date.now()}.png`;
+  downloadLink.textContent = "이미지 다운로드";
+  downloadLink.style.display = "inline-block";
+
+  updateUI();
+}

@@ -181,18 +181,6 @@ document.addEventListener(
         nextEndingStep();
       }
     });
-    const drawMap = renderMapUI;
-    renderMapUI = function () {
-      drawMap();
-      document.querySelectorAll(".map-node").forEach((node) => {
-        node.tabIndex = 0;
-        node.setAttribute("role", "button");
-        node.setAttribute(
-          "aria-pressed",
-          String(node.dataset.regionId === state.mapSelected),
-        );
-      });
-    };
     document.getElementById("mapWrap").addEventListener("keydown", (event) => {
       const node = event.target.closest(".map-node");
       if (node && (event.key === "Enter" || event.key === " ")) {

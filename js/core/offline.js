@@ -1,4 +1,3 @@
-/* Compatible offline receipts; invoked explicitly during boot and claiming. */
 function normalizeOfflineReward(reward) {
   const amount = Number.isFinite(reward?.amount)
     ? Math.max(0, Math.floor(reward.amount))
@@ -21,6 +20,7 @@ function normalizeOfflineReward(reward) {
   if (total > 0 && total <= amount) result.menus = menus;
   return result;
 }
+
 function renderOfflineReward() {
   state.offlineReward = normalizeOfflineReward(state.offlineReward);
   if (!modalOffline) return;
@@ -28,7 +28,8 @@ function renderOfflineReward() {
   offlineTime.textContent = `오프라인 ${Math.floor(state.offlineReward.seconds / 60)}분 동안 가족 알바 자동 운영`;
   modalOffline.classList.toggle("on", state.offlineReward.amount > 0);
 }
-applyOfflineProgress = function () {
+
+function applyOfflineProgress() {
   const now = Date.now(),
     usedSec =
       Math.min(
@@ -57,11 +58,12 @@ applyOfflineProgress = function () {
       stats.earned += earned;
     }
     if (served > 0) state.offlineReward.seconds += usedSec;
-    _saveDirty = true;
+    markStateChanged("offline");
   }
   state.lastSeenAt = now;
   renderOfflineReward();
-};
+}
+
 function claimOfflineReward() {
   const reward = normalizeOfflineReward(state.offlineReward);
   if (!reward.amount) {
@@ -94,7 +96,7 @@ function claimOfflineReward() {
     state.offlineSalesTotal += reward.amount;
   }
   state.offlineReward = { amount: 0, seconds: 0 };
-  _saveDirty = true;
+  markStateChanged("offline");
   if (!save(true)) {
     Object.assign(state, previous);
     BranchManager.saveCurrent();

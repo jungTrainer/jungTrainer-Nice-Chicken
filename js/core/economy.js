@@ -1,5 +1,4 @@
-/* REC-04: one valuation and one receipt ledger for every channel. */
-getMenuPrice = function (id, eff = sumEffects()) {
+function getMenuPrice(id, eff = sumEffects()) {
   const base = MENU_MAP[id]?.price || 0;
   if (!base) return 0;
   return Math.floor(
@@ -11,20 +10,15 @@ getMenuPrice = function (id, eff = sumEffects()) {
       (eff.priceBonus || 0)) *
       Math.max(0, 1 + (eff.earningMul || 0)),
   );
-};
+}
+
 function upgradeCost(id, level = state.upgrades[id] || 0) {
   const price =
     UPGRADES.find((u) => u.id === id)?.costFn(level) *
     (getRegion()?.costMul || 1);
   return Number.isFinite(price) && price > 0 ? Math.floor(price) : Infinity;
 }
-menuUnlockCost = (level) => upgradeCost("menuUnlock", level);
-upStaff = (key, kind) => buyStaffUpgrade(key, kind);
-const legacyMenuResearch = researchMenu;
-researchMenu = function (id) {
-  if (!MENUS.slice(0, getOpenMenuCount()).some((m) => m.id === id)) return;
-  legacyMenuResearch(id);
-};
+
 function recordIncome(
   amount,
   { menuId = null, actorKey = "system", count = 0, offline = false } = {},
@@ -53,10 +47,11 @@ function recordIncome(
     const key = offline ? "offlineCount" : "count";
     stats[key] = (stats[key] || 0) + count;
   } else state.unattributedSales = (state.unattributedSales || 0) + amount;
-  _saveDirty = true;
+  markStateChanged("income", false);
   return true;
 }
-processDelivery = function (vehicle) {
+
+function processDelivery(vehicle) {
   const eff = sumEffects(),
     pool = MENUS.slice(0, getOpenMenuCount()),
     menu = pool[Math.floor(Math.random() * pool.length)];
@@ -73,32 +68,17 @@ processDelivery = function (vehicle) {
     canvas.height - 210,
     `+${fmtCompact(earnings)}`,
   );
-};
-updateOnlineAuto = function (dt) {
-  onlineTimer += (computeRates().onlineOrdersPerMin / 60) * dt;
-  while (onlineTimer >= 1) {
-    onlineTimer--;
-    const eff = sumEffects(),
-      pool = MENUS.slice(0, getOpenMenuCount()),
-      menu = pool[Math.floor(Math.random() * pool.length)];
-    recordIncome(
-      Math.floor(
-        getMenuPrice(menu.id, eff) *
-          (1 + (eff.onlineMul || 0)) *
-          (1 + (eff.onlineEarningMul || 0)) *
-          (Date.now() < (state.buffEndTime || 0) ? 2 : 1),
-      ),
-      { menuId: menu.id, count: 1 },
-    );
-  }
-  updateMissionsOnlineOnly();
-};
-const economyUpdateUI = updateUI;
-updateUI = function () {
-  economyUpdateUI();
-  for (const button of document.querySelectorAll(
-    '[data-action="serve-menu"]',
-  )) {
+}
+
+function menuUnlockCost(level) {
+  return upgradeCost("menuUnlock", level);
+}
+function upStaff(key, kind) {
+  return buyStaffUpgrade(key, kind);
+}
+
+function updateEconomyUI() {
+  for (const button of menuGrid.children) {
     if (button.disabled) continue;
     const price = getMenuPrice(button.dataset.menuId);
     if (button.dataset.price !== String(price)) {
@@ -106,18 +86,26 @@ updateUI = function () {
       button.querySelector(".price").textContent = fmtWon(price);
     }
   }
-  for (const b of document.querySelectorAll('[data-action="buy-upgrade"]')) {
+  for (const b of upgradeButtons) {
     const u = UPGRADES.find((u) => u.id === b.dataset.upgradeId);
     b.disabled =
       (state.upgrades[u.id] || 0) >= (u.maxLevel || 99) ||
       state.money < upgradeCost(u.id);
   }
-};
-const economyStats = updateStatsUI;
-updateStatsUI = function () {
-  economyStats();
+}
+
+function renderMenuStats() {
   const body = document.getElementById("menuRankBody");
   if (!body) return;
+  const renderKey = [
+    state.unattributedSales,
+    ...MENUS.flatMap((menu) => {
+      const stats = state.menuStats[menu.id];
+      return [stats?.earned || 0, stats?.count || 0, stats?.offlineCount || 0];
+    }),
+  ].join("|");
+  if (body.dataset.renderKey === renderKey) return;
+  body.dataset.renderKey = renderKey;
   body.replaceChildren();
   for (const menu of MENUS) {
     const stats = state.menuStats[menu.id];
@@ -143,4 +131,203 @@ updateStatsUI = function () {
     }
     body.append(row);
   }
-};
+}
+
+function serveByMenu(menuId, actorKey = "player") {
+  ensureMissionReset();
+  const sel = state.selectedCustomerId;
+  if (!sel) {
+    showToast("손님을 먼저 선택하세요!");
+    sfxWrong();
+    return;
+  }
+  const idx = state.customers.findIndex((c) => c.id === sel);
+  if (idx === -1) {
+    state.selectedCustomerId = state.customers[0]?.id || null;
+    showToast("손님을 다시 선택해요!");
+    sfxWrong();
+    return;
+  }
+  const c = state.customers[idx];
+  if (c.state === "leaving") {
+    showToast("이미 나가는 손님이에요!");
+    return;
+  }
+
+  const centerX = c.x;
+  const centerY = c.y;
+  const correct = c.menuId === menuId;
+  const rates = computeRates();
+  const eff = rates.eff;
+
+  if (!correct) {
+    // boss reacts on mistakes
+    try {
+      state._serveStreak = 0;
+      bossSpeak("메뉴 다시 확인!", 1.2, true);
+    } catch (e) {}
+    state.rep = clamp(
+      state.rep - CONFIG.repLossOnWrong,
+      CONFIG.repMin,
+      CONFIG.repMax,
+    );
+
+    const basePenalty = 3;
+    const mul = Math.max(0.25, 1 + (eff.wrongPatiencePenaltyMul || 0));
+    c.patience -= basePenalty * mul;
+
+    floatText("❌ 틀림!", c.x, c.y - 60, "#FF6B6B");
+    showToast("메뉴가 달라요!");
+    sfxWrong();
+    markStateChanged("incorrect-serve");
+    return;
+  }
+
+  // correct serve: build streak + occasional boss bonus (cosmetic + tiny rep)
+  try {
+    const st =
+      typeof state._serveStreak === "number" && isFinite(state._serveStreak)
+        ? state._serveStreak
+        : 0;
+    state._serveStreak = st + 1;
+    if (state._serveStreak === 3) bossSpeak("좋아, 텐션 유지!", 1.4, false);
+    if (state._serveStreak > 0 && state._serveStreak % 10 === 0) {
+      bossSpeak(`연속 ${state._serveStreak}콤보!`, 1.8, false);
+      state.rep = clamp(state.rep + 0.15, CONFIG.repMin, CONFIG.repMax);
+      floatText("✨ 사장님 칭찬! (평판+)", c.x, c.y - 92, "#FFD166");
+    }
+  } catch (e) {}
+
+  let price = getMenuPrice(menuId);
+
+  // --- [NEW] 사장님 20단 콤보 버프 적용 (에러 완벽 차단) ---
+  if (
+    window._fxState &&
+    window._fxState.boss &&
+    window._fxState.boss.buffUntil > Date.now()
+  ) {
+    price *= 2;
+  }
+
+  // 팁(서비스 교육): 확률적으로 추가 수익
+  const isStaff = actorKey && actorKey !== "player";
+  const tipRoll = Math.random();
+  let tip = 0;
+
+  // 👇 아까 실수로 날아갔던 '팁 발생 조건문' 복구!
+  if (tipRoll < (rates.tipChance || 0)) {
+    tip = Math.floor(price * (rates.tipMul || 0));
+    if (tip < 1) tip = 1;
+    if (tip > 0) {
+      floatText("💸 팁!", centerX + 10, centerY - 75, "#2EC4B6");
+    }
+  }
+
+  // tips (scaled by tip level) - 기존 팁 로직 2
+  let tipLv = 0;
+  if (actorKey !== "player" && actorKey !== "system") {
+    tipLv = state.staffStats?.[actorKey]?.tip || 0;
+  }
+  const tipRate = 0.01 + levelCurve(tipLv) * 0.02; // ~1% to ~4%
+  const tip2 = Math.max(0, Math.floor(price * tipRate));
+  if (tip > 0 || tip2 > 0) {
+    state.missions._tipToday = (state.missions._tipToday || 0) + 1;
+    state.missions._weekTip = (state.missions._weekTip || 0) + 1;
+  }
+  if (tip2 > 0) {
+    floatText(`+${fmtCompactWon(tip2)} 팁✨`, centerX, centerY - 42, "gold");
+  }
+  recordIncome(price + tip + tip2, { menuId, actorKey, count: 1 });
+
+  const repGain = CONFIG.repGainOnCorrect + (eff.repGainAdd || 0);
+  state.rep = clamp(state.rep + repGain, CONFIG.repMin, CONFIG.repMax);
+
+  floatText(`✅ +${fmtWon(price)}`, centerX, centerY - 60, "#FFD700");
+  if (typeof sfxDing === "function") sfxDing();
+
+  // 성공 시 "문으로 퇴장"
+  c.state = "leaving";
+
+  // 다음 선택 갱신(남아있는 waiting 손님 중 첫번째)
+  const next =
+    state.customers.find((x) => x.state !== "leaving" && x.id !== c.id) ||
+    state.customers.find((x) => x.state !== "leaving");
+  state.selectedCustomerId = next ? next.id : null;
+
+  if (typeof onServeOneOnline === "function") onServeOneOnline();
+  if (typeof checkLevelUp === "function") checkLevelUp();
+  markStateChanged("economy");
+
+  const hintEl = document.getElementById("hint");
+  if (hintEl) hintEl.style.display = "none";
+
+  if (_saveDirty) save(true);
+}
+
+function processPayroll() {
+  // 하루 1번(날짜 바뀔 때) 알바 임금 지급: 1인당 80,000원
+  const today = dayKey();
+  if (!state.payroll) state.payroll = { lastDayKey: "", dailyWage: 80000 };
+  if (state.payroll.lastDayKey === "") state.payroll.lastDayKey = today;
+  if (state.payroll.lastDayKey === today) return;
+
+  const hireLvl = getStaffCount();
+  const staffCount = hireLvl;
+  if (staffCount > 0) {
+    const wage = staffCount * (state.payroll.dailyWage || 80000);
+    state.money -= wage;
+    showToast(`💸 알바 임금 지급: -${fmtWon(wage)} (${staffCount}명)`);
+    sfxTick();
+  }
+  state.payroll.lastDayKey = today;
+  markStateChanged("economy");
+  if (_saveDirty) save(true);
+}
+
+function logBenefit({ type, qty = 1, source = "", note = "" }) {
+  state.benefitsLog = state.benefitsLog || [];
+  state.benefitsLog.unshift({
+    ts: Date.now(),
+    at: nowK(),
+    type,
+    qty,
+    source,
+    note,
+  });
+  // 너무 길어지면 상위 80개만
+  if (state.benefitsLog.length > 80) state.benefitsLog.length = 80;
+}
+
+async function useCoupon(type) {
+  if (state.coupons[type] <= 0) {
+    showToast("보유 쿠폰이 없어요.");
+    sfxWrong();
+    return;
+  }
+  if (!confirm("쿠폰을 사용 처리할까요?\nPIN CODE 입력이 필요합니다.")) {
+    return;
+  }
+  const ok = await askPIN();
+  if (!ok) {
+    showToast("PIN이 올바르지 않아요.");
+    sfxWrong();
+    return;
+  }
+  state.coupons[type] -= 1;
+  markStateChanged("economy");
+  logBenefit({
+    type,
+    qty: 1,
+    source: "coupon_use",
+    note: "쿠폰함에서 사용 처리",
+  });
+  showToast("✅ 사용되었습니다.");
+  sfxConfirm();
+  if (_saveDirty) save(true);
+  updateUI();
+  renderCoupons();
+}
+
+function getLifetimeSales() {
+  return (state.totalSales || 0) + (state.offlineSalesTotal || 0);
+}
