@@ -2,22 +2,18 @@
    Classic script global helpers. */
 
 function fmtKoreanUnits(n, addWon=true){
-  if (n === null || n === undefined) return addWon ? "0원" : "0";
-  let val;
-  try{
-    if (typeof n === "number"){
-      if (!isFinite(n)) return "무한";
-      if (Math.abs(n) < 10000) return (Math.floor(n).toLocaleString("ko-KR") + (addWon ? "원" : ""));
-      val = BigInt(Math.floor(n));
-    } else {
-      val = BigInt(n);
-      if (val < 10000n) return (val.toString() + (addWon ? "원" : ""));
-    }
-  }catch(e){
-    return addWon ? "0원" : "0";
+  if (!isMoney(n)) return addWon ? "0원" : "0";
+  let val = moneyInt(n);
+  const sign = val < 0n ? "-" : "";
+  if (val < 0n) val = -val;
+  if (val < 10000n) return sign + val.toLocaleString("ko-KR") + (addWon ? "원" : "");
+  // Display truncation never feeds back into prices, charging or saved ledgers.
+  if (val >= 10n ** 72n) {
+    const digits = val.toString();
+    const fraction = digits.slice(1, 3).replace(/0+$/, "");
+    return sign + digits[0] + (fraction ? "." + fraction : "") +
+      "×10^" + (digits.length - 1) + (addWon ? "원" : "");
   }
-
-  if (val <= 0n) return addWon ? "0원" : "0";
 
   const units = [
     {v: 10000n, s: "만"}, {v: 100000000n, s: "억"}, {v: 1000000000000n, s: "조"},
@@ -42,10 +38,10 @@ function fmtKoreanUnits(n, addWon=true){
       if (decPart > 0n){
         str += "." + decPart.toString().padStart(2, "0").replace(/0+$/, "");
       }
-      return str + u.s + (addWon ? "원" : "");
+      return sign + str + u.s + (addWon ? "원" : "");
     }
   }
-  return val.toString() + (addWon ? "원" : "");
+  return sign + val.toString() + (addWon ? "원" : "");
 }
 
 function fmtWon(n){ return fmtKoreanUnits(n, true); }

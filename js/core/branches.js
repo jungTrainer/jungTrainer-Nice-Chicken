@@ -199,11 +199,11 @@ const BranchManager = {
       return false;
     }
     const need = next.unlockCost || 0;
-    if (state.money < need) {
+    if (moneyCompare(state.money, need) < 0) {
       showToast(`해금 비용 부족: ${fmtCompact(need)}`);
       return false;
     }
-    state.money -= need;
+    state.money = moneySub(state.money, need);
 
     state.regionUnlocked = state.regionUnlocked || {};
     state.regionUnlocked[next.id] = true;

@@ -197,11 +197,11 @@ function staffUpgradeCost(staffKey, kind, cur) {
 
   if (kind === "auto") {
     const base = 80000;
-    return Math.floor(base * gradeMul * Math.pow(1.9, cur));
+    return moneyGeometricCost(base, 1.9, cur, gradeMul);
   } else {
     // tip
     const base = 100000;
-    return Math.floor(base * gradeMul * Math.pow(1.85, cur));
+    return moneyGeometricCost(base, 1.85, cur, gradeMul);
   }
 }
 
@@ -223,13 +223,13 @@ function buyStaffUpgrade(staffKey, kind) {
   }
 
   const cost = staffUpgradeCost(staffKey, kind, cur);
-  if (state.money < cost) {
+  if (moneyCompare(state.money, cost) < 0) {
     showToast("돈이 부족해요!");
     sfxWrong?.();
     return;
   }
 
-  state.money -= cost;
+  state.money = moneySub(state.money, cost);
 
   // missions: upgrade purchase counter
   state.missions = state.missions || {};
@@ -257,7 +257,7 @@ function levelCurve(lv) {
 }
 
 function genericStaffUpgradeCost(lv, mult = 1) {
-  return Math.floor(50000 * mult * Math.pow(2.0, lv));
+  return moneyGeometricCost(50000, 2, lv, mult);
 }
 
 function getOpenMenuCount() {
@@ -390,18 +390,16 @@ function buyUpgrade(id) {
     showToast("최대 레벨입니다!");
     return;
   }
-  const regionCostMul =
-    typeof getRegion === "function" ? getRegion()?.costMul || 1 : 1;
   const cost = upgradeCost(id, cur);
-  if (!isFinite(cost) || cost <= 0) {
+  if (!isMoney(cost) || moneyCompare(cost, 0) <= 0) {
     showToast("구매할 수 없어요!");
     return;
   }
-  if (state.money < cost) {
+  if (moneyCompare(state.money, cost) < 0) {
     showToast("돈이 부족해요!");
     return;
   }
-  state.money -= cost;
+  state.money = moneySub(state.money, cost);
   markStateChanged("growth");
 
   // [특수] 배달 업그레이드
@@ -453,7 +451,7 @@ function checkLevelUp() {
   const sales = getLifetimeSales();
   let newLv = 1;
   for (let lv = 1; lv <= maxLv; lv++) {
-    if (sales >= (thresholds[lv] || 0)) newLv = lv;
+    if (moneyCompare(sales, thresholds[lv] || 0) >= 0) newLv = lv;
   }
   newLv = Math.max(1, Math.min(newLv, maxLv));
   if (newLv > state.level) {
@@ -470,14 +468,15 @@ function researchMenu(menuId) {
   if (!m) return;
   state.menuLevels = state.menuLevels || {};
   const lvl = state.menuLevels?.[m.id] || 0;
-  const cost = Math.floor(100000 * Math.pow(1.8, lvl));
+  const cost = menuResearchCost(lvl);
+  if (cost === null) { showToast("메뉴 연구 최대 단계입니다."); return; }
   unlockAudioOnce();
-  if (state.money < cost) {
+  if (moneyCompare(state.money, cost) < 0) {
     showToast("연구비가 부족해요!");
     if (typeof sfxWrong === "function") sfxWrong();
     return;
   }
-  state.money -= cost;
+  state.money = moneySub(state.money, cost);
   state.menuLevels[m.id] = lvl + 1;
   markStateChanged("growth");
   save(true);

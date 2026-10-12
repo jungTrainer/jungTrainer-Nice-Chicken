@@ -172,7 +172,7 @@ function checkEndingCondition() {
   if (state.endingPrompted || endingPhase !== "idle") return;
   if (
     state.endingUnlocked ||
-    (Number.isFinite(state.money) && state.money >= ENDING_MONEY)
+    (isMoney(state.money) && moneyCompare(state.money, ENDING_MONEY) >= 0)
   ) {
     state.endingUnlocked = true;
     state.endingPrompted = true;
@@ -236,7 +236,7 @@ function nextEndingStep() {
   renderEndingStep();
 }
 
-const ENDING_MONEY = 9.99e70;
+const ENDING_MONEY = "10000000000000000000000"; // 100해, measured multi-day growth target
 
 const ENDING_SOUND_FILES = ["END_SOUND.mp3", "END_SOUND.ogg", "END_SOUND.wav"];
 

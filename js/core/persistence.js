@@ -103,7 +103,7 @@ function exportSaveData() {
 
 function isLikelyNiceChickenState(data) {
   if (!data || typeof data !== "object") return false;
-  const hasMoney = typeof data.money === "number";
+  const hasMoney = isMoney(data.money);
   const hasLevel = typeof data.level === "number";
   const hasCoreObjects = !!data.upgrades && !!data.research && !!data.menuStats;
   return hasMoney && hasLevel && hasCoreObjects;
@@ -213,11 +213,11 @@ function sanitizeState() {
     if (!isFinite(v) || isNaN(v)) return fallback;
     return v;
   };
-  state.money = normNum(state.money, d.money);
+  state.money = normalizeMoney(state.money, d.money);
   state.rep = normNum(state.rep, d.rep);
   state.level = Math.max(1, Math.floor(normNum(state.level, d.level)));
   state.offlineReward = normalizeOfflineReward(state.offlineReward);
-  state.unattributedSales = Math.max(0, normNum(state.unattributedSales, 0));
+  state.unattributedSales = normalizeMoney(state.unattributedSales, 0, true);
 
   // [BRANCH/REGION] ensure region state exists (v84 -> v85 migration)
   if (typeof state.regionId !== "string" || !REGION_MAP[state.regionId])
@@ -246,15 +246,10 @@ function sanitizeState() {
     }
   }
 
-  if (typeof state.todaySales !== "number") state.todaySales = 0;
-  if (typeof state.totalSales !== "number") state.totalSales = 0;
-  if (typeof state.offlineSalesToday !== "number") state.offlineSalesToday = 0;
-  if (typeof state.offlineSalesTotal !== "number") state.offlineSalesTotal = 0;
-
   // payroll / coupons / cert
   if (!state.payroll || typeof state.payroll !== "object")
     state.payroll = JSON.parse(JSON.stringify(d.payroll));
-  if (typeof state.payroll.dailyWage !== "number")
+  if (!isMoney(state.payroll.dailyWage))
     state.payroll.dailyWage = d.payroll.dailyWage;
   if (typeof state.payroll.lastDayKey !== "string")
     state.payroll.lastDayKey = d.payroll.lastDayKey;
@@ -305,6 +300,7 @@ function sanitizeState() {
     state.missions = JSON.parse(JSON.stringify(d.missions));
   if (!Array.isArray(state.missions.dailyList)) state.missions.dailyList = [];
   if (!Array.isArray(state.missions.weeklyList)) state.missions.weeklyList = [];
+  migrateMoneyState();
   ensureMissionReset();
 
   // staff stats (per-staff earnings)

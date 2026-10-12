@@ -215,12 +215,10 @@ function updateOnlineAuto(dt) {
         pool = MENUS.slice(0, getOpenMenuCount()),
         menu = pool[Math.floor(Math.random() * pool.length)];
       recordIncome(
-        Math.floor(
-          getMenuPrice(menu.id, eff) *
-            (1 + (eff.onlineMul || 0)) *
-            (1 + (eff.onlineEarningMul || 0)) *
-            (Date.now() < (state.buffEndTime || 0) ? 2 : 1),
-        ),
+        moneyScale(getMenuPrice(menu.id, eff),
+          1 + (eff.onlineMul || 0),
+          1 + (eff.onlineEarningMul || 0),
+          Date.now() < (state.buffEndTime || 0) ? 2 : 1),
         { menuId: menu.id, count: 1 },
       );
     }
