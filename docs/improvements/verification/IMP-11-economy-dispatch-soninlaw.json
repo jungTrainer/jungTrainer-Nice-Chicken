@@ -1,0 +1,153 @@
+{
+  "root": "/workspace/jungTrainer-Nice-Chicken",
+  "policy": "dispatch-soninlaw",
+  "browser": "151.0.7922.34",
+  "precision": {
+    "start": 9007199254740992,
+    "after": "9007199254740993",
+    "sales": 1
+  },
+  "overflowCost": "212327440198757385209141381034011712365420004659578469309484539461138900502177251747813461684380702347618533365123495563189243429042814537783922303393120463038520864192812956414265302903489566772805262156598625268856606212261057914862248685034067896269065135976201455933709020444998156345497675138361048034960267",
+  "thresholds": [
+    {
+      "level": 1,
+      "required": "0"
+    },
+    {
+      "level": 10,
+      "required": "6500000"
+    },
+    {
+      "level": 100,
+      "required": "50000000000"
+    },
+    {
+      "level": 500,
+      "required": "135720880833400602"
+    },
+    {
+      "level": 999,
+      "required": "10000000000000000000000"
+    }
+  ],
+  "endingTarget": "10000000000000000000000",
+  "checkpoints": [
+    {
+      "region": "changnyeong",
+      "avgPrice": 44921218133.333336,
+      "servedPerMin": 70.38,
+      "deliveryPerMin": 100,
+      "incomePerMin": 12658161388675.84,
+      "nextUnlockMinutes": 0.0039500207387725885,
+      "endingYearsFromZero": 1503.0520314964187
+    },
+    {
+      "region": "busan",
+      "avgPrice": 2246060906666.6665,
+      "servedPerMin": 70.38,
+      "deliveryPerMin": 100,
+      "incomePerMin": 632908069433792,
+      "nextUnlockMinutes": 0.03160016591018071,
+      "endingYearsFromZero": 30.061040629928375
+    },
+    {
+      "region": "seoul",
+      "avgPrice": 89842436266666.67,
+      "servedPerMin": 70.38,
+      "deliveryPerMin": 100,
+      "incomePerMin": 25316322777351680,
+      "nextUnlockMinutes": 0.3950020738772589,
+      "endingYearsFromZero": 0.7515260157482094
+    },
+    {
+      "region": "japan",
+      "avgPrice": 2246060906666666.8,
+      "servedPerMin": 70.38,
+      "deliveryPerMin": 100,
+      "incomePerMin": 632908069433792000,
+      "nextUnlockMinutes": 0.7900041477545178,
+      "endingYearsFromZero": 0.030061040629928374
+    },
+    {
+      "region": "usa",
+      "avgPrice": 89842436266666670,
+      "servedPerMin": 70.38,
+      "deliveryPerMin": 100,
+      "incomePerMin": 25316322777351680000,
+      "nextUnlockMinutes": 0.7900041477545178,
+      "endingYearsFromZero": 0.0007515260157482094
+    },
+    {
+      "region": "mars",
+      "avgPrice": 4492121813333333500,
+      "servedPerMin": 70.38,
+      "deliveryPerMin": 100,
+      "incomePerMin": 1.265816138867584e+21,
+      "nextUnlockMinutes": 0.015800082955090354,
+      "endingYearsFromZero": 0.00001503052031496419
+    }
+  ],
+  "model": {
+    "horizonMinutes": 43200,
+    "endingMinute": 5641,
+    "milestones": [
+      {
+        "region": "busan",
+        "minute": 91
+      },
+      {
+        "region": "seoul",
+        "minute": 200
+      },
+      {
+        "region": "japan",
+        "minute": 808
+      },
+      {
+        "region": "usa",
+        "minute": 1647
+      },
+      {
+        "region": "mars",
+        "minute": 2330
+      }
+    ],
+    "levels": [
+      {
+        "level": 15,
+        "minute": 9
+      },
+      {
+        "level": 100,
+        "minute": 47
+      },
+      {
+        "level": 500,
+        "minute": 1114
+      },
+      {
+        "level": 999,
+        "minute": 5641
+      }
+    ],
+    "finalRegion": "mars",
+    "finalMoney": "1.0003233529440533e+22",
+    "finalLevel": 999,
+    "finalRate": {
+      "avgPrice": 14529600000000000,
+      "servedPerMin": 51.75,
+      "deliveryPerMin": 100,
+      "incomePerMin": 3761290628640000000
+    }
+  },
+  "actualTenMinutes": {
+    "seed": 12345,
+    "stepSeconds": 0.1,
+    "simulatedMinutes": 10,
+    "serveCount": 703,
+    "deliveryCount": 1000,
+    "onlineCount": 2,
+    "earned": "12013514003140915200000",
+    "perMinute": 1.2013514003140916e+21
+  }
+}

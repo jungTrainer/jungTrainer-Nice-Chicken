@@ -1,0 +1,535 @@
+{
+  "source": "IMP-16; classic script load order in index.html; top-level declarations only",
+  "modules": [
+    {
+      "file": "js/core/money.js",
+      "functions": [
+        "isMoney",
+        "moneyInt",
+        "moneyValue",
+        "normalizeMoney",
+        "moneyAdd",
+        "moneySub",
+        "moneyCompare",
+        "moneyMax",
+        "moneyQuotient",
+        "moneyRatio",
+        "moneyExactText",
+        "moneyFactor",
+        "moneyCalculate",
+        "moneyScale",
+        "moneyGeometricCost",
+        "menuResearchCost",
+        "normalizeBranchMoney",
+        "migrateMoneyState"
+      ],
+      "bindings": [
+        "MONEY_ENCODING",
+        "MONEY_MAX_DIGITS",
+        "MENU_RESEARCH_LIMIT",
+        "geometricMoneyCache"
+      ]
+    },
+    {
+      "file": "js/core/utils.js",
+      "functions": [
+        "fmtKoreanUnits",
+        "fmtWon",
+        "fmtNoWon",
+        "fmtCompactWon",
+        "fmtCompact",
+        "clamp",
+        "clampInt",
+        "dayKey",
+        "nowK",
+        "isHangulOnly",
+        "safeOn",
+        "_bindSafe"
+      ],
+      "bindings": []
+    },
+    {
+      "file": "js/core/audio.js",
+      "functions": [
+        "ensureAudio",
+        "unlockAudioOnce",
+        "beep",
+        "sfxTick",
+        "sfxDing",
+        "sfxWrong",
+        "sfxFanfare",
+        "sfxConfirm",
+        "startBGM",
+        "stopBGM",
+        "setSoundEnabled"
+      ],
+      "bindings": [
+        "SOUND",
+        "AudioEngine"
+      ]
+    },
+    {
+      "file": "js/core/config.js",
+      "functions": [],
+      "bindings": [
+        "CONFIG",
+        "REGIONS",
+        "REGION_MAP",
+        "MENUS",
+        "MENU_MAP",
+        "CUSTOMER_EMOJIS",
+        "STAFF_POOL",
+        "UPGRADES",
+        "DECOS",
+        "RESEARCH",
+        "SIGN_STAGES_MAX",
+        "SIGN_IMAGE_CANDIDATES",
+        "SIGN_IMAGES",
+        "VEHICLES",
+        "EVENTS",
+        "CAMPAIGN_MODES",
+        "REGION_ENDINGS"
+      ]
+    },
+    {
+      "file": "js/core/content.js",
+      "functions": [
+        "defaultManagement",
+        "normalizeManagement",
+        "ensureManagementState",
+        "getManagementEffects",
+        "getOrderMenuPool",
+        "getMenuOfferSummary",
+        "getBranchStories",
+        "commitManagementChange",
+        "chooseManagement",
+        "readBranchStory",
+        "renderManagementContent"
+      ],
+      "bindings": [
+        "MANAGEMENT_FOCUS",
+        "STAFF_ROLES",
+        "REGION_CONTENT",
+        "managementRenderOwner",
+        "managementRenderKey",
+        "Campaign"
+      ]
+    },
+    {
+      "file": "js/core/state.js",
+      "functions": [],
+      "bindings": [
+        "defaultState",
+        "state"
+      ]
+    },
+    {
+      "file": "js/core/recovery.js",
+      "functions": [],
+      "bindings": [
+        "SaveRecovery"
+      ]
+    },
+    {
+      "file": "js/core/session.js",
+      "functions": [],
+      "bindings": [
+        "SessionOwner"
+      ]
+    },
+    {
+      "file": "js/core/persistence.js",
+      "functions": [
+        "markStateChanged",
+        "save",
+        "saveGame",
+        "bindSaveLifecycleEvents",
+        "readSavePayload",
+        "exportSaveData",
+        "isLikelyNiceChickenState",
+        "importSaveData",
+        "load",
+        "sanitizeState",
+        "replaceGameState",
+        "resetGame"
+      ],
+      "bindings": [
+        "deferRecoveryWrites",
+        "lastStateChangeReason",
+        "SAVE_KEY",
+        "SAVE_BACKUP_KEY",
+        "_saveDirty",
+        "_lastSaveWriteAt"
+      ]
+    },
+    {
+      "file": "js/core/growth.js",
+      "functions": [
+        "beginEffectBatch",
+        "endEffectBatch",
+        "invalidateDerivedEffects",
+        "sumEffects",
+        "aggregateEffects",
+        "computeRates",
+        "getStaffCount",
+        "getHiredStaff",
+        "ensureStaffStats",
+        "staffUpgradeCost",
+        "buyStaffUpgrade",
+        "levelCurve",
+        "genericStaffUpgradeCost",
+        "getOpenMenuCount",
+        "ensureResearchSlots",
+        "startResearch",
+        "updateResearch",
+        "buyUpgrade",
+        "checkLevelUp",
+        "researchMenu"
+      ],
+      "bindings": [
+        "effectBatchDepth",
+        "effectBatchCache"
+      ]
+    },
+    {
+      "file": "js/core/research.js",
+      "functions": [
+        "migrateLegacyResearch"
+      ],
+      "bindings": []
+    },
+    {
+      "file": "js/core/offline.js",
+      "functions": [
+        "normalizeOfflineReward",
+        "renderOfflineReward",
+        "applyOfflineProgress",
+        "claimOfflineReward"
+      ],
+      "bindings": []
+    },
+    {
+      "file": "js/core/missions.js",
+      "functions": [
+        "missionList",
+        "missionBaselines",
+        "repairMissionGoals",
+        "startNewWeek",
+        "ensureMissionReset",
+        "onServeOneOnline",
+        "updateMissionsOnlineOnly",
+        "generateWeeklyCertificate",
+        "renderWeeklyCertificate"
+      ],
+      "bindings": [
+        "RepeatMissions"
+      ]
+    },
+    {
+      "file": "js/core/economy.js",
+      "functions": [
+        "getMenuPrice",
+        "upgradeCost",
+        "recordIncome",
+        "processDelivery",
+        "menuUnlockCost",
+        "upStaff",
+        "updateEconomyUI",
+        "renderMenuStats",
+        "serveByMenu",
+        "processPayroll",
+        "logBenefit",
+        "useCoupon",
+        "getLifetimeSales"
+      ],
+      "bindings": [
+        "BenefitService"
+      ]
+    },
+    {
+      "file": "js/core/ending.js",
+      "functions": [
+        "cancelEndingFade",
+        "cancelEndingRuntime",
+        "applyRobotGrandson",
+        "restoreEndingUI",
+        "fadeAudioTo",
+        "playEndingLoop",
+        "stopEndingLoopFade",
+        "startEndingSequence",
+        "finishEndingSequence",
+        "checkEndingCondition",
+        "bindEndingUI",
+        "nextEndingStep",
+        "ensureEndingAudio",
+        "endingEls",
+        "openEndingPopup",
+        "closeEndingPopup",
+        "setEndingSpeakerStyle",
+        "clearEndingTyping",
+        "animateEndingText",
+        "updateEndingImage",
+        "renderEndingStep"
+      ],
+      "bindings": [
+        "endingPhase",
+        "endingRun",
+        "endingFrame",
+        "endingFadeResolve",
+        "endingFinishTimer",
+        "endingFinishResolve",
+        "endingBindings",
+        "originalGrandson",
+        "ENDING_MONEY",
+        "ENDING_SOUND_FILES",
+        "__endingAudio",
+        "__endingTypingTimer",
+        "__endingStep",
+        "endingStoryData"
+      ]
+    },
+    {
+      "file": "js/core/branches.js",
+      "functions": [
+        "getRegion",
+        "getRegionIndex",
+        "getNextRegion",
+        "_branchDefaultData",
+        "_branchKeys",
+        "normalizeServiceTimers",
+        "bindBranchServiceTimers",
+        "ensureBranchServiceOwner",
+        "captureBranchServiceTimers",
+        "getRegionUnlockCost"
+      ],
+      "bindings": [
+        "BranchManager",
+        "ServiceRuntime"
+      ]
+    },
+    {
+      "file": "js/core/services.js",
+      "functions": [
+        "pickStaffKey",
+        "computeDeliveryIntervalMs",
+        "spawnVisualRider",
+        "spawnLoop",
+        "autoServe",
+        "updateDelivery",
+        "updateOnlineAuto"
+      ],
+      "bindings": [
+        "deliveryTimer",
+        "onlineTimer",
+        "visualRiders",
+        "deliveryNextIntervalMs",
+        "deliveryVisualAcc",
+        "deliveryNextVisualSec"
+      ]
+    },
+    {
+      "file": "js/main.js",
+      "functions": [
+        "isGlobalBuffActive",
+        "getClickScale",
+        "initDOMRefs",
+        "resizeCanvas",
+        "showToast",
+        "closePanels",
+        "openPanel",
+        "renderRndList",
+        "bindRecipeResearchClicks",
+        "openExpansionModal",
+        "closeExpansionModal",
+        "moveBranch",
+        "unlockBranch",
+        "renderExpansionCards",
+        "showInfoToast",
+        "askPIN",
+        "maybeAskName",
+        "pickMenuByRule",
+        "handleMenuGridServe",
+        "buildMenuGrid",
+        "doorRect",
+        "serveSpot",
+        "waitingSlots",
+        "spawnCustomer",
+        "layoutTargets",
+        "moveCustomers",
+        "pickCustomerAt",
+        "selectCustomer",
+        "bossBurst",
+        "updateBossParticles",
+        "drawBossParticles",
+        "drawBossFlash",
+        "floatText",
+        "showFloatingText",
+        "hitCircle",
+        "bossCenter",
+        "staffCenters",
+        "triggerBossFX",
+        "triggerStaffFX",
+        "applyElementFX",
+        "updateFloats",
+        "maybeTriggerEvent",
+        "updateEvent",
+        "updateCustomers",
+        "fmtDuration",
+        "ensureSaveTransferUI",
+        "certStatusText",
+        "roundRect2",
+        "renderCoupons",
+        "renderExchange",
+        "preloadSignImages",
+        "tryLoadSignImage",
+        "getSignImage",
+        "signStage",
+        "signStageName",
+        "roundRectPath",
+        "drawSignboard",
+        "drawStaffSpeechBubble",
+        "drawBoss",
+        "drawStaff",
+        "drawDoor",
+        "drawTables",
+        "drawCounter",
+        "_bgSeededRand",
+        "getAtmosphere",
+        "drawSkyGradient",
+        "drawCloud",
+        "drawCelestial",
+        "drawHill",
+        "drawStatueOfLiberty",
+        "drawEiffelTower",
+        "drawFireworks",
+        "drawBackground",
+        "drawSpeechBubble",
+        "drawCustomers",
+        "drawFloats",
+        "render",
+        "drawDeliveryLayer",
+        "getCanvasPoint",
+        "onCanvasDown",
+        "renderPanel",
+        "missionValueLabel",
+        "missionProgressLine",
+        "missionRow",
+        "weeklyRow",
+        "bossSpeak",
+        "updateBoss",
+        "roundRect",
+        "startGameLoop",
+        "frame",
+        "renderMapUI",
+        "updateUI",
+        "updateStatsUI",
+        "tick",
+        "setTextIfChanged",
+        "renderStampRow"
+      ],
+      "bindings": [
+        "elMoney",
+        "elRep",
+        "elLvl",
+        "elToday",
+        "elTotal",
+        "elSelected",
+        "elUserName",
+        "toast",
+        "menuGrid",
+        "modalOffline",
+        "offlineEarn",
+        "offlineTime",
+        "upgList",
+        "resList",
+        "dailyList",
+        "weeklyList",
+        "weeklyStampRow",
+        "dailyStampRow",
+        "misGuide",
+        "weeklyNote",
+        "eventBanner",
+        "eventMsg",
+        "eventTimer",
+        "resStatus",
+        "resBar",
+        "uiDrinkCoupons2",
+        "uiVegCoupons2",
+        "benefitLogList",
+        "uiMoney2",
+        "uiExchangeCnt",
+        "certStatus",
+        "modalProfile",
+        "modalSettings",
+        "modalPin",
+        "modalCoupons",
+        "modalExchange",
+        "nameInput",
+        "pinInput",
+        "sharePreview",
+        "downloadLink",
+        "toggleSoundBtn",
+        "saveNameBtn",
+        "claimOfflineBtn",
+        "openCouponsBtn",
+        "closeCouponsBtn",
+        "useDrinkCouponBtn",
+        "useVegCouponBtn",
+        "useCertDrinkBtn",
+        "openExchangeBtn",
+        "closeExchangeBtn",
+        "doExchangeBtn",
+        "makeCardBtn",
+        "clearLogBtn",
+        "pinOkBtn",
+        "pinCancelBtn",
+        "forceSaveBtn",
+        "resetAllBtn",
+        "closeSettingsBtn",
+        "canvas",
+        "ctx",
+        "toastTimer",
+        "navBtns",
+        "panels",
+        "__infoTimer",
+        "pinResolver",
+        "menuGridEl",
+        "upgListEl",
+        "resListEl",
+        "floats",
+        "bossParticles",
+        "bossFlash",
+        "_BG_CACHE",
+        "upgradeButtons",
+        "acc",
+        "last",
+        "rAF_ID",
+        "_bossAnim",
+        "stampRowKeys"
+      ]
+    },
+    {
+      "file": "js/core/ui.js",
+      "functions": [],
+      "bindings": []
+    },
+    {
+      "file": "js/core/pwa.js",
+      "functions": [],
+      "bindings": [
+        "PwaRuntime"
+      ]
+    },
+    {
+      "file": "js/core/boot.js",
+      "functions": [
+        "initAfterLoad",
+        "init"
+      ],
+      "bindings": [
+        "_crashToastAt",
+        "_errorCount"
+      ]
+    }
+  ]
+}

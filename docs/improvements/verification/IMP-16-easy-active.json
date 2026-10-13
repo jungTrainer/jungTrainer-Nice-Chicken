@@ -1,0 +1,199 @@
+{
+  "root": "/workspace/jungTrainer-Nice-Chicken",
+  "mode": "easy",
+  "channel": "active",
+  "proposal": null,
+  "browser": "151.0.7922.34",
+  "precision": {
+    "start": 9007199254740992,
+    "after": "9007199254740993",
+    "sales": 1
+  },
+  "overflowCost": "212327440198757385209141381034011712365420004659578469309484539461138900502177251747813461684380702347618533365123495563189243429042814537783922303393120463038520864192812956414265302903489566772805262156598625268856606212261057914862248685034067896269065135976201455933709020444998156345497675138361048034960267",
+  "thresholds": [
+    {
+      "level": 1,
+      "required": "0"
+    },
+    {
+      "level": 10,
+      "required": "6500000"
+    },
+    {
+      "level": 100,
+      "required": "50000000000"
+    },
+    {
+      "level": 500,
+      "required": "135720880833400602"
+    },
+    {
+      "level": 999,
+      "required": "10000000000000000000000"
+    }
+  ],
+  "endingTarget": "20000000000000000000",
+  "checkpoints": [
+    {
+      "region": "changnyeong",
+      "avgPrice": 44921218133.333336,
+      "servedPerMin": 70.38,
+      "deliveryPerMin": 100,
+      "incomePerMin": 11997442143883.521,
+      "nextUnlockMinutes": 8.335110001008133e-8,
+      "endingYearsFromZero": 3.171655251525165
+    },
+    {
+      "region": "busan",
+      "avgPrice": 2246060906666.6665,
+      "servedPerMin": 70.38,
+      "deliveryPerMin": 100,
+      "incomePerMin": 599872107194176,
+      "nextUnlockMinutes": 8.335110001008135e-7,
+      "endingYearsFromZero": 0.0634331050305033
+    },
+    {
+      "region": "seoul",
+      "avgPrice": 89842436266666.67,
+      "servedPerMin": 70.38,
+      "deliveryPerMin": 100,
+      "incomePerMin": 23994884287767044,
+      "nextUnlockMinutes": 0.0000020837775002520334,
+      "endingYearsFromZero": 0.0015858276257625823
+    },
+    {
+      "region": "japan",
+      "avgPrice": 2246060906666666.8,
+      "servedPerMin": 70.38,
+      "deliveryPerMin": 100,
+      "incomePerMin": 599872107194176000,
+      "nextUnlockMinutes": 0.000008335110001008135,
+      "endingYearsFromZero": 0.0000634331050305033
+    },
+    {
+      "region": "usa",
+      "avgPrice": 89842436266666670,
+      "servedPerMin": 70.38,
+      "deliveryPerMin": 100,
+      "incomePerMin": 23994884287767044000,
+      "nextUnlockMinutes": 0.000020837775002520334,
+      "endingYearsFromZero": 0.0000015858276257625824
+    },
+    {
+      "region": "mars",
+      "avgPrice": 4492121813333333500,
+      "servedPerMin": 70.38,
+      "deliveryPerMin": 100,
+      "incomePerMin": 1.1997442143883522e+21,
+      "nextUnlockMinutes": 4.1675550005040663e-7,
+      "endingYearsFromZero": 3.1716552515251645e-8
+    }
+  ],
+  "model": {
+    "channel": "active",
+    "assumptions": {
+      "integration": "Number approximation; actual settlement uses integer-won APIs",
+      "manual": "perfect player fills remaining arrivals; no walking/patience/crowd loss",
+      "offline": "8h return/claim schedule, no purchases/research starts while absent, old completed effects used for receipt",
+      "purchase": "same greedy marginal income/cost, up to 40 per return/minute",
+      "clock": "minute-based model; not a human play-time guarantee",
+      "offlineMaxHours": 8
+    },
+    "firstRegionEndingMinute": 5,
+    "chapters": [
+      {
+        "region": "changnyeong",
+        "minute": 5,
+        "localMinutes": 5,
+        "required": "40000000"
+      },
+      {
+        "region": "busan",
+        "minute": 10,
+        "localMinutes": 5,
+        "required": "100000000000"
+      },
+      {
+        "region": "seoul",
+        "minute": 26,
+        "localMinutes": 16,
+        "required": "100000000000000"
+      },
+      {
+        "region": "japan",
+        "minute": 48,
+        "localMinutes": 22,
+        "required": "5000000000000000"
+      },
+      {
+        "region": "usa",
+        "minute": 66,
+        "localMinutes": 18,
+        "required": "200000000000000000"
+      },
+      {
+        "region": "mars",
+        "minute": 90,
+        "localMinutes": 24,
+        "required": "20000000000000000000"
+      }
+    ],
+    "horizonMinutes": 43200,
+    "endingMinute": 90,
+    "milestones": [
+      {
+        "region": "busan",
+        "minute": 5
+      },
+      {
+        "region": "seoul",
+        "minute": 10
+      },
+      {
+        "region": "japan",
+        "minute": 26
+      },
+      {
+        "region": "usa",
+        "minute": 48
+      },
+      {
+        "region": "mars",
+        "minute": 66
+      }
+    ],
+    "levels": [
+      {
+        "level": 11,
+        "minute": 3
+      },
+      {
+        "level": 116,
+        "minute": 9
+      },
+      {
+        "level": 501,
+        "minute": 61
+      }
+    ],
+    "finalRegion": "mars",
+    "finalMoney": "20479090973414050000",
+    "finalLevel": 700,
+    "finalRate": {
+      "avgPrice": 6773400000000000,
+      "servedPerMin": 48.375,
+      "deliveryPerMin": 100,
+      "incomePerMin": 1010945190150000000
+    }
+  },
+  "actualTenMinutes": {
+    "seed": 12345,
+    "stepSeconds": 0.1,
+    "simulatedMinutes": 10,
+    "serveCount": 703,
+    "deliveryCount": 1000,
+    "onlineCount": 2,
+    "earned": "11438834002598400000000",
+    "perMinute": 1.14388340025984e+21
+  }
+}

@@ -2,22 +2,18 @@
    Classic script global helpers. */
 
 function fmtKoreanUnits(n, addWon=true){
-  if (n === null || n === undefined) return addWon ? "0원" : "0";
-  let val;
-  try{
-    if (typeof n === "number"){
-      if (!isFinite(n)) return "무한";
-      if (Math.abs(n) < 10000) return (Math.floor(n).toLocaleString("ko-KR") + (addWon ? "원" : ""));
-      val = BigInt(Math.floor(n));
-    } else {
-      val = BigInt(n);
-      if (val < 10000n) return (val.toString() + (addWon ? "원" : ""));
-    }
-  }catch(e){
-    return addWon ? "0원" : "0";
+  if (!isMoney(n)) return addWon ? "0원" : "0";
+  let val = moneyInt(n);
+  const sign = val < 0n ? "-" : "";
+  if (val < 0n) val = -val;
+  if (val < 10000n) return sign + val.toLocaleString("ko-KR") + (addWon ? "원" : "");
+  // Display truncation never feeds back into prices, charging or saved ledgers.
+  if (val >= 10n ** 72n) {
+    const digits = val.toString();
+    const fraction = digits.slice(1, 3).replace(/0+$/, "");
+    return sign + digits[0] + (fraction ? "." + fraction : "") +
+      "×10^" + (digits.length - 1) + (addWon ? "원" : "");
   }
-
-  if (val <= 0n) return addWon ? "0원" : "0";
 
   const units = [
     {v: 10000n, s: "만"}, {v: 100000000n, s: "억"}, {v: 1000000000000n, s: "조"},
@@ -42,10 +38,10 @@ function fmtKoreanUnits(n, addWon=true){
       if (decPart > 0n){
         str += "." + decPart.toString().padStart(2, "0").replace(/0+$/, "");
       }
-      return str + u.s + (addWon ? "원" : "");
+      return sign + str + u.s + (addWon ? "원" : "");
     }
   }
-  return val.toString() + (addWon ? "원" : "");
+  return sign + val.toString() + (addWon ? "원" : "");
 }
 
 function fmtWon(n){ return fmtKoreanUnits(n, true); }
@@ -72,208 +68,3 @@ function safeOn(el, evt, fn, opts){
 }
 function _bindSafe(el, evt, fn, opts){ return safeOn(el, evt, fn, opts); }
 
-/* Step 2-23R: Branch snapshot save stabilization.
-   The game stores per-branch fields in state.branches[region].data.
-   If top-level state is saved without syncing that snapshot, BranchManager.bootstrap()
-   can load an older branch snapshot on the next boot and make progress appear lost. */
-(function installBranchSnapshotSaveStability(){
-  if(typeof document === "undefined") return;
-
-  document.addEventListener("DOMContentLoaded", ()=>{
-    try{
-      if(window.__branchSnapshotSaveStabilityApplied) return;
-
-      const syncCurrentBranchSnapshot = (reason)=>{
-        try{
-          if(typeof BranchManager !== "undefined" &&
-             BranchManager &&
-             typeof BranchManager.saveCurrent === "function" &&
-             typeof state !== "undefined" &&
-             state &&
-             state.branches){
-            BranchManager.saveCurrent();
-          }
-        }catch(e){
-          console.warn("[save-stability] branch snapshot sync failed", reason || "", e);
-        }
-      };
-
-      if(typeof BranchManager !== "undefined" &&
-         BranchManager &&
-         typeof BranchManager.bootstrap === "function" &&
-         !BranchManager.__bootstrapSaveSyncWrapped){
-        const originalBootstrap = BranchManager.bootstrap;
-        BranchManager.bootstrap = function(){
-          syncCurrentBranchSnapshot("before-bootstrap");
-          return originalBootstrap.apply(this, arguments);
-        };
-        BranchManager.__bootstrapSaveSyncWrapped = true;
-      }
-
-      if(typeof save === "function" && !window.__saveBranchSnapshotWrapped){
-        const originalSave = save;
-        save = function(force=false){
-          if(force) syncCurrentBranchSnapshot("before-save");
-          return originalSave.apply(this, arguments);
-        };
-        window.save = save;
-        window.__saveBranchSnapshotWrapped = true;
-
-        if(typeof saveGame === "function"){
-          saveGame = function(){ return save(true); };
-          window.saveGame = saveGame;
-        }
-      }
-
-      window.__branchSnapshotSaveStabilityApplied = true;
-    }catch(e){
-      console.error("[save-stability] install failed", e);
-    }
-  }, {once:true});
-})();
-
-/* Step 2-23S: Important save action audit hotfix.
-   Some state-changing handlers call `if(_saveDirty) save(true)` without first setting
-   `_saveDirty = true`. This keeps classic script/global compatibility and marks
-   important gameplay state dirty when those fields change. */
-(function installImportantSaveActionAudit(){
-  if(typeof document === "undefined") return;
-
-  document.addEventListener("DOMContentLoaded", ()=>{
-    try{
-      if(window.__importantSaveActionAuditApplied) return;
-
-      const importantSnapshot = ()=>{
-        try{
-          if(typeof state === "undefined" || !state) return "";
-          return JSON.stringify({
-            money: state.money,
-            rep: state.rep,
-            level: state.level,
-            regionId: state.regionId,
-            regionUnlocked: state.regionUnlocked,
-            mapSelected: state.mapSelected,
-            upgrades: state.upgrades,
-            delivery: state.delivery,
-            online: state.online,
-            research: state.research,
-            missions: state.missions,
-            coupons: state.coupons,
-            cert: state.cert,
-            menuLevels: state.menuLevels,
-            menuStats: state.menuStats,
-            contrib: state.contrib,
-            stamps: state.stamps,
-            payroll: state.payroll,
-            todaySales: state.todaySales,
-            totalSales: state.totalSales,
-            offlineSalesToday: state.offlineSalesToday,
-            offlineSalesTotal: state.offlineSalesTotal,
-            benefitsLog: state.benefitsLog,
-            soundOn: state.soundOn,
-            profile: state.profile,
-            endingUnlocked: state.endingUnlocked,
-            endingPrompted: state.endingPrompted,
-            endingSeen: state.endingSeen,
-            robotGrandson: state.robotGrandson
-          });
-        }catch(e){
-          console.warn("[save-audit] snapshot failed", e);
-          return "";
-        }
-      };
-
-      const markDirty = (reason)=>{
-        try{
-          if(typeof _saveDirty !== "undefined") _saveDirty = true;
-          if(typeof window !== "undefined") window.__lastImportantSaveDirtyReason = reason || "unknown";
-        }catch(e){
-          console.warn("[save-audit] dirty mark failed", reason || "", e);
-        }
-      };
-
-      const saveIfChanged = (before, reason)=>{
-        let changed = false;
-        try{ changed = before !== importantSnapshot(); }catch(e){ changed = true; }
-        if(!changed) return;
-        markDirty(reason);
-        try{
-          if(typeof save === "function") save(true);
-        }catch(e){
-          console.warn("[save-audit] immediate save failed", reason || "", e);
-        }
-      };
-
-      const wrapImmediate = (name)=>{
-        try{
-          if(typeof window[name] !== "function" || window[name].__saveAuditWrapped) return;
-          const original = window[name];
-          const wrapped = function(){
-            const before = importantSnapshot();
-            const result = original.apply(this, arguments);
-            saveIfChanged(before, name);
-            return result;
-          };
-          wrapped.__saveAuditWrapped = true;
-          window[name] = wrapped;
-        }catch(e){
-          console.warn("[save-audit] wrap failed", name, e);
-        }
-      };
-
-      const wrapDirtyOnly = (name)=>{
-        try{
-          if(typeof window[name] !== "function" || window[name].__saveDirtyAuditWrapped) return;
-          const original = window[name];
-          const wrapped = function(){
-            const before = importantSnapshot();
-            const result = original.apply(this, arguments);
-            if(before !== importantSnapshot()) markDirty(name);
-            return result;
-          };
-          wrapped.__saveDirtyAuditWrapped = true;
-          window[name] = wrapped;
-        }catch(e){
-          console.warn("[save-audit] dirty wrap failed", name, e);
-        }
-      };
-
-      [
-        "buyUpgrade",
-        "researchMenu",
-        "useCoupon",
-        "generateWeeklyCertificate",
-        "startNewWeek",
-        "startEndingSequence",
-        "finishEndingSequence"
-      ].forEach(wrapImmediate);
-
-      [
-        "serveByMenu",
-        "processDelivery",
-        "updateOnlineAuto",
-        "checkLevelUp",
-        "maybeTriggerEvent",
-        "updateEvent",
-        "processPayroll"
-      ].forEach(wrapDirtyOnly);
-
-      let last = importantSnapshot();
-      window.__importantSaveAuditTimer = setInterval(()=>{
-        try{
-          const next = importantSnapshot();
-          if(last && next && last !== next){
-            markDirty("state-drift");
-          }
-          if(next) last = next;
-        }catch(e){
-          console.warn("[save-audit] periodic check failed", e);
-        }
-      }, 3000);
-
-      window.__importantSaveActionAuditApplied = true;
-    }catch(e){
-      console.error("[save-audit] install failed", e);
-    }
-  }, {once:true});
-})();

@@ -1,0 +1,43 @@
+{
+  "synthetic": true,
+  "browsers": [
+    {
+      "name": "firefox",
+      "executable": "/workspace/jungTrainer-Nice-Chicken/.cache/ms-playwright/firefox-1538/firefox/firefox",
+      "status": "passed",
+      "version": "153.0",
+      "capabilities": {
+        "secure": true,
+        "locks": true,
+        "channel": true,
+        "sw": true,
+        "role": "writer"
+      },
+      "corruptPaused": true,
+      "readerBlocked": true,
+      "restored": true,
+      "yielded": true,
+      "inherited": true,
+      "errors": []
+    },
+    {
+      "name": "webkit",
+      "executable": "/workspace/jungTrainer-Nice-Chicken/.cache/ms-playwright/webkit-2336/pw_run.sh",
+      "status": "passed",
+      "version": "26.5",
+      "capabilities": {
+        "secure": true,
+        "locks": true,
+        "channel": true,
+        "sw": true,
+        "role": "writer"
+      },
+      "corruptPaused": true,
+      "readerBlocked": true,
+      "restored": true,
+      "yielded": true,
+      "inherited": true,
+      "errors": []
+    }
+  ]
+}

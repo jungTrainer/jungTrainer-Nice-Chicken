@@ -1,6 +1,8 @@
 {
   "name": "나이스 치킨",
   "short_name": "나이스치킨",
+  "lang": "ko",
+  "description": "기기에 저장하는 나이스 치킨 경영 게임",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

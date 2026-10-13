@@ -629,3 +629,105 @@
       border-radius: 12px;
       margin: 12px;
     }
+
+/* IMP-06: viewport bounds and a single scroll owner per surface. */
+html,body{height:100%;overscroll-behavior:none;}
+body{height:100dvh;height:var(--viewport-height,100dvh);}
+#app{height:100%;min-height:0;overflow:hidden;}
+.game-header{padding-top:max(6px,env(safe-area-inset-top)) !important;padding-left:max(10px,env(safe-area-inset-left)) !important;padding-right:max(10px,env(safe-area-inset-right)) !important;}
+.brand-info,.info,.rnd-info{min-width:0;}
+.shop-name{overflow-wrap:anywhere;font-size:1rem;}
+.brand-row{gap:4px;}
+.brand-row>.brand-info{flex:1;}
+.brand-row>div:last-child{gap:2px !important;flex-shrink:0;}
+#stageWrap{min-height:0;padding-top:var(--header-height,96px);}
+#menuBar{flex-shrink:0;padding:5px max(6px,env(safe-area-inset-right)) 5px max(6px,env(safe-area-inset-left));}
+.menuGrid{gap:4px;}
+.menuBtn{min-height:44px;padding:5px 3px;min-width:0;}
+.menuBtn .name{font-size:.8rem;overflow-wrap:anywhere;}
+.menuBtn .price{font-size:.72rem;}
+nav{flex-shrink:0;height:calc(60px + env(safe-area-inset-bottom));margin-bottom:0;padding-bottom:env(safe-area-inset-bottom);z-index:210;}
+.navBtn{min-height:44px;}
+.navBtn.active{transform:none;}
+.panel{top:max(8px,env(safe-area-inset-top));bottom:var(--nav-height,60px);height:auto;max-height:calc(100% - var(--nav-height,60px) - 8px);padding:10px max(10px,env(safe-area-inset-right)) 10px max(10px,env(safe-area-inset-left));z-index:200;visibility:hidden;pointer-events:none;}
+.panel.on{visibility:visible;pointer-events:auto;}
+.pHead{flex-shrink:0;gap:8px;}
+.scroll{min-height:0;min-width:0;overflow:auto;overscroll-behavior:contain;touch-action:pan-x pan-y;}
+.card>.info{flex:1;overflow-wrap:anywhere;}
+.card{min-width:0;}
+.btn,.rnd-btn{white-space:normal;overflow-wrap:anywhere;min-height:44px;}
+.row{flex-wrap:wrap;}
+.row>.btn{min-width:100px;}
+.closeBtn,.iconBtn{width:44px;min-width:44px;height:44px;min-height:44px;touch-action:manipulation;}
+button,a[role="button"]{touch-action:manipulation;}
+input,textarea{user-select:text;font-size:16px;max-width:100%;}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline:3px solid #167dba;outline-offset:2px;}
+.dim,#endingConditionPopup,#endingOverlay{position:fixed;top:var(--viewport-top,0px);left:var(--viewport-left,0px);right:auto;bottom:auto;width:var(--viewport-width,100vw);height:var(--viewport-height,100dvh);padding:max(8px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));}
+.modal{width:min(400px,100%) !important;max-width:100% !important;max-height:100%;overflow:auto;overscroll-behavior:contain;touch-action:pan-x pan-y;}
+.ui-modal-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:8px;background:#fff;padding:4px 0;margin-bottom:8px;}
+.ui-modal-head h3{font-size:1.1rem;margin:0;}
+#modalStats .modal{height:min(620px,100%);max-height:100%;}
+#modalStats .scroll{max-height:none !important;}
+#modalStats .ui-modal-head,.tab-row{flex-shrink:0;}
+#modalExpansion .modal{width:min(480px,100%) !important;padding:0;}
+#mapWrap{height:clamp(160px,45dvh,360px) !important;min-height:160px;overscroll-behavior-x:contain;touch-action:pan-x pan-y;}
+.map-node{flex:0 0 min(230px,75vw);min-height:150px;background:#fff;border:2px solid #ddd;border-radius:16px;padding:16px;scroll-snap-align:center;cursor:pointer;}
+.map-node.active{border-color:var(--primary);}.map-node.locked{background:#eee;color:#555;}
+.map-left{display:flex;gap:10px;align-items:center;}.map-badge{font-size:2rem;}.map-title{font-size:1.05rem;overflow-wrap:anywhere;}.map-sub,.map-cost{margin-top:8px;font-size:.9rem;}
+.loc-card{height:auto;min-height:150px;flex-basis:min(260px,75vw);padding:12px;}
+.loc-emoji{font-size:2.5rem;margin-bottom:4px;}
+.loc-name{font-size:1.15rem;}
+.loc-desc{margin-bottom:6px;}
+#endingConditionPopup{z-index:10000;}
+#endingConditionPopup .endingPopupInner{width:min(560px,100%);max-height:100%;overflow:auto;padding:16px;}
+#endingConditionPopup .ui-modal-head{background:#1e1e1e;}
+#endingOverlay{z-index:10001;overflow:auto;align-items:flex-start;}
+#endingOverlay .endingViewport{width:min(920px,100%);min-height:100%;justify-content:center;gap:10px;}
+#endingOverlay .ui-modal-head{width:100%;background:#000;color:#fff;flex-shrink:0;}
+#endingOverlay .img-viewport{width:min(650px,100%);height:min(48dvh,520px);min-height:120px;flex-shrink:0;}
+#endingOverlay .img-viewport img{object-fit:contain;transform:none;}
+#endingOverlay .dialogue-wrapper{width:min(650px,100%);color:#f5f5f5;flex-shrink:0;padding:4px;cursor:pointer;}
+#endingOverlay .text-content{white-space:pre-line;font-size:18px;line-height:1.45;min-height:4.35em;}
+#endingOverlay .name-tag{color:#FFD54F;margin-bottom:8px;}
+#endingOverlay .next-indicator{font-size:14px;color:#bdbdbd;margin-top:8px;}
+#replayEndingBtn{position:fixed;top:auto;right:max(8px,env(safe-area-inset-right));bottom:calc(var(--nav-height,60px) + 8px);min-height:44px;z-index:220;}
+#hint{bottom:8px;font-size:.8rem;}
+@media(min-width:700px) and (min-height:501px){body{padding:24px;}#app{height:calc(var(--viewport-height,100dvh) - 48px);}}
+@media(max-height:500px) and (min-width:600px){
+  body{padding:0;}#app{width:100%;max-width:1100px;display:grid;grid-template-columns:minmax(0,1fr) minmax(230px,34%);grid-template-rows:minmax(0,1fr) auto;border-radius:0;}
+  .game-header{width:66%;right:auto;}.game-header .brand-row{flex-wrap:nowrap;}
+  #stageWrap{grid-column:1;grid-row:1;}#menuBar{grid-column:2;grid-row:1;overflow:auto;border-left:1px solid #eee;align-self:stretch;}
+  nav{grid-column:1 / -1;grid-row:2;}.menuGrid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  #endingOverlay .endingViewport{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto 1fr;align-items:center;}
+  #endingOverlay .ui-modal-head{grid-column:1 / -1;}#endingOverlay .img-viewport{width:100%;height:min(72dvh,300px);min-height:120px;}#endingOverlay .dialogue-wrapper{width:100%;}
+}
+@media(prefers-reduced-motion:reduce){.panel,#endingOverlay,#endingOverlay img{transition:none !important;}}
+
+/* IMP-11: scoped controls inside the existing report/focus owner. */
+#modalStats .tab-row{flex-wrap:wrap;}
+#modalStats .tab-btn{min-height:44px;flex:1 1 100px;}
+.management-card{border:1px solid #e8dfd5;border-radius:12px;padding:12px;margin-bottom:14px;background:#fffaf4;min-width:0;}
+.management-card h4{margin:0 0 10px;}
+.management-card p{font-size:.9rem;line-height:1.55;margin:8px 0;overflow-wrap:anywhere;}
+.management-choice{display:block;width:100%;min-height:44px;text-align:left;white-space:normal;overflow-wrap:anywhere;padding:10px;margin:8px 0;border:1px solid #cebbab;border-radius:9px;background:#fff;color:#49372c;font:inherit;cursor:pointer;touch-action:manipulation;}
+.management-choice[aria-pressed="true"]{border:2px solid #b94c00;background:#fff0d6;}
+.management-choice:disabled{opacity:.6;cursor:default;}
+.management-choice:focus-visible{outline:3px solid #146a98;outline-offset:2px;}
+.management-story{border-top:1px solid #e8dfd5;margin-top:12px;padding-top:8px;}
+/* IMP-12 uses the existing settings scroll/focus surface. */
+.pwa-settings { min-width:0; border:1px solid #e3d5bc; border-radius:12px; padding:12px; margin:12px 0; }
+.pwa-settings h4 { margin:0; }
+.pwa-settings p { overflow-wrap:anywhere; }
+.pwa-settings .row { flex-wrap:wrap; }
+.pwa-settings button { min-height:44px; white-space:normal; max-width:100%; }
+#sessionControls[hidden], #sessionControls [hidden] { display:none!important; }
+#sessionControls { position:fixed; z-index:100001; left:max(8px,env(safe-area-inset-left)); right:max(8px,env(safe-area-inset-right)); bottom:max(8px,env(safe-area-inset-bottom)); max-height:calc(var(--viewport-height,100dvh) - 16px); overflow:auto; overscroll-behavior:contain; background:#fff9ed; border:2px solid #a76a13; border-radius:16px; padding:12px; box-sizing:border-box; }
+#sessionControls p { margin:0 0 10px; overflow-wrap:anywhere; }
+#sessionControls .row { flex-wrap:wrap; }
+#sessionControls button { min-height:44px; white-space:normal; max-width:100%; }
+#sessionBackupText { width:100%; box-sizing:border-box; }
+#recoveryPanel { min-width:0; }
+#recoveryPanel[hidden], #recoveryPanel [hidden] { display:none!important; }
+#recoveryPanel textarea { width:100%; box-sizing:border-box; resize:vertical; margin:8px 0; }
+#recoveryPanel h3 { margin:0 0 12px; }
+#recoveryPanel label { display:block; margin-top:10px; }

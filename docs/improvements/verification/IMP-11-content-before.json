@@ -1,0 +1,728 @@
+{
+  "root": "/tmp/nice-chicken-imp11-baseline",
+  "browser": "151.0.7922.34",
+  "scenarios": [
+    {
+      "research": 0,
+      "unlock": 0,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "16500"
+        }
+      ],
+      "allMeanWon": "16500",
+      "signatureFriedWon": "16500",
+      "selectedMeanWon": null
+    },
+    {
+      "research": 0,
+      "unlock": 1,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "16500"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        }
+      ],
+      "allMeanWon": "23650",
+      "signatureFriedWon": "16500",
+      "selectedMeanWon": null
+    },
+    {
+      "research": 0,
+      "unlock": 2,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "16500"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        },
+        {
+          "id": "soy_hot",
+          "price": "49500"
+        }
+      ],
+      "allMeanWon": "32266",
+      "signatureFriedWon": "16500",
+      "selectedMeanWon": null
+    },
+    {
+      "research": 0,
+      "unlock": 8,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "16500"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        },
+        {
+          "id": "soy_hot",
+          "price": "49500"
+        },
+        {
+          "id": "boneless_feet",
+          "price": "165000"
+        },
+        {
+          "id": "roast",
+          "price": "385000"
+        },
+        {
+          "id": "garlic_roast",
+          "price": "715000"
+        },
+        {
+          "id": "gizzard_s",
+          "price": "2750000"
+        },
+        {
+          "id": "doritang",
+          "price": "8800000"
+        },
+        {
+          "id": "buldak",
+          "price": "33000000"
+        }
+      ],
+      "allMeanWon": "5101311",
+      "signatureFriedWon": "16500",
+      "selectedMeanWon": null
+    },
+    {
+      "research": 1,
+      "unlock": 0,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "24750"
+        }
+      ],
+      "allMeanWon": "24750",
+      "signatureFriedWon": "24750",
+      "selectedMeanWon": null
+    },
+    {
+      "research": 1,
+      "unlock": 1,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "24750"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        }
+      ],
+      "allMeanWon": "27775",
+      "signatureFriedWon": "24750",
+      "selectedMeanWon": null
+    },
+    {
+      "research": 1,
+      "unlock": 2,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "24750"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        },
+        {
+          "id": "soy_hot",
+          "price": "49500"
+        }
+      ],
+      "allMeanWon": "35016",
+      "signatureFriedWon": "24750",
+      "selectedMeanWon": null
+    },
+    {
+      "research": 1,
+      "unlock": 8,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "24750"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        },
+        {
+          "id": "soy_hot",
+          "price": "49500"
+        },
+        {
+          "id": "boneless_feet",
+          "price": "165000"
+        },
+        {
+          "id": "roast",
+          "price": "385000"
+        },
+        {
+          "id": "garlic_roast",
+          "price": "715000"
+        },
+        {
+          "id": "gizzard_s",
+          "price": "2750000"
+        },
+        {
+          "id": "doritang",
+          "price": "8800000"
+        },
+        {
+          "id": "buldak",
+          "price": "33000000"
+        }
+      ],
+      "allMeanWon": "5102227",
+      "signatureFriedWon": "24750",
+      "selectedMeanWon": null
+    },
+    {
+      "research": 10,
+      "unlock": 0,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "99000"
+        }
+      ],
+      "allMeanWon": "99000",
+      "signatureFriedWon": "99000",
+      "selectedMeanWon": null
+    },
+    {
+      "research": 10,
+      "unlock": 1,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "99000"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        }
+      ],
+      "allMeanWon": "64900",
+      "signatureFriedWon": "99000",
+      "selectedMeanWon": null
+    },
+    {
+      "research": 10,
+      "unlock": 2,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "99000"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        },
+        {
+          "id": "soy_hot",
+          "price": "49500"
+        }
+      ],
+      "allMeanWon": "59766",
+      "signatureFriedWon": "99000",
+      "selectedMeanWon": null
+    },
+    {
+      "research": 10,
+      "unlock": 8,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "99000"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        },
+        {
+          "id": "soy_hot",
+          "price": "49500"
+        },
+        {
+          "id": "boneless_feet",
+          "price": "165000"
+        },
+        {
+          "id": "roast",
+          "price": "385000"
+        },
+        {
+          "id": "garlic_roast",
+          "price": "715000"
+        },
+        {
+          "id": "gizzard_s",
+          "price": "2750000"
+        },
+        {
+          "id": "doritang",
+          "price": "8800000"
+        },
+        {
+          "id": "buldak",
+          "price": "33000000"
+        }
+      ],
+      "allMeanWon": "5110477",
+      "signatureFriedWon": "99000",
+      "selectedMeanWon": null
+    }
+  ],
+  "staff": [
+    {
+      "key": "neighbor",
+      "grade": "C",
+      "baseSpeed": 1
+    },
+    {
+      "key": "ato",
+      "grade": "C",
+      "baseSpeed": 1.2
+    },
+    {
+      "key": "daughter1",
+      "grade": "B",
+      "baseSpeed": 1.1
+    },
+    {
+      "key": "daughter2",
+      "grade": "B",
+      "baseSpeed": 1.1
+    },
+    {
+      "key": "soninlaw",
+      "grade": "A",
+      "baseSpeed": 1.25
+    },
+    {
+      "key": "grandson",
+      "grade": "S",
+      "baseSpeed": 1.5
+    }
+  ],
+  "regions": [
+    {
+      "id": "changnyeong",
+      "priceMul": 1,
+      "costMul": 1,
+      "unlockCost": "0"
+    },
+    {
+      "id": "busan",
+      "priceMul": 50,
+      "costMul": 5,
+      "unlockCost": "50000000000"
+    },
+    {
+      "id": "seoul",
+      "priceMul": 2000,
+      "costMul": 50,
+      "unlockCost": "20000000000000"
+    },
+    {
+      "id": "japan",
+      "priceMul": 50000,
+      "costMul": 500,
+      "unlockCost": "10000000000000000"
+    },
+    {
+      "id": "usa",
+      "priceMul": 2000000,
+      "costMul": 5000,
+      "unlockCost": "500000000000000000"
+    },
+    {
+      "id": "mars",
+      "priceMul": 100000000,
+      "costMul": 100000,
+      "unlockCost": "20000000000000000000"
+    }
+  ]
+}
+{
+  "root": "/tmp/nice-chicken-imp11-baseline",
+  "browser": "151.0.7922.34",
+  "scenarios": [
+    {
+      "research": 0,
+      "unlock": 0,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "16500"
+        }
+      ],
+      "allMeanWon": "16500",
+      "signatureFriedWon": "16500",
+      "selectedMeanWon": null
+    },
+    {
+      "research": 0,
+      "unlock": 1,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "16500"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        }
+      ],
+      "allMeanWon": "23650",
+      "signatureFriedWon": "16500",
+      "selectedMeanWon": null
+    },
+    {
+      "research": 0,
+      "unlock": 2,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "16500"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        },
+        {
+          "id": "soy_hot",
+          "price": "49500"
+        }
+      ],
+      "allMeanWon": "32266",
+      "signatureFriedWon": "16500",
+      "selectedMeanWon": null
+    },
+    {
+      "research": 0,
+      "unlock": 8,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "16500"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        },
+        {
+          "id": "soy_hot",
+          "price": "49500"
+        },
+        {
+          "id": "boneless_feet",
+          "price": "165000"
+        },
+        {
+          "id": "roast",
+          "price": "385000"
+        },
+        {
+          "id": "garlic_roast",
+          "price": "715000"
+        },
+        {
+          "id": "gizzard_s",
+          "price": "2750000"
+        },
+        {
+          "id": "doritang",
+          "price": "8800000"
+        },
+        {
+          "id": "buldak",
+          "price": "33000000"
+        }
+      ],
+      "allMeanWon": "5101311",
+      "signatureFriedWon": "16500",
+      "selectedMeanWon": null
+    },
+    {
+      "research": 1,
+      "unlock": 0,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "24750"
+        }
+      ],
+      "allMeanWon": "24750",
+      "signatureFriedWon": "24750",
+      "selectedMeanWon": null
+    },
+    {
+      "research": 1,
+      "unlock": 1,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "24750"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        }
+      ],
+      "allMeanWon": "27775",
+      "signatureFriedWon": "24750",
+      "selectedMeanWon": null
+    },
+    {
+      "research": 1,
+      "unlock": 2,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "24750"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        },
+        {
+          "id": "soy_hot",
+          "price": "49500"
+        }
+      ],
+      "allMeanWon": "35016",
+      "signatureFriedWon": "24750",
+      "selectedMeanWon": null
+    },
+    {
+      "research": 1,
+      "unlock": 8,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "24750"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        },
+        {
+          "id": "soy_hot",
+          "price": "49500"
+        },
+        {
+          "id": "boneless_feet",
+          "price": "165000"
+        },
+        {
+          "id": "roast",
+          "price": "385000"
+        },
+        {
+          "id": "garlic_roast",
+          "price": "715000"
+        },
+        {
+          "id": "gizzard_s",
+          "price": "2750000"
+        },
+        {
+          "id": "doritang",
+          "price": "8800000"
+        },
+        {
+          "id": "buldak",
+          "price": "33000000"
+        }
+      ],
+      "allMeanWon": "5102227",
+      "signatureFriedWon": "24750",
+      "selectedMeanWon": null
+    },
+    {
+      "research": 10,
+      "unlock": 0,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "99000"
+        }
+      ],
+      "allMeanWon": "99000",
+      "signatureFriedWon": "99000",
+      "selectedMeanWon": null
+    },
+    {
+      "research": 10,
+      "unlock": 1,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "99000"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        }
+      ],
+      "allMeanWon": "64900",
+      "signatureFriedWon": "99000",
+      "selectedMeanWon": null
+    },
+    {
+      "research": 10,
+      "unlock": 2,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "99000"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        },
+        {
+          "id": "soy_hot",
+          "price": "49500"
+        }
+      ],
+      "allMeanWon": "59766",
+      "signatureFriedWon": "99000",
+      "selectedMeanWon": null
+    },
+    {
+      "research": 10,
+      "unlock": 8,
+      "prices": [
+        {
+          "id": "fried",
+          "price": "99000"
+        },
+        {
+          "id": "yang",
+          "price": "30800"
+        },
+        {
+          "id": "soy_hot",
+          "price": "49500"
+        },
+        {
+          "id": "boneless_feet",
+          "price": "165000"
+        },
+        {
+          "id": "roast",
+          "price": "385000"
+        },
+        {
+          "id": "garlic_roast",
+          "price": "715000"
+        },
+        {
+          "id": "gizzard_s",
+          "price": "2750000"
+        },
+        {
+          "id": "doritang",
+          "price": "8800000"
+        },
+        {
+          "id": "buldak",
+          "price": "33000000"
+        }
+      ],
+      "allMeanWon": "5110477",
+      "signatureFriedWon": "99000",
+      "selectedMeanWon": null
+    }
+  ],
+  "staff": [
+    {
+      "key": "neighbor",
+      "grade": "C",
+      "baseSpeed": 1
+    },
+    {
+      "key": "ato",
+      "grade": "C",
+      "baseSpeed": 1.2
+    },
+    {
+      "key": "daughter1",
+      "grade": "B",
+      "baseSpeed": 1.1
+    },
+    {
+      "key": "daughter2",
+      "grade": "B",
+      "baseSpeed": 1.1
+    },
+    {
+      "key": "soninlaw",
+      "grade": "A",
+      "baseSpeed": 1.25
+    },
+    {
+      "key": "grandson",
+      "grade": "S",
+      "baseSpeed": 1.5
+    }
+  ],
+  "regions": [
+    {
+      "id": "changnyeong",
+      "priceMul": 1,
+      "costMul": 1,
+      "unlockCost": "0"
+    },
+    {
+      "id": "busan",
+      "priceMul": 50,
+      "costMul": 5,
+      "unlockCost": "50000000000"
+    },
+    {
+      "id": "seoul",
+      "priceMul": 2000,
+      "costMul": 50,
+      "unlockCost": "20000000000000"
+    },
+    {
+      "id": "japan",
+      "priceMul": 50000,
+      "costMul": 500,
+      "unlockCost": "10000000000000000"
+    },
+    {
+      "id": "usa",
+      "priceMul": 2000000,
+      "costMul": 5000,
+      "unlockCost": "500000000000000000"
+    },
+    {
+      "id": "mars",
+      "priceMul": 100000000,
+      "costMul": 100000,
+      "unlockCost": "20000000000000000000"
+    }
+  ]
+}
