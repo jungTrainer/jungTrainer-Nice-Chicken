@@ -195,34 +195,27 @@ const BranchManager = {
   },
 
   unlockNext() {
-    if (!SessionOwner.canMutate()) return false;
-    const cur = getRegion();
     const next = getNextRegion();
-    if (cur.id === next.id) {
-      showToast("이미 마지막 지역이에요!");
-      return false;
-    }
-    const need = next.unlockCost || 0;
-    if (moneyCompare(state.money, need) < 0) {
-      showToast(`해금 비용 부족: ${fmtCompact(need)}`);
-      return false;
-    }
-    state.money = moneySub(state.money, need);
-
-    state.regionUnlocked = state.regionUnlocked || {};
-    state.regionUnlocked[next.id] = true;
-
-    this.ensure(next.id); // prepare branch slot
-    state.mapSelected = next.id;
-
-    markStateChanged("branches");
-    save(true);
-    updateUI();
-    renderMapUI();
-    showToast(`${next.name} 해금 완료!`);
-    AudioEngine.sfx.confirm();
-    return true;
+    return next.id !== state.regionId && this.unlock(next.id);
   },
+  unlock(id) {
+    if (!SessionOwner.canMutate() || !REGION_MAP[id] || state.regionUnlocked[id]) return false;
+    Campaign.check();
+    if (!Campaign.canUnlockRegion(id)) { showToast("이전 지역의 오픈/이야기 해금이 필요합니다."); return false; }
+    const need = getRegionUnlockCost(id);
+    if (moneyCompare(state.money, need) < 0) { showToast(`해금 비용 부족: ${fmtWon(need)}`); return false; }
+    const previous = Object.fromEntries(["money", "regionUnlocked", "branches", "mapSelected", "lastSeenAt"].map(k => [k, structuredClone(state[k])]));
+    const dirty = _saveDirty;
+    state.money = moneySub(state.money, need); state.regionUnlocked[id] = true;
+    this.ensure(id); state.mapSelected = id;
+    markStateChanged("branch-unlock");
+    if (!save(true)) {
+      Object.assign(state, previous); this.saveCurrent(); _saveDirty = dirty;
+      showToast("저장 실패. 지점/비용을 보존했습니다."); updateUI(); renderMapUI(); return false;
+    }
+    updateUI(); renderMapUI(); showToast(`${REGION_MAP[id].name} 해금 완료!`); return true;
+  },
+
 };
 const ServiceRuntime = {
   ownerState: null,
@@ -317,4 +310,9 @@ function captureBranchServiceTimers() {
     state.serviceTimers = next;
     markStateChanged("service-progress", false);
   }
+}
+
+function getRegionUnlockCost(id) {
+  const index = REGIONS.findIndex(region => region.id === id);
+  return index < 0 ? null : normalizeMoney(Campaign.rules().costs[index]);
 }

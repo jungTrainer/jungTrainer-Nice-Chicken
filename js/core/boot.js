@@ -81,6 +81,7 @@ window.addEventListener("unhandledrejection", (e) => {
 });
 function initAfterLoad(fromReset = false, { readOnly = false } = {}) {
   cancelEndingRuntime();
+  Campaign.restore();
   sanitizeState();
   try {
     BranchManager.bootstrap();
@@ -108,7 +109,7 @@ function initAfterLoad(fromReset = false, { readOnly = false } = {}) {
     nameInput.value = state.profile.name || "";
   }
 
-  if (!readOnly) applyOfflineProgress();
+  if (!readOnly) { applyOfflineProgress(); Campaign.check(); }
   restoreEndingUI();
 
   startGameLoop();

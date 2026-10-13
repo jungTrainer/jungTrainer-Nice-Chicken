@@ -172,10 +172,10 @@ async function finishEndingSequence() {
 
 function checkEndingCondition() {
   if (!SessionOwner.canMutate()) return false;
-  if (state.endingPrompted || endingPhase !== "idle") return;
+  if (state.endingPrompted || endingPhase !== "idle" || document.getElementById("modalRegionEnding")?.classList.contains("on")) return;
   if (
     state.endingUnlocked ||
-    (isMoney(state.money) && moneyCompare(state.money, ENDING_MONEY) >= 0)
+    (Campaign.familyReady() && isMoney(state.money) && moneyCompare(state.money, Campaign.rules().ending) >= 0)
   ) {
     state.endingUnlocked = true;
     state.endingPrompted = true;

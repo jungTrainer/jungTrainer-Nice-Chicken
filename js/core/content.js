@@ -576,3 +576,136 @@ document.addEventListener("click", (event) => {
       button.dataset.managementValue,
     );
 });
+
+// HQ narrative archive. Viewing never grants money, coupons or the family ending effect.
+const Campaign = {
+  activeStory: null,
+  uiRows: null,
+  rules(mode = state.campaign?.mode || "legacy") {
+    const rules = CAMPAIGN_MODES[mode] || CAMPAIGN_MODES.legacy;
+    return { ...rules, ending: rules.ending || ENDING_MONEY };
+  },
+  sales(id) {
+    const data = id === state.regionId ? state : state.branches?.[id]?.data;
+    return moneyAdd(data?.totalSales || 0, data?.offlineSalesTotal || 0);
+  },
+  updateUnlocks() {
+    if (!SessionOwner.canMutate() || state.campaign.mode === "legacy") return false;
+    let changed = false;
+    const goals = this.rules().goals;
+    REGIONS.forEach((region, index) => {
+      if (!state.regionUnlocked[region.id] || state.campaign.regions[region.id]?.unlockedAt) return;
+      if (moneyCompare(this.sales(region.id), goals[index]) < 0) return;
+      state.campaign.regions[region.id] = {
+        ...state.campaign.regions[region.id], unlockedAt: Date.now(), seenAt: 0, badgeAwarded: false,
+        modeAtUnlock: state.campaign.mode, goalAtUnlock: goals[index],
+      };
+      changed = true;
+    });
+    return changed;
+  },
+  check() {
+    if (this.updateUnlocks()) markStateChanged("regional-ending-unlock", false);
+  },
+  canUnlockRegion(id) {
+    const index = REGIONS.findIndex(region => region.id === id);
+    if (index <= 0 || !state.regionUnlocked[REGIONS[index - 1].id]) return false;
+    return state.campaign?.mode === "legacy" || !!state.campaign.regions[REGIONS[index - 1].id]?.unlockedAt;
+  },
+  familyReady() {
+    return state.campaign?.mode === "legacy" || REGIONS.every(region => state.campaign.regions[region.id]?.unlockedAt);
+  },
+  choose(mode) {
+    if (!SessionOwner.canMutate() || !Object.hasOwn(CAMPAIGN_MODES, mode) || mode === state.campaign.mode) return false;
+    if (PwaRuntime.applying || SaveRecovery.busy || endingPhase !== "idle" ||
+        endingEls().popup.style.display === "flex" || pinResolver ||
+        document.querySelector(".dim.on:not(#modalSettings),.panel.on")) {
+      showToast("입력/이야기/미수령 창을 닫은 뒤 모드를 선택해 주세요. 닫기는 수령이 아닙니다."); return false;
+    }
+    if (!confirm(`${CAMPAIGN_MODES[mode].label}로 이어갈까요?\n진행/지점/미수령/쿠폰/지급 이력은 유지합니다. 미래 지점 비용과 이야기/가족 엔딩 목표만 바뀝니다.\n실물 발급 한도는 바꾸지 않으며 기존 5,000만원 교환은 유지됩니다.`)) return false;
+    const previous = structuredClone(state.campaign), dirty = _saveDirty, lastSeenAt = state.lastSeenAt;
+    state.campaign = { ...state.campaign, mode, selectedAt: Date.now() };
+    this.updateUnlocks();
+    markStateChanged("campaign-mode", false);
+    if (!save(true)) {
+      state.campaign = previous; state.lastSeenAt = lastSeenAt; _saveDirty = dirty;
+      BranchManager.saveCurrent(); this.render();
+      showToast("저장 실패. 기존 모드와 진행을 유지합니다."); return false;
+    }
+    updateUI(); renderMapUI(); this.render();
+    showToast(`${this.rules().label}로 이어갑니다. 새 돈/실물 쿠폰을 지급하지 않습니다.`);
+    document.getElementById("campaignStatus")?.focus();
+    return true;
+  },
+  showRegion(id) {
+    if (!SessionOwner.canMutate() || !REGION_MAP[id] || !state.campaign.regions[id]?.unlockedAt) return false;
+    if (PwaRuntime.applying || endingPhase !== "idle" || endingEls().popup.style.display === "flex" ||
+        pinResolver || document.querySelector(".dim.on:not(#modalSettings),.panel.on")) return false;
+    this.activeStory = { id, token: SessionOwner.token() };
+    const region = REGION_MAP[id], story = REGION_STORIES[id];
+    document.getElementById("regionEndingTitle").textContent = `${region.name} · 지역 엔딩`;
+    document.getElementById("regionEndingText").textContent = `${story.arrival}\n\n${story.growth}\n\n${REGION_ENDINGS[id]}`;
+    document.getElementById("regionEndingReward").textContent = state.campaign.regions[id].badgeAwarded
+      ? "기념 칭호 기록 완료. 재생으로 추가 효과/실물 쿠폰을 지급하지 않습니다."
+      : "끝까지 읽고 완료를 기록하면 지역 기념 칭호를 한 번 보관합니다. 돈/실물 쿠폰 보상은 없습니다.";
+    document.getElementById("completeRegionEnding").textContent = state.campaign.regions[id].seenAt ? "다시보기 닫기" : "읽음 · 기념 완료 저장";
+    document.getElementById("modalRegionEnding").classList.add("on");
+    return true;
+  },
+  complete() {
+    const view = this.activeStory;
+    if (!view || !document.getElementById("modalRegionEnding").classList.contains("on") || !SessionOwner.matches(view.token)) return false;
+    const record = state.campaign.regions[view.id];
+    if (!record?.unlockedAt) return false;
+    if (!record.seenAt) {
+      const previous = structuredClone(record), dirty = _saveDirty, lastSeenAt = state.lastSeenAt;
+      record.seenAt = Date.now(); record.badgeAwarded = true;
+      markStateChanged("regional-ending-complete", false);
+      if (!save(true)) {
+        state.campaign.regions[view.id] = previous; state.lastSeenAt = lastSeenAt; _saveDirty = dirty;
+        BranchManager.saveCurrent(); showToast("저장 실패. 완료/칭호를 기록하지 않았습니다. 다시 시도해 주세요."); return false;
+      }
+    }
+    this.close(); this.render(); return true;
+  },
+  close() {
+    document.getElementById("modalRegionEnding")?.classList.remove("on");
+    this.activeStory = null;
+  },
+  restore() { this.close(); },
+  render() {
+    const status = document.getElementById("campaignStatus");
+    if (!status) return;
+    const rules = this.rules(), count = REGIONS.filter(r => state.campaign.regions[r.id]?.badgeAwarded).length;
+    const text = `${rules.label} · 지역 기념 ${count}/6 · 가족 엔딩 목표 ${fmtWon(rules.ending)}\n기존 기록/미수령/paid는 보존됩니다. 모드는 게임 성장용이며 실물 서비스 한도를 바꾸지 않습니다.`;
+    if (status.textContent !== text) status.textContent = text;
+    for (const mode of Object.keys(CAMPAIGN_MODES)) {
+      const button = document.getElementById("chooseMode-" + mode), disabled = mode === state.campaign.mode;
+      if (button.disabled !== disabled) button.disabled = disabled;
+    }
+    if (!document.getElementById("modalSettings").classList.contains("on")) return;
+    if (!this.uiRows) {
+      const list = document.getElementById("campaignRegions");
+      this.uiRows = REGIONS.map(region => {
+        const card = document.createElement("div"); card.className = "card";
+        const info = document.createElement("div"); info.className = "info";
+        const title = document.createElement("h4"); title.textContent = region.name;
+        const p = document.createElement("p"); const button = document.createElement("button");
+        button.className = "btn alt"; button.type = "button"; button.dataset.campaignRegion = region.id;
+        info.append(title, p); card.append(info, button); list.append(card);
+        return { p, button };
+      });
+    }
+    REGIONS.forEach((region, i) => {
+      const record = state.campaign.regions[region.id], goal = record?.goalAtUnlock || rules.goals?.[i];
+      const label = record?.unlockedAt
+        ? `${record.badgeAwarded ? "기념 완료" : "이야기 해금"} · 해금 당시 목표 ${fmtWon(goal || 0)}`
+        : goal ? `기록된 지점 매출 ${fmtWon(this.sales(region.id))} / ${fmtWon(goal)}` : "이지/노말을 명시적으로 선택하면 지역 이야기를 시작합니다.";
+      const row = this.uiRows[i]; if (row.p.textContent !== label) row.p.textContent = label;
+      const disabled = !record?.unlockedAt;
+      if (row.button.disabled !== disabled) row.button.disabled = disabled;
+      const btnText = record?.seenAt ? "다시보기" : "이야기 보기";
+      if (row.button.textContent !== btnText) row.button.textContent = btnText;
+    });
+  },
+};
