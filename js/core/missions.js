@@ -393,6 +393,20 @@ const RepeatMissions = {
   render() {
     const host = document.getElementById("missionExtraStatus");
     if (!host || !document.getElementById("panel-mis")?.classList.contains("on")) return;
+    for (const [id, goals] of [["dailyList", state.missions.dailyList], ["weeklyList", state.missions.weeklyList]]) {
+      const rows = document.getElementById(id).children;
+      goals.forEach((goal, index) => {
+        const row = rows[index];
+        if (!row) return;
+        const refs = row._missionRefs || (row._missionRefs = {
+          title: row.querySelector("h4"), progress: row.querySelector(".info p"), button: row.querySelector("button"),
+        });
+        const menu = goal.menuId && MENUS.find(item => item.id === goal.menuId);
+        const progress = missionProgressLine(goal) + (menu ? ` · ${menu.name} 판매 (운영에서 전체/해당 대표 메뉴 선택)` : "");
+        for (const [node, text] of [[refs.title, goal.title], [refs.progress, progress], [refs.button, goal.done ? "완료" : "진행중"]])
+          if (node && node.textContent !== text) node.textContent = text;
+      });
+    }
     const c = state.missions.visitChallenge;
     const upgrades = state.upgrades;
     const achievements = [

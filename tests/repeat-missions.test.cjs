@@ -219,3 +219,12 @@ test('save failure prevents reader handoff of visit/challenge until owner retrie
   await p.evaluate(()=>{Storage.prototype.setItem=originalSet;});assert.equal(await p.evaluate(()=>SessionOwner.yieldWriter()),true);await b.waitForFunction(()=>SessionOwner.canMutate(),null,{polling:100});
   assert.equal(await b.evaluate(()=>state.money),123);assert.equal(await b.evaluate(()=>state.offlineReward.amount),500);assert.equal(await b.evaluate(()=>state.serviceVisit.table),'3번');assert.equal(await b.evaluate(()=>state.missions.visitChallenge.serves),1);assert.deepEqual(await b.evaluate(()=>state.coupons),{drink:3,veg:7});await b.close();
 }));
+
+test('open mission cards reflect live progress and completion without rebuilding focused controls',async()=>game(fixture(),async p=>{
+  await p.locator('.navBtn[data-panel="mis"]').tap();await p.locator('#startVisitChallenge').focus();
+  await p.evaluate(()=>{onServeOneOnline();updateUI();});
+  assert.match(await p.locator('#dailyList .card').first().innerText(),/진행: 1 \/ 6/);
+  assert.equal(await p.evaluate(()=>document.activeElement.id),'startVisitChallenge');
+  await p.evaluate(()=>{for(let i=0;i<5;i++)onServeOneOnline();updateUI();});
+  assert.equal(await p.locator('#dailyList .card').first().locator('button').innerText(),'완료');
+}));

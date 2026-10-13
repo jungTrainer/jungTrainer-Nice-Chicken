@@ -1,12 +1,12 @@
 # 수동 검증과 배포 점검표
 
-갱신: 2026-10-13, IMP-15. 설치·실행·진단 명령은 [개발 안내](development.md), 보존할 규칙은 [데이터 규칙](data-ownership.md)과 [실행 계약](runtime-architecture.md)을 따른다. 자동 검사 253개는 Chromium 기준이며 아래 확인란은 수동 실행 기록을 남길 때 체크한다. 실제 사용자 저장은 먼저 백업하고 초기화/가져오기는 별도 테스트 브라우저 프로필에서 수행한다.
+갱신: 2026-10-13, IMP-15. 설치·실행·진단 명령은 [개발 안내](development.md), 보존할 규칙은 [데이터 규칙](data-ownership.md)과 [실행 계약](runtime-architecture.md)을 따른다. 자동 검사 254개는 Chromium 기준이며 아래 확인란은 수동 실행 기록을 남길 때 체크한다. 실제 사용자 저장은 먼저 백업하고 초기화/가져오기는 별도 테스트 브라우저 프로필에서 수행한다.
 
 ## 준비와 기록
 
 - [ ] commit SHA, Node/브라우저 버전, OS·viewport, 검증 시각을 기록했다.
 - [ ] `npm ci`, 고정 Chromium 설치, `npm run doctor`, `npm run check`, `npm test` 또는 공통 `npm run test:ci`가 완료됐다.
-- [ ] 결과가 253개 실행·실패 0·skip 0인지 확인하고, 실패 시 `test-results`와 Actions run URL을 남겼다.
+- [ ] 결과가 254개 실행·실패 0·skip 0인지 확인하고, 실패 시 `test-results`와 Actions run URL을 남겼다.
 - [ ] 저장소 루트에서 `python3 -m http.server 8000 --bind 127.0.0.1`를 실행하고 HTTP와 실제 브라우저를 확인했다. 자동 검사는 자체 서버를 사용한다.
 
 ## 실행과 정산
