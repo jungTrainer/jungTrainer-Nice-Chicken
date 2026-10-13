@@ -1,0 +1,49 @@
+{
+  "root": "/workspace/jungTrainer-Nice-Chicken",
+  "browser": "151.0.7922.34",
+  "fixtureTime": 1791806400000,
+  "synthetic": true,
+  "cases": {
+    "income": {
+      "aIncome": 17,
+      "bIncome": 23,
+      "expectedIfBothAccepted": 10040,
+      "stored": 10023,
+      "lostIfBothAccepted": 17,
+      "bAccepted": {
+        "income": true,
+        "save": true
+      }
+    },
+    "claim": {
+      "first": true,
+      "second": true,
+      "stored": 10500
+    },
+    "staleClose": {
+      "money": 10000,
+      "pending": 500
+    },
+    "branch": {
+      "before": "busan",
+      "after": "changnyeong"
+    },
+    "tick": {
+      "accepted": {
+        "advanced": 1,
+        "save": true
+      },
+      "stored": 1
+    },
+    "reset": {
+      "accepted": true,
+      "stored": 0
+    }
+  },
+  "support": {
+    "secure": true,
+    "webLocks": true,
+    "broadcastChannel": true,
+    "serviceWorker": true
+  }
+}
