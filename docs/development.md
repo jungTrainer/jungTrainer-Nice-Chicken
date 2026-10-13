@@ -1,6 +1,6 @@
 # 개발·검사·CI 실행 안내
 
-기준: IMP-09/10/11, 2026-10-13. 게임은 정적 HTML/CSS/JS이며 일반 실행에는 npm 설치·빌드·백엔드가 필요 없다. 브라우저 검사에는 Node와 Playwright/Chromium을 설치한다. [데이터 규칙](data-ownership.md)과 [실행 계약](runtime-architecture.md)을 함께 따른다.
+기준: IMP-09/10/11/12, 2026-10-13. 게임은 정적 HTML/CSS/JS이며 일반 실행에는 npm 설치·빌드·백엔드가 필요 없다. 브라우저 검사에는 Node와 Playwright/Chromium을 설치한다. [데이터 규칙](data-ownership.md)과 [실행 계약](runtime-architecture.md)을 함께 따른다.
 
 ## 설치와 브라우저 선택
 
@@ -47,7 +47,7 @@ PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright" \
 npm run test:ci
 ```
 
-현재 앱 JS 19개와 도구/검사 helper CJS 8개, 총 **27개 문법 검사**, **148개 회귀 검사**를 실행한다. IMP-10의 120개 assertion/fixture를 유지하고 콘텐츠 28개를 추가했다. 범위별 재현은 `node --test tests/branches.test.cjs`, `node --test tests/refactor.test.cjs`, `node --test tests/money.test.cjs`, `node --test tests/content.test.cjs` 등을 사용한다. 범위별 통과가 전체 통과를 대신하지 않는다.
+현재 앱 JS 20개와 도구/검사 helper CJS 11개, 총 **31개 문법 검사**, **174개 회귀 검사**를 실행한다. 기존 148개 assertion/fixture를 유지하고 PWA/운영 26개를 추가했다. 범위별 재현은 `node --test tests/branches.test.cjs`, `node --test tests/refactor.test.cjs`, `node --test tests/money.test.cjs`, `node --test tests/content.test.cjs` 등을 사용한다. 범위별 통과가 전체 통과를 대신하지 않는다.
 
 검사 helper는 각 검사 파일의 HTTP 서버를 임의 포트에 열고 브라우저/context를 정리한다. 자동 검사를 위해 아래 수동 서버를 따로 실행할 필요는 없다. 날짜 fixture·Asia/Seoul·기본 rAF 정지와 필요한 live 검사를 유지한다. Google Fonts 요청은 자동 검사에서 차단하고 기본 폰트를 사용한다.
 
@@ -132,3 +132,20 @@ PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright" node scripts/measure-econom
 ```
 
 측정은 자체 HTTP 서버/Chromium을 정리한다. 세 번째 policy 인자만 바꿔 같은 성장/급여/연구/구매 모델로 비교한다. `measure-content`는 연구 0/1/10과 메뉴 해금 수별 가격 희석, 운영/담당자 조합의 실제 계수를 출력한다. 실제 입력/스크린샷/실패 복구는 content.test의 별도 브라우저 문맥으로 검증한다. [콘텐츠 설계](content-design.md)와 [IMP-11 보고서](improvements/IMP-11-content-choices.md)의 가정·한계를 따른다. 다음 PWA/캐시 작업은 현재 정적 서버/저장 계약을 유지하면서 별도로 검증한다.
+
+
+## PWA 생성·실제 서비스워커 검사 (IMP-12)
+
+앱/manifest/자산 변경 뒤 `npm run pwa:build`를 실행하고 생성된 index.html과 sw.js를 함께 커밋한다. `npm run check`는 읽기 전용 생성물 일치 검사도 실행한다. 자동 생성/배포를 CI에서 수행하지 않으므로 stale release는 실패한다. 문서/fixture만 바뀌면 앱 버전은 바뀌지 않는다.
+
+```bash
+npm run pwa:build
+npm run check
+PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright" node --test tests/pwa.test.cjs tests/pwa-release.test.cjs tests/coupon-contract.test.cjs
+```
+
+`tests/helpers/pwa.cjs`는 임시 HTTP 서버의 파일 묶음을 교체하고 **실제 Chromium 워커/CacheStorage**를 사용한다. 임시 일반 프로필에서 CDP PWA.install/getOsAppState/changeAppUserSettings/launch로 설치/독립 창을 검사하고 종료/제거한다. OS 설정은 임시 XDG 디렉터리/프로필에만 기록한다. 나머지 fixture는 각기 독립 context다. 기존 게임 검사 helper/148개 assertion과 고정 날짜/Asia/Seoul은 유지한다. rAF를 멈춘 case의 비동기 조건은 시간 polling으로 확인한다.
+
+온라인→오프라인에는 Chrome offline emulation과 서버의 503 차단을 함께 사용한다. Chrome의 브라우저 측 SW 업데이트 조회가 탭 emulation 밖에서 실행될 수 있어 서버도 전달을 막는다. 워커 응답을 route mock하거나 worker의 fetch/cache 구현을 대체하지 않는다. 기본 셸/저장 동작, 선택 미디어 누락, 대기/실패 업데이트, 작은 화면/실제 터치/입력, 엔딩/미수령·다른 탭·저장 실패, 지점/백업/import/reset을 검사한다. `test-results/verification/IMP-12-install.json`, screenshots/실패 PNG·trace·최근 요청 진단을 보관한다. 실제 OS의 홈 화면/런처 모양·iOS 설치 UI·프로덕션 Pages 배포는 이 Linux 자동 검사의 증명이 아니다.
+
+서버 계약 순수 검사는 공개 PIN을 인증으로 취급하지 않는다. 네트워크 호출/실혜택/운영 데이터 변경이 없으며 request/receipt 상관관계·불명확/인증/충돌 응답의 제안 계약만 검증한다. 실제 인증/DB 경쟁·audit는 백엔드와 스테이징 제공 뒤 검증한다. [운영/실패 복구](pwa-operations.md), [서버 연결 조건](coupon-server-contract.md)을 참고한다.

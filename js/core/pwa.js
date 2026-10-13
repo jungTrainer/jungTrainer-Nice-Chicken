@@ -40,7 +40,8 @@ const PwaRuntime = (() => {
       (waiting ? " · 새 버전 대기" : "") +
       (failure ? ` · ${failure}` : "");
     el("applyPwaUpdate").disabled = applying || !waiting;
-    el("checkPwaUpdate").disabled = applying || !registration;
+    el("checkPwaUpdate").disabled =
+      applying || !isSecureContext || !navigator.serviceWorker;
     el("installPwa").disabled = !installPrompt || applying;
     el("pwaInstallHelp").textContent = matchMedia("(display-mode: standalone)")
       .matches
@@ -124,7 +125,7 @@ const PwaRuntime = (() => {
   }
   function observeWorker(worker) {
     worker?.addEventListener("statechange", () => {
-      waiting = registration.waiting;
+      waiting = registration?.waiting || null;
       if (worker.state === "redundant")
         failure =
           "새 셸 설치 실패. 기존 버전을 유지합니다. 온라인에서 다시 확인하세요.";
@@ -132,16 +133,22 @@ const PwaRuntime = (() => {
     });
   }
   async function check() {
-    if (!registration || applying) return false;
+    if (applying) return false;
     failure = "";
     try {
+      const current = await navigator.serviceWorker.getRegistration();
+      if (!current || !registration) {
+        registration = null;
+        await setup();
+        return !!registration;
+      }
       await registration.update();
       return true;
     } catch (_) {
       failure = "업데이트 확인 실패. 온라인에서 다시 시도하세요.";
       return false;
     } finally {
-      waiting = registration.waiting;
+      waiting = registration?.waiting || null;
       render();
     }
   }
@@ -157,20 +164,29 @@ const PwaRuntime = (() => {
       return;
     }
     try {
-      registration = await navigator.serviceWorker.register("./sw.js", {
-        scope: "./",
-        updateViaCache: "none",
-      });
+      const existing = await navigator.serviceWorker.getRegistration();
+      const scope = new URL("./", location.href).href;
+      registration =
+        existing?.scope === scope
+          ? existing
+          : await navigator.serviceWorker.register("./sw.js", {
+              scope: "./",
+              updateViaCache: "none",
+            });
       waiting = registration.waiting;
       observeWorker(registration.installing);
       registration.addEventListener("updatefound", () =>
         observeWorker(registration.installing),
       );
       render();
+      if (existing && navigator.onLine) check();
       const ready = await navigator.serviceWorker.ready;
       if (!navigator.serviceWorker.controller && !ready.waiting) {
         const status = await message(ready.active, "STATUS");
         if (status.version === version) await message(ready.active, "CLAIM");
+        else
+          failure =
+            "현재 페이지와 설치 버전이 다릅니다. 백업 후 앱 창을 닫고 다시 열어 주세요.";
       }
       render();
     } catch (_) {
@@ -188,8 +204,11 @@ const PwaRuntime = (() => {
     installPrompt = null;
     render();
   });
-  for (const type of ["online", "offline"])
-    window.addEventListener(type, render);
+  window.addEventListener("offline", render);
+  window.addEventListener("online", () => {
+    if (!registration) setup();
+    else render();
+  });
   navigator.serviceWorker?.addEventListener("controllerchange", async () => {
     try {
       const status = await message(

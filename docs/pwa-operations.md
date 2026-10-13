@@ -12,7 +12,7 @@ GitHub Pages API 확인: legacy, main, `/`, HTTPS, `https://jungtrainer.github.i
 
 ## 설치와 앱 셸
 
-HTTPS 또는 localhost 보안 컨텍스트에서만 워커를 등록한다. manifest의 id/start_url/scope는 상대 경로로 Pages 하위 디렉터리에서도 동작한다. Chromium의 실제 설치 prompt가 제공될 때만 설치 버튼을 켠다. 이미 설치했거나 prompt가 없는 플랫폼에는 브라우저 메뉴/홈 화면 안내를 제공한다. headless Chromium 검증과 실제 OS의 설치 UI는 구분한다.
+HTTPS 또는 localhost 보안 컨텍스트에서만 워커를 등록한다. manifest의 start_url/scope는 상대 경로로 Pages 하위 디렉터리에서도 동작한다. id는 기존처럼 생략하여 계산된 start_url을 설치 식별자로 사용한다(상대 id는 origin 기준이어서 다른 Pages 앱과 충돌할 수 있다). Chromium의 실제 설치 prompt가 제공될 때만 설치 버튼을 켠다. 이미 설치했거나 prompt가 없는 플랫폼에는 브라우저 메뉴/홈 화면 안내를 제공한다. headless Chromium 검증과 실제 OS의 설치 UI는 구분한다.
 
 `npm run pwa:build`는 런타임 파일과 HTML의 정규화한 원본에서 콘텐츠 버전을 생성한다. HTML의 JS/CSS에는 SHA-256 SRI를 붙이고 워커에 완성 HTML·전체 JS/CSS·manifest·아이콘의 경로/해시를 내장한다. `npm run check`는 생성물이 원본과 일치하는지도 검사한다. 앱 변경 뒤 생성물을 같이 커밋한다. 문서/검사 변경만으로 릴리스 버전은 바뀌지 않는다.
 
