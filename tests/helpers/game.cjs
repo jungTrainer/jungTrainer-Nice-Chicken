@@ -101,6 +101,7 @@ function harness() {
     await page.route("https://fonts.googleapis.com/**", (r) => r.abort());
     try {
       await page.goto(url);
+      await page.evaluate(() => SessionOwner.ready);
       await page.evaluate(() =>
         document.getElementById("splashScreen")?.remove(),
       );

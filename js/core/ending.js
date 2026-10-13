@@ -110,6 +110,7 @@ async function stopEndingLoopFade(run) {
 }
 
 async function startEndingSequence() {
+  if (!SessionOwner.canMutate()) return false;
   if (!state.endingUnlocked || endingPhase !== "idle") return false;
   endingPhase = "playing";
   const run = ++endingRun;
@@ -126,6 +127,7 @@ async function startEndingSequence() {
 }
 
 async function finishEndingSequence() {
+  if (!SessionOwner.canMutate()) return false;
   if (endingPhase !== "playing" || __endingStep < endingStoryData.length)
     return false;
   endingPhase = "finishing";
@@ -169,6 +171,7 @@ async function finishEndingSequence() {
 }
 
 function checkEndingCondition() {
+  if (!SessionOwner.canMutate()) return false;
   if (state.endingPrompted || endingPhase !== "idle") return;
   if (
     state.endingUnlocked ||
@@ -224,6 +227,7 @@ function bindEndingUI() {
 }
 
 function nextEndingStep() {
+  if (!SessionOwner.canMutate()) return false;
   if (endingPhase !== "playing") return;
   const el = endingEls();
   if (__endingTypingTimer) {

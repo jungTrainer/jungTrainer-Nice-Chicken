@@ -91,6 +91,7 @@ function repairMissionGoals() {
 }
 
 function startNewWeek({ resetCertificate = true } = {}) {
+  if (!SessionOwner.canMutate()) return false;
   const m = state.missions;
   m.weekStartAt = Date.now();
   m.weekEndAt = Date.now() + 7 * 86400000;
@@ -114,6 +115,7 @@ function startNewWeek({ resetCertificate = true } = {}) {
 }
 
 function ensureMissionReset() {
+  if (!SessionOwner.canMutate()) return false;
   const m = state.missions;
   const end = m.weeklyCompletedAt
     ? state.cert.validUntil || m.weekEndAt
@@ -142,6 +144,7 @@ function ensureMissionReset() {
 }
 
 function onServeOneOnline() {
+  if (!SessionOwner.canMutate()) return false;
   markStateChanged("serve-mission", false);
   state.missions._serveToday = (state.missions._serveToday || 0) + 1;
   state.missions._weekServe = (state.missions._weekServe || 0) + 1;
@@ -149,6 +152,7 @@ function onServeOneOnline() {
 }
 
 function updateMissionsOnlineOnly() {
+  if (!SessionOwner.canMutate()) return false;
   ensureMissionReset();
   const m = state.missions;
   function update(weekly) {
@@ -225,6 +229,7 @@ function updateMissionsOnlineOnly() {
 }
 
 function generateWeeklyCertificate() {
+  if (!SessionOwner.canMutate()) return false;
   ensureMissionReset();
   if (state.cert.issuedThisWeek) return renderWeeklyCertificate();
   if (!certStatusText().okIssue) return;

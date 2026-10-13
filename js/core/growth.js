@@ -214,6 +214,7 @@ function staffUpgradeCost(staffKey, kind, cur) {
 }
 
 function buyStaffUpgrade(staffKey, kind) {
+  if (!SessionOwner.canMutate()) return false;
   ensureMissionReset();
   ensureStaffStats();
   if (kind !== "auto" && kind !== "tip") return;
@@ -290,6 +291,7 @@ function ensureResearchSlots() {
 }
 
 function startResearch(rid) {
+  if (!SessionOwner.canMutate()) return false;
   const r = RESEARCH.find((x) => x.id === rid);
   if (!r) return;
 
@@ -331,6 +333,7 @@ function startResearch(rid) {
 }
 
 function updateResearch() {
+  if (!SessionOwner.canMutate()) return false;
   ensureResearchSlots();
   ensureStaffStats();
   let anyActive = false;
@@ -389,6 +392,7 @@ function updateResearch() {
 }
 
 function buyUpgrade(id) {
+  if (!SessionOwner.canMutate()) return false;
   ensureMissionReset();
   const u = UPGRADES.find((x) => x.id === id);
   if (!u) return;
@@ -453,6 +457,7 @@ function buyUpgrade(id) {
 }
 
 function checkLevelUp() {
+  if (!SessionOwner.canMutate()) return false;
   const thresholds = CONFIG.levelUpTotalSales || [0];
   const maxLv =
     CONFIG.maxLevel || (thresholds.length ? thresholds.length - 1 : 50);
@@ -471,6 +476,7 @@ function checkLevelUp() {
 }
 
 function researchMenu(menuId) {
+  if (!SessionOwner.canMutate()) return false;
   if (!MENUS.slice(0, getOpenMenuCount()).some((m) => m.id === menuId)) return;
   const m = MENUS.find((x) => x.id === menuId);
   if (!m) return;

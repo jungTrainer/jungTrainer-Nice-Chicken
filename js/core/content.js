@@ -292,6 +292,7 @@ function getBranchStories() {
   ];
 }
 function commitManagementChange(next, effectsChanged = true) {
+  if (!SessionOwner.canMutate()) return false;
   const previous = state.management,
     lastSeen = state.lastSeenAt,
     dirty = _saveDirty;
@@ -312,6 +313,7 @@ function commitManagementChange(next, effectsChanged = true) {
   return true;
 }
 function chooseManagement(kind, value) {
+  if (!SessionOwner.canMutate()) return false;
   if (!["focus", "leadStaff", "menu"].includes(kind)) return false;
   const next = structuredClone(state.management || defaultManagement());
   if (kind === "focus") {
@@ -343,6 +345,7 @@ function chooseManagement(kind, value) {
   return commitManagementChange(next);
 }
 function readBranchStory(id) {
+  if (!SessionOwner.canMutate()) return false;
   const story = getBranchStories().find((s) => s.id === id);
   if (!story?.unlocked) return false;
   const previous = state.management || defaultManagement();

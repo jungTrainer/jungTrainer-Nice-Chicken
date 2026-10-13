@@ -29,6 +29,7 @@ function renderOfflineReward() {
 }
 
 function applyOfflineProgress() {
+  if (!SessionOwner.canMutate()) return false;
   const now = Date.now(),
     usedSec =
       Math.min(
@@ -77,6 +78,7 @@ function applyOfflineProgress() {
 }
 
 function claimOfflineReward() {
+  if (!SessionOwner.canMutate()) return false;
   const reward = normalizeOfflineReward(state.offlineReward);
   if (!reward.amount) {
     renderOfflineReward();

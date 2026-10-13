@@ -720,3 +720,9 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .pwa-settings p { overflow-wrap:anywhere; }
 .pwa-settings .row { flex-wrap:wrap; }
 .pwa-settings button { min-height:44px; white-space:normal; max-width:100%; }
+#sessionControls[hidden], #sessionControls [hidden] { display:none!important; }
+#sessionControls { position:fixed; z-index:100001; left:max(8px,env(safe-area-inset-left)); right:max(8px,env(safe-area-inset-right)); bottom:max(8px,env(safe-area-inset-bottom)); max-height:calc(var(--viewport-height,100dvh) - 16px); overflow:auto; overscroll-behavior:contain; background:#fff9ed; border:2px solid #a76a13; border-radius:16px; padding:12px; box-sizing:border-box; }
+#sessionControls p { margin:0 0 10px; overflow-wrap:anywhere; }
+#sessionControls .row { flex-wrap:wrap; }
+#sessionControls button { min-height:44px; white-space:normal; max-width:100%; }
+#sessionBackupText { width:100%; box-sizing:border-box; }

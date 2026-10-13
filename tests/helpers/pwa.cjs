@@ -8,6 +8,7 @@ const { before, after } = require("node:test");
 const { chromium } = require("playwright");
 const { browserOptions } = require("../../scripts/browser-options.cjs");
 const { build } = require("../../scripts/build-pwa.cjs");
+const { startHeadedContext } = require("../../scripts/display.cjs");
 const { captureFailure, resultRoot } = require("./diagnostics.cjs");
 const { NOW } = require("./game.cjs");
 function pwaHarness() {
@@ -62,6 +63,10 @@ function pwaHarness() {
       requests.push({ method: req.method, path: file, version: selected });
       if (serverOffline)
         return res.writeHead(503).end("synthetic network unavailable");
+      if (file === "unresponsive.html")
+        return res
+          .writeHead(200, { "Content-Type": "text/html" })
+          .end("<!doctype html><title>Legacy document fixture</title>");
       if (!url.pathname.startsWith(scope) || file.includes(".."))
         return res.writeHead(404).end();
       const failure = failures.get(file);
@@ -92,34 +97,66 @@ function pwaHarness() {
       hasTouch: true,
       timezoneId: "Asia/Seoul",
     };
-    const context = options.persistent
-      ? await chromium.launchPersistentContext(
-          path.join(temp, `profile-${caseNumber + 1}`),
-          {
-            ...browserOptions(),
-            ...contextOptions,
-            env: {
-              ...process.env,
-              XDG_DATA_HOME: path.join(temp, "xdg-data"),
-              XDG_CONFIG_HOME: path.join(temp, "xdg-config"),
+    const native = options.headed
+      ? await startHeadedContext(path.join(temp, `native-${caseNumber + 1}`))
+      : null;
+    const context = native
+      ? native.context
+      : options.persistent
+        ? await chromium.launchPersistentContext(
+            path.join(temp, `profile-${caseNumber + 1}`),
+            {
+              ...browserOptions(),
+              headless: !options.headed,
+              ...contextOptions,
+              env: {
+                ...process.env,
+                XDG_DATA_HOME: path.join(temp, "xdg-data"),
+                XDG_CONFIG_HOME: path.join(temp, "xdg-config"),
+              },
             },
-          },
-        )
-      : await browser.newContext(contextOptions);
+          )
+        : await browser.newContext(contextOptions);
     await context.tracing.start({
       screenshots: true,
       snapshots: true,
       sources: true,
     });
     await context.addInitScript(
-      ({ now, live }) => {
-        Date.now = () => now;
+      ({ now, live, noLocks, noChannel, seed, realTime, rejectLocks }) => {
+        if (noLocks)
+          Object.defineProperty(navigator, "locks", { value: undefined });
+        if (rejectLocks)
+          Object.defineProperty(navigator, "locks", {
+            value: {
+              request: () =>
+                Promise.reject(Error("synthetic browser policy denial")),
+            },
+          });
+        if (noChannel) window.BroadcastChannel = undefined;
+        if (seed && !localStorage.getItem("niceChicken_idleServe_vFinal"))
+          localStorage.setItem(
+            "niceChicken_idleServe_vFinal",
+            JSON.stringify(seed),
+          );
+        if (!realTime) {
+          window.testNow = now;
+          Date.now = () => window.testNow;
+        }
         if (!live) {
           requestAnimationFrame = () => 1;
           cancelAnimationFrame = () => {};
         }
       },
-      { now: NOW, live: !!options.live },
+      {
+        now: NOW,
+        live: !!options.live,
+        noLocks: !!options.noLocks,
+        rejectLocks: !!options.rejectLocks,
+        noChannel: !!options.noChannel,
+        seed: options.seed,
+        realTime: !!options.realTime,
+      },
     );
     const page = await context.newPage(),
       errors = [],
@@ -135,19 +172,21 @@ function pwaHarness() {
     );
     try {
       await page.goto(url);
-      await page.evaluate((overrides) => {
-        state = Object.assign(defaultState(), overrides);
-        state.profile.name = "검증";
-        state.soundOn = false;
-        sanitizeState();
-        BranchManager.bootstrap();
-        save(true);
-        document
-          .querySelectorAll(".dim.on,.panel.on")
-          .forEach((s) => s.classList.remove("on"));
-        initAfterLoad(false);
-        document.getElementById("splashScreen")?.remove();
-      }, options.state || {});
+      await page.evaluate(() => SessionOwner.ready);
+      if (!options.seed)
+        await page.evaluate((overrides) => {
+          state = Object.assign(defaultState(), overrides);
+          state.profile.name = "검증";
+          state.soundOn = false;
+          sanitizeState();
+          BranchManager.bootstrap();
+          save(true);
+          document
+            .querySelectorAll(".dim.on,.panel.on")
+            .forEach((s) => s.classList.remove("on"));
+          initAfterLoad(false);
+          document.getElementById("splashScreen")?.remove();
+        }, options.state || {});
       if (!options.initialFailure)
         await page.waitForFunction(
           () => !!navigator.serviceWorker.controller,
@@ -171,6 +210,10 @@ function pwaHarness() {
       });
       assert.deepEqual(errors, []);
     } catch (error) {
+      consoleMessages.push({
+        type: "release-fixtures",
+        text: JSON.stringify(releases.map((r) => r.version)),
+      });
       try {
         consoleMessages.push({
           type: "pwa-diagnostics",
@@ -211,6 +254,7 @@ function pwaHarness() {
       throw error;
     } finally {
       await context.close();
+      await native?.stop();
       await new Promise((resolve) => server.close(resolve));
     }
   }

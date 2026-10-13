@@ -79,7 +79,7 @@ window.addEventListener("unhandledrejection", (e) => {
     console.error("promise rejection", e);
   } catch (_) {}
 });
-function initAfterLoad(fromReset = false) {
+function initAfterLoad(fromReset = false, { readOnly = false } = {}) {
   cancelEndingRuntime();
   sanitizeState();
   try {
@@ -87,7 +87,7 @@ function initAfterLoad(fromReset = false) {
   } catch (e) {}
   resizeCanvas();
   buildMenuGrid();
-  ensureMissionReset();
+  if (!readOnly) ensureMissionReset();
   ensureResearchSlots();
   ensureStaffStats();
   updateUI();
@@ -103,12 +103,12 @@ function initAfterLoad(fromReset = false) {
   }
   // "최초 실행 후 접속하면" 요구: name이 한번도 세팅된 적이 없을 때만 띄우는 대신,
   // 현재는 "저장된 데이터가 없거나 reset 직후"에만 띄우도록 처리
-  if (!localStorage.getItem(SAVE_KEY) || fromReset) {
+  if (!readOnly && (!localStorage.getItem(SAVE_KEY) || fromReset)) {
     modalProfile.classList.add("on");
     nameInput.value = state.profile.name || "";
   }
 
-  applyOfflineProgress();
+  if (!readOnly) applyOfflineProgress();
   restoreEndingUI();
 
   startGameLoop();
@@ -118,6 +118,7 @@ function initAfterLoad(fromReset = false) {
     bootRegion = state.regionId;
   setTimeout(() => {
     try {
+      if (!SessionOwner.canTick()) return;
       if (
         state === bootState &&
         state.regionId === bootRegion &&
@@ -147,8 +148,20 @@ document.addEventListener("DOMContentLoaded", () => {
     bindSaveLifecycleEvents();
     ensureSaveTransferUI();
     preloadSignImages();
-    init();
-    PwaRuntime.ready();
+    SessionOwner.start(
+      () => {
+        state = defaultState();
+        init();
+        PwaRuntime.ready();
+      },
+      () => {
+        state = defaultState();
+        load();
+        initAfterLoad(false, { readOnly: true });
+        _saveDirty = false;
+        PwaRuntime.ready();
+      },
+    );
   } catch (e) {
     console.error("boot error", e);
   } finally {
@@ -163,6 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
    Loop watchdog (failsafe)
 -------------------- */
 setInterval(() => {
+  if (!SessionOwner.canTick()) return;
   // if rAF stalled > 2s, restart
   const lastAt = state._lastFrameAt || 0;
   if (lastAt && Date.now() - lastAt > 2200) {
