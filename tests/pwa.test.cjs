@@ -188,6 +188,8 @@ test("Chromium installs the real worker and accepts the Pages-scoped manifest/ic
         () => matchMedia("(display-mode: standalone)").matches,
       );
       assert.equal(evidence.standalone, true);
+      await installedPage.evaluate(() => document.getElementById("splashScreen")?.remove());
+      await shot(installedPage, "standalone");
       await installedPage.close();
       fs.mkdirSync(path.join(results, "verification"), { recursive: true });
       fs.writeFileSync(
@@ -217,6 +219,14 @@ test("online to offline reload runs the full cached shell and exact one-won sett
         releases[0].version,
       );
       assert.deepEqual(await ledger(page), before);
+      const uncached = await page.evaluate(async () => {
+        try {
+          return (await fetch("./not-cached-network-probe")).status;
+        } catch (_) {
+          return "network-unavailable";
+        }
+      });
+      assert.ok([503, "network-unavailable"].includes(uncached));
       assert.equal(await page.evaluate(() => state.money), "9007199254740994");
       assert.ok(
         (await page.locator("#pwaStatus").textContent()).includes("오프라인"),
