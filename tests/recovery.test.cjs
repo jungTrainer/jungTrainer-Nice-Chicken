@@ -500,7 +500,8 @@ for (const [name, viewport] of [
               box.width <= viewport.width &&
               box.y + box.height <= viewport.height + 1,
           );
-          await p.locator("#recoveryImportText").fill("invalid");
+          await p.screenshot({path:path.join(__dirname,"../test-results/screenshots/nice-chicken-imp14-"+name+"-diagnostics.png")});
+        await p.locator("#recoveryImportText").fill("invalid");
           await p.locator("#recoveryImport").tap();
           assert.equal((await raw(p)).primary, "{broken");
           await p.locator("#recoveryImportText").fill("");
