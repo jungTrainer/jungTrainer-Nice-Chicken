@@ -79,7 +79,10 @@ test('archived region sales unlock that region only; no inactive income or pendi
 }));
 
 test('writer story blocks handoff; reader cannot change modes/badges and receives latest completed archive',async()=>game(fixture({campaign:campaign('easy',{changnyeong:record}),totalSales:40000000}),async p=>{
- const b=await p.context().newPage();await b.goto(p.url());await b.evaluate(()=>SessionOwner.ready);assert.equal(await b.evaluate(()=>Campaign.choose('normal')),false);assert.equal(await b.evaluate(()=>Campaign.showRegion('changnyeong')),false);await b.locator('#sessionRequest').tap();await openStory(p);assert.equal(await p.evaluate(()=>SessionOwner.yieldWriter()),false);await p.locator('#completeRegionEnding').tap();await p.keyboard.press('Escape');assert.equal(await p.evaluate(()=>SessionOwner.yieldWriter()),true);await b.waitForFunction(()=>SessionOwner.canMutate(),null,{polling:100});assert.equal(await b.evaluate(()=>state.campaign.regions.changnyeong.badgeAwarded),true);await b.close();
+ const b=await p.context().newPage();await b.goto(p.url());await b.evaluate(()=>SessionOwner.ready);assert.equal(await b.evaluate(()=>Campaign.choose('normal')),false);assert.equal(await b.evaluate(()=>Campaign.showRegion('changnyeong')),false);await b.locator('#sessionRequest').tap();await openStory(p);assert.equal(await p.evaluate(()=>SessionOwner.yieldWriter()),false);await p.locator('#completeRegionEnding').tap();await p.keyboard.press('Escape');
+ // Activate the recipient and finish its reader refresh before testing the ownership transfer.
+ await b.bringToFront();await b.waitForFunction(()=>state.campaign.regions.changnyeong.badgeAwarded,null,{polling:100});
+ assert.equal(await p.evaluate(()=>SessionOwner.yieldWriter()),true);await b.waitForFunction(()=>SessionOwner.canMutate(),null,{polling:100});assert.equal(await b.evaluate(()=>state.campaign.regions.changnyeong.badgeAwarded),true);await b.close();
 }));
 
 test('backup/import/reset retain narrative/paid/receipt, explicit reset clears campaign without restoring old generation',async()=>game(fixture({campaign:campaign('normal',{changnyeong:{...record,seenAt:NOW,badgeAwarded:true}}),coupons:{drink:3,veg:7},offlineReward:{amount:500,seconds:60},endingSeen:true,robotGrandson:true}),async p=>{
