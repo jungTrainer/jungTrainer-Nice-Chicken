@@ -172,6 +172,13 @@ function pwaHarness() {
     );
     try {
       await page.goto(url);
+      await page.waitForFunction(
+        () =>
+          typeof SessionOwner !== "undefined" &&
+          SessionOwner.mode !== "starting",
+        null,
+        { polling: 100, timeout: 20000 },
+      );
       await page.evaluate(() => SessionOwner.ready);
       if (!options.seed)
         await page.evaluate((overrides) => {

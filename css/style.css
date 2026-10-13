@@ -726,3 +726,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 #sessionControls .row { flex-wrap:wrap; }
 #sessionControls button { min-height:44px; white-space:normal; max-width:100%; }
 #sessionBackupText { width:100%; box-sizing:border-box; }
+#recoveryPanel { min-width:0; }
+#recoveryPanel[hidden], #recoveryPanel [hidden] { display:none!important; }
+#recoveryPanel textarea { width:100%; box-sizing:border-box; resize:vertical; margin:8px 0; }
+#recoveryPanel h3 { margin:0 0 12px; }
+#recoveryPanel label { display:block; margin-top:10px; }

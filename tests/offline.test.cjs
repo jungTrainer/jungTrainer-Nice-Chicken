@@ -17,9 +17,11 @@ test("backup recovery and manual import keep pending valuation and paid guards",
       localStorage.setItem("niceChicken_idleServe_vFinal", "{broken");
     });
     await p.reload();
+    p.on("dialog", (d) => d.accept());
+    assert.equal(await p.evaluate(() => SaveRecovery.restore("backup")), true);
+
     assert.equal(await p.evaluate(() => state.offlineReward.amount), 500);
     assert.equal(await p.evaluate(() => state.coupons.veg), 7);
-    p.on("dialog", (d) => d.accept());
     assert.equal(
       await p.evaluate(() => importSaveData(exportSaveData())),
       true,

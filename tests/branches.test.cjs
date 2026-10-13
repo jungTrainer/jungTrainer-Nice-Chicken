@@ -375,6 +375,9 @@ test("legacy and backup saves preserve shared staff values and independent pendi
       localStorage.setItem("niceChicken_idleServe_vFinal", "{broken");
     });
     await p.reload();
+    p.on("dialog", (d) => d.accept());
+    assert.equal(await p.evaluate(() => SaveRecovery.restore("backup")), true);
+
     assert.deepEqual(
       await p.evaluate(() => ({
         staff: state.staffStats,
@@ -577,7 +580,9 @@ test("touch hires and trains the sixth employee with clear shared-income labels"
     );
     assert.match(await p.locator("#upgList").textContent(), /고용은 지점별/);
     assert.match(await p.locator("#upgList").textContent(), /전체 지점 누적/);
-    await p.screenshot({ path: "test-results/screenshots/nice-chicken-imp07-staff-small.png" });
+    await p.screenshot({
+      path: "test-results/screenshots/nice-chicken-imp07-staff-small.png",
+    });
     await p.reload();
     assert.equal(await p.evaluate(() => state.staffStats.grandson.auto), 1);
     assert.equal(await p.evaluate(() => getStaffCount()), 6);
@@ -636,7 +641,9 @@ test("live six-staff serving and delivery stay attributed through map movement",
       assert.equal(r.total, r.menus);
       assert.equal(r.sourcePending, 0);
       assert.equal(r.currentPending, 0);
-      await p.screenshot({ path: "test-results/screenshots/nice-chicken-imp07-live-busan.png" });
+      await p.screenshot({
+        path: "test-results/screenshots/nice-chicken-imp07-live-busan.png",
+      });
       await p.evaluate(() => save(true));
       await p.reload();
       assert.equal(await p.evaluate(() => state.regionId), "busan");

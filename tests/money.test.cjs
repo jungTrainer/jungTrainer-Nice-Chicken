@@ -558,6 +558,11 @@ test("huge backup/export/import/reset preserve pending and paid guards on small 
       });
       await p.reload();
       assert.equal(
+        await p.evaluate(() => SaveRecovery.restore("backup")),
+        true,
+      );
+
+      assert.equal(
         await p.evaluate(() => state.money),
         "10000000000000000000001",
       );
@@ -565,6 +570,7 @@ test("huge backup/export/import/reset preserve pending and paid guards on small 
         await p.evaluate(() => state.offlineReward.amount),
         "10000000000000001",
       );
+      await p.locator("#recoveryClose").tap();
       await p.locator('[data-ui-close="modalOffline"]').tap();
       await p.locator("#openSettings").tap();
       await p.screenshot({

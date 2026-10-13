@@ -1,12 +1,12 @@
 # 수동 검증과 배포 점검표
 
-갱신: 2026-10-12, IMP-09. 설치·실행·진단 명령은 [개발 안내](development.md), 보존할 규칙은 [데이터 규칙](data-ownership.md)과 [실행 계약](runtime-architecture.md)을 따른다. 자동 검사 92개는 Chromium 기준이며 아래 확인란은 수동 실행 기록을 남길 때 체크한다. 실제 사용자 저장은 먼저 백업하고 초기화/가져오기는 별도 테스트 브라우저 프로필에서 수행한다.
+갱신: 2026-10-13, IMP-14. 설치·실행·진단 명령은 [개발 안내](development.md), 보존할 규칙은 [데이터 규칙](data-ownership.md)과 [실행 계약](runtime-architecture.md)을 따른다. 자동 검사 223개는 Chromium 기준이며 아래 확인란은 수동 실행 기록을 남길 때 체크한다. 실제 사용자 저장은 먼저 백업하고 초기화/가져오기는 별도 테스트 브라우저 프로필에서 수행한다.
 
 ## 준비와 기록
 
 - [ ] commit SHA, Node/브라우저 버전, OS·viewport, 검증 시각을 기록했다.
 - [ ] `npm ci`, 고정 Chromium 설치, `npm run doctor`, `npm run check`, `npm test` 또는 공통 `npm run test:ci`가 완료됐다.
-- [ ] 결과가 92개 실행·실패 0·skip 0인지 확인하고, 실패 시 `test-results`와 Actions run URL을 남겼다.
+- [ ] 결과가 223개 실행·실패 0·skip 0인지 확인하고, 실패 시 `test-results`와 Actions run URL을 남겼다.
 - [ ] 저장소 루트에서 `python3 -m http.server 8000 --bind 127.0.0.1`를 실행하고 HTTP와 실제 브라우저를 확인했다. 자동 검사는 자체 서버를 사용한다.
 
 ## 실행과 정산
@@ -47,4 +47,15 @@
 - [ ] PR이 열린 브랜치 push는 select가 중복 checks를 건너뛰고, 해당 PR의 검사는 실행됐다.
 - [ ] main 병합·배포를 위한 별도 승인이 있다. 개발 브랜치 CI 성공만으로 배포를 시작하지 않는다.
 - [ ] 승인 뒤 실제 Pages 배포 SHA·빌드 결과·HTTPS·asset 경로·새 저장/기존 저장·재접속을 확인했다.
-- [ ] Pages는 현재 main 루트 legacy 설정이다. manifest/service worker/PWA 업데이트 검증은 IMP-12의 범위로 기록한다.
+- [ ] Pages는 현재 main 루트 legacy 설정이다. PWA 버전/대기/실패 복구와 여러 창·미수령 중 적용은 현재 규칙으로 검증한다.
+
+## 손상·명시적 복구·다중 창
+
+- [ ] 신규(본/backup/fence 없음)와 둘 다 손상/읽기 거절을 구분했다. 손상 자료가 기본 상태로 덮어써지지 않았다.
+- [ ] 정상 primary만 자동 운영하고 유효 backup은 미리보기다. source/시각/지점/미수령/오류를 보고 원문 내보내기·취소·선택을 실제 입력으로 확인했다.
+- [ ] archive write/primary write 실패에 원본·정상 backup·확정 receipt를 유지했고 재시도에 한 번 commit했다. 백업 쓰기 실패와 본 쓰기 실패 안내를 구분했다.
+- [ ] 초기화 준비/본 저장/삭제 실패를 구분하고 이전 세대 backup을 자동 복원하지 않았다. 권한 복구/외부 변경만으로 운영이 재개되지 않았다.
+- [ ] 정상 writer·reader·복구 중 lock 보유자의 tick/수령/이동/import/reset/PWA/인계 규칙을 검증했다. 새 writer는 최신 성공 저장에서 시작했다.
+- [ ] 실제 SW 오프라인 셸에서 손상 자료를 검사/선택/재접속했고 설치 standalone·대기/실패 업데이트에서 원문/보상을 보존했다.
+- [ ] Firefox/WebKit의 실제 실행 범위/버전·잠금/저장/복구·인계를 기록했다. 클라우드 실행 제한 밖 검사와 실제 iPhone/Android 설치·OS 종료 검증을 구분했다.
+- [ ] 320×568/568×320에서 진단 scroll/원문/가져오기/닫기와 복구 후 미수령·지점 조작을 확인했다.

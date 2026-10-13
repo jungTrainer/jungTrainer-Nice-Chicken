@@ -1,6 +1,6 @@
 # 개발·검사·CI 실행 안내
 
-기준: IMP-09/10/11/12/13, 2026-10-13. 게임은 정적 HTML/CSS/JS이며 일반 실행에는 npm 설치·빌드·백엔드가 필요 없다. 브라우저 검사에는 Node와 Playwright/Chromium을 설치한다. [데이터 규칙](data-ownership.md)과 [실행 계약](runtime-architecture.md)을 함께 따른다.
+기준: IMP-09/10/11/12/13/14, 2026-10-13. 게임은 정적 HTML/CSS/JS이며 일반 실행에는 npm 설치·빌드·백엔드가 필요 없다. 브라우저 검사에는 Node와 Playwright/Chromium을 설치한다. [데이터 규칙](data-ownership.md)과 [실행 계약](runtime-architecture.md)을 함께 따른다.
 
 ## 설치와 브라우저 선택
 
@@ -47,7 +47,7 @@ PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright" \
 npm run test:ci
 ```
 
-현재 앱 JS 21개와 도구/검사 helper CJS 13개, 총 **34개 문법 검사**, **197개 회귀 검사**를 실행한다. 기존 174개 assertion/fixture를 유지하고 동시성/복구 23개를 추가했다. 범위별 재현은 `node --test tests/branches.test.cjs`, `node --test tests/refactor.test.cjs`, `node --test tests/money.test.cjs`, `node --test tests/content.test.cjs` 등을 사용한다. 범위별 통과가 전체 통과를 대신하지 않는다.
+현재 앱 JS 22개와 도구/검사 helper CJS 15개, 총 **37개 문법 검사**, **223개 회귀 검사**를 실행한다. 기존 197개 assertion을 유지하고 손상/복구 26개를 추가했다. 이전 자동 backup 복구 시나리오는 명시적 후보 선택을 거쳐 같은 보존 assertion을 확인한다. 범위별 재현은 `node --test tests/branches.test.cjs`, `node --test tests/refactor.test.cjs`, `node --test tests/money.test.cjs`, `node --test tests/content.test.cjs` 등을 사용한다. 범위별 통과가 전체 통과를 대신하지 않는다.
 
 검사 helper는 각 검사 파일의 HTTP 서버를 임의 포트에 열고 브라우저/context를 정리한다. 자동 검사를 위해 아래 수동 서버를 따로 실행할 필요는 없다. 날짜 fixture·Asia/Seoul·기본 rAF 정지와 필요한 live 검사를 유지한다. Google Fonts 요청은 자동 검사에서 차단하고 기본 폰트를 사용한다.
 
@@ -168,3 +168,21 @@ node scripts/measure-concurrency.cjs
 다중 창 fixture는 실제 Web Locks/LocalStorage/storage 이벤트/서비스워커를 쓴다. 미지원/거절·채널 없음·quota 오류만 해당 case의 capability/스토리지 경로에 합성 실패를 주입한다. Page.crash에서 실제 crash 이벤트를 확인하고 죽은 탭을 닫아 브라우저가 lock을 해제한 뒤 복구한다. 강제 종료 전 미저장 수익은 추측 복원하지 않는다. 작은 화면은 320×568/568×320 실제 tap·백업·인계와 PNG를 남긴다. 설치 창은 CDP PWA.install/standalone launch로 같은 origin 잠금을 확인한다.
 
 async 조건은 bounded loop에서 page.evaluate를 await한다. Playwright 1.62의 waitForFunction에 async predicate를 넣으면 Promise가 먼저 truthy로 판단될 수 있어 대기 워커의 버전/installed/CacheStorage를 실제 값으로 확인해야 한다. 실패 JSON/trace에 release fixture·실제 registration·캐시·요청을 보관한다. Xvfb ENOENT/실행 실패에는 경로·ldd·doctor를 확인하고 skip으로 우회하지 않는다. measure-concurrency는 자체 임시 HTTP/context를 정리하며 합성 이전/이후 JSON을 [검증 폴더](improvements/verification/)에 기록한다.
+
+## 저장 복구와 다른 엔진 검사 (IMP-14)
+
+```bash
+node --test tests/recovery.test.cjs tests/recovery-pwa.test.cjs
+node scripts/measure-recovery.cjs
+node scripts/measure-recovery.cjs /tmp/비교할-정적-트리
+npx playwright install firefox webkit
+PLAYWRIGHT_WEBKIT_LIBRARY_PATH=/workspace/.cache/nice-chicken-webkit/root/usr/lib/x86_64-linux-gnu node scripts/check-browser-support.cjs
+```
+
+measure-recovery는 자체 서버/Chromium context에서 합성 primary/backup과 읽기·쓰기·삭제 오류를 측정한다. baseline/after JSON을 따로 보관한다. support probe는 실제 Firefox/WebKit을 실행해 capability와 손상 중단·reader 차단·명시적 복구·인계를 확인하며 Chromium 223개 집계에 섞지 않는다. 브라우저 미설치/실행 실패는 launch-or-probe-failed, API 미지원은 read-only-verified로 기록하며 무조건 passed가 아니다.
+
+이 Debian 13 클라우드는 Firefox153/Playwright1538, WebKit26.5/2336을 내려받았다. 서명된 trixie apt metadata/패키지로 libgtk-4-1·libgraphene-1.0-0·libharfbuzz-icu0·libmanette-0.2-0·libhyphen0·libgles2·libcairo-script-interpreter2·liblzo2-2를 `/workspace/.cache/nice-chicken-webkit/root`에 추출했다. 시스템 라이브러리를 설치/교체하지 않았다. WebKit vendor wrapper는 LD_LIBRARY_PATH를 다시 설정하므로 해당 minibrowser-gtk/wpe의 sys/lib에 누락 OS 라이브러리만 링크하고 vendor 파일은 유지했다. 설정 초안의 install_script/start_skill에 재현 명령을 저장했고 같은 script의 doctor/check도 실행했다.
+
+Firefox의 Xvfb·쓰기 가능한 XDG cache 및 sandbox 설정은 합성 localhost 프로필 검사에만 적용한다. 기본 workspace-write 실행은 /proc uid/shared-memory 제한으로 Firefox가 시작되지 않았고 WebKit의 wrapper 라이브러리도 진단했다. 자동 검토가 허용한 제한 밖 exec에서 두 엔진의 실제 probe가 통과했다. 이 결과는 제한된 기본 명령/실제 iPhone 설치/전체 회귀가 자동으로 통과한다는 뜻이 아니다. 필요 권한 없이 기본 실행이 실패하면 실패/미검증을 그대로 기록한다. CA/TLS/apt signature 검증을 끄지 않는다.
+
+검사 helper는 SessionOwner의 시작을 20초 내 확인한다. 앱 코드/생성물을 전체 검사 중 수정하면 HTML SRI와 실제 파일이 엇갈릴 수 있으므로 최종 source를 고정한 후 공통 명령을 실행한다. 시작 오류/멈춤을 무한 ready Promise 대기로 숨기지 않는다. 새 복구 case의 읽기/쓰기/삭제 실패만 해당 context에 주입하고 실제 저장·클라이언트 lock·워커와 분리해 기록한다. metadata·원문 보관/초기화 경계는 [복구 정책](save-recovery-policy.md)에 있다.

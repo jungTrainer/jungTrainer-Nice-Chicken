@@ -134,7 +134,7 @@ function init() {
   deferRecoveryWrites = true;
   try {
     load();
-    initAfterLoad(false);
+    initAfterLoad(false, { readOnly: SaveRecovery.blocked });
   } finally {
     deferRecoveryWrites = false;
   }

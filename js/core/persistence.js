@@ -24,24 +24,45 @@ function save(force = false) {
   if (deferRecoveryWrites) return true;
   try {
     const prevSave = localStorage.getItem(SAVE_KEY);
-    if (!SessionOwner.verify(prevSave)) return false;
+    if (
+      !SessionOwner.verify(prevSave) ||
+      !SaveRecovery.checkBeforeWrite(prevSave)
+    )
+      return false;
     BranchManager.saveCurrent();
     state.lastSeenAt = Date.now();
-    if (prevSave) {
+    if (prevSave && SaveRecovery.inspect().primary.eligible) {
       try {
         localStorage.setItem(SAVE_BACKUP_KEY, prevSave);
       } catch (backupError) {
         console.warn("[save] backup failed", backupError);
+        SaveRecovery.note(
+          "백업 저장 실패. 본 저장 결과를 확인해 주세요. " +
+            backupError.message,
+        );
       }
     }
-    const nextSave = JSON.stringify(state);
-    localStorage.setItem(SAVE_KEY, nextSave);
+    const priorMeta = state._saveRecovery;
+    state._saveRecovery = SaveRecovery.metadata();
+    let nextSave;
+    try {
+      nextSave = JSON.stringify(state);
+      localStorage.setItem(SAVE_KEY, nextSave);
+    } catch (error) {
+      if (priorMeta === undefined) delete state._saveRecovery;
+      else state._saveRecovery = priorMeta;
+      throw error;
+    }
     SessionOwner.committed(nextSave);
     _saveDirty = false;
     _lastSaveWriteAt = Date.now();
+    SaveRecovery.committed();
     return true;
   } catch (e) {
     console.error("[save] failed", e);
+    SaveRecovery.note(
+      "본 저장 실패. 이 창의 진행과 dirty를 유지합니다. " + e.message,
+    );
     return false;
   }
 }
@@ -65,27 +86,7 @@ function bindSaveLifecycleEvents() {
 }
 
 function readSavePayload() {
-  const primaryRaw = localStorage.getItem(SAVE_KEY);
-  const backupRaw = localStorage.getItem(SAVE_BACKUP_KEY);
-
-  if (primaryRaw) {
-    try {
-      return { data: JSON.parse(primaryRaw), source: "primary" };
-    } catch (e) {
-      console.error("[load] primary save corrupted", e);
-    }
-  }
-
-  if (backupRaw) {
-    try {
-      console.warn("[load] restored from backup save");
-      return { data: JSON.parse(backupRaw), source: "backup" };
-    } catch (e) {
-      console.error("[load] backup save corrupted", e);
-    }
-  }
-
-  return null;
+  return SaveRecovery.read();
 }
 
 function exportSaveData() {
@@ -124,11 +125,7 @@ function exportSaveData() {
 }
 
 function isLikelyNiceChickenState(data) {
-  if (!data || typeof data !== "object") return false;
-  const hasMoney = isMoney(data.money);
-  const hasLevel = typeof data.level === "number";
-  const hasCoreObjects = !!data.upgrades && !!data.research && !!data.menuStats;
-  return hasMoney && hasLevel && hasCoreObjects;
+  return !SaveRecovery.validate(data);
 }
 
 function importSaveData(raw) {
@@ -147,6 +144,13 @@ function importSaveData(raw) {
     return false;
   }
 
+  if (
+    parsed?.app === "niceChicken" &&
+    (parsed.type !== "manual-save-export" || parsed.version !== 1)
+  ) {
+    showToast("지원하지 않는 백업 파일입니다.");
+    return false;
+  }
   const imported =
     parsed && parsed.app === "niceChicken" && parsed.data
       ? parsed.data
@@ -185,8 +189,8 @@ function importSaveData(raw) {
   return true;
 }
 
-function load() {
-  const payload = readSavePayload();
+function load(selected = null) {
+  const payload = selected || readSavePayload();
   if (!payload || !payload.data) return false;
   try {
     const parsed = payload.data;
@@ -386,6 +390,14 @@ function replaceGameState(next) {
 }
 function resetGame() {
   if (!SessionOwner.canMutate()) return false;
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!SessionOwner.verify(raw) || !SaveRecovery.prepareReset(raw))
+      return false;
+  } catch (error) {
+    SaveRecovery.note("초기화 준비 실패. 진행을 유지합니다. " + error.message);
+    return false;
+  }
   if (!replaceGameState(defaultState())) {
     showToast("저장 실패. 초기화하지 않았습니다.");
     return false;
@@ -395,6 +407,9 @@ function resetGame() {
     localStorage.removeItem(SAVE_BACKUP_KEY);
   } catch (error) {
     console.warn("[reset] backup cleanup failed", error);
+    SaveRecovery.note(
+      "초기화는 저장됐지만 옛 백업 삭제에 실패했습니다. 이전 세대 복원은 차단합니다.",
+    );
   }
   stopBGM();
   initAfterLoad(true);
