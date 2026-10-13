@@ -1,0 +1,348 @@
+{
+  "browser": "151.0.7922.34",
+  "synthetic": true,
+  "initial": {
+    "daily": [
+      {
+        "id": "d_serve",
+        "type": "serve",
+        "title": "정확 서빙 6",
+        "target": 6,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "d_earn",
+        "type": "earn",
+        "title": "오늘 매출 40000",
+        "target": 40000,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "d_rep",
+        "type": "rep",
+        "title": "평점 4.2 이상",
+        "target": 1,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "d_tip",
+        "type": "tip",
+        "title": "팁 받기 3",
+        "target": 3,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "d_menu",
+        "type": "menu",
+        "title": "메뉴 판매 2",
+        "target": 2,
+        "current": 0,
+        "done": false,
+        "menuId": "fried"
+      },
+      {
+        "id": "d_upg",
+        "type": "upg",
+        "title": "업그레이드 구매 2",
+        "target": 2,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "d_sign",
+        "type": "sign",
+        "title": "간판 강화 1",
+        "target": 1,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "d_expand",
+        "type": "expand",
+        "title": "가게 확장 1",
+        "target": 1,
+        "current": 0,
+        "done": false
+      }
+    ],
+    "weekly": [
+      {
+        "id": "w_stamp",
+        "type": "stamp",
+        "title": "일간 올클 7",
+        "target": 7,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "w_sales",
+        "type": "sales",
+        "title": "주간 매출 900000",
+        "target": 900000,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "w_rep",
+        "type": "rep",
+        "title": "평점 4.4 이상",
+        "target": 1,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "w_tip",
+        "type": "tip",
+        "title": "팁 받기 20",
+        "target": 20,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "w_menu",
+        "type": "menu",
+        "title": "메뉴 판매 30",
+        "target": 30,
+        "current": 0,
+        "done": false,
+        "menuId": "fried"
+      },
+      {
+        "id": "w_upg",
+        "type": "upg",
+        "title": "업그레이드 구매 15",
+        "target": 15,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "w_sign",
+        "type": "sign",
+        "title": "간판 강화 3",
+        "target": 3,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "w_expand",
+        "type": "expand",
+        "title": "가게 확장 3",
+        "target": 3,
+        "current": 0,
+        "done": false
+      }
+    ]
+  },
+  "unavailable": {
+    "goalMenu": "buldak",
+    "pool": [
+      "fried"
+    ]
+  },
+  "max": {
+    "daily": [
+      {
+        "id": "d_serve",
+        "type": "serve",
+        "title": "정확 서빙 6",
+        "target": 6,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "d_earn",
+        "type": "earn",
+        "title": "오늘 매출 40000",
+        "target": 40000,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "d_rep",
+        "type": "rep",
+        "title": "평점 4.2 이상",
+        "target": 1,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "d_tip",
+        "type": "tip",
+        "title": "팁 받기 3",
+        "target": 3,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "d_menu",
+        "type": "menu",
+        "title": "메뉴 판매 2",
+        "target": 2,
+        "current": 0,
+        "done": false,
+        "menuId": "fried"
+      },
+      {
+        "id": "d_upg",
+        "type": "serve",
+        "title": "반복 서빙 6회",
+        "target": 6,
+        "current": 0,
+        "done": false,
+        "originalType": "upg",
+        "serveBaseline": 0,
+        "carried": 0
+      },
+      {
+        "id": "d_sign",
+        "type": "serve",
+        "title": "반복 서빙 6회",
+        "target": 6,
+        "current": 0,
+        "done": false,
+        "originalType": "sign",
+        "serveBaseline": 0,
+        "carried": 0
+      },
+      {
+        "id": "d_expand",
+        "type": "serve",
+        "title": "반복 서빙 6회",
+        "target": 6,
+        "current": 0,
+        "done": false,
+        "originalType": "expand",
+        "serveBaseline": 0,
+        "carried": 0
+      }
+    ],
+    "weekly": [
+      {
+        "id": "w_stamp",
+        "type": "stamp",
+        "title": "일간 올클 7",
+        "target": 7,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "w_sales",
+        "type": "sales",
+        "title": "주간 매출 900000",
+        "target": 900000,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "w_rep",
+        "type": "rep",
+        "title": "평점 4.4 이상",
+        "target": 1,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "w_tip",
+        "type": "tip",
+        "title": "팁 받기 20",
+        "target": 20,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "w_menu",
+        "type": "menu",
+        "title": "메뉴 판매 30",
+        "target": 30,
+        "current": 0,
+        "done": false,
+        "menuId": "fried"
+      },
+      {
+        "id": "w_upg",
+        "type": "serve",
+        "title": "반복 서빙 30회",
+        "target": 30,
+        "current": 0,
+        "done": false,
+        "originalType": "upg",
+        "serveBaseline": 0,
+        "carried": 0
+      },
+      {
+        "id": "w_sign",
+        "type": "serve",
+        "title": "반복 서빙 6회",
+        "target": 6,
+        "current": 0,
+        "done": false,
+        "originalType": "sign",
+        "serveBaseline": 0,
+        "carried": 0
+      },
+      {
+        "id": "w_expand",
+        "type": "serve",
+        "title": "반복 서빙 6회",
+        "target": 6,
+        "current": 0,
+        "done": false,
+        "originalType": "expand",
+        "serveBaseline": 0,
+        "carried": 0
+      }
+    ]
+  },
+  "manualOpportunity": {
+    "prefundedAutoProgress": 10,
+    "tickSeconds": 0.05,
+    "customerAfterTick": "leaving",
+    "actorProgress": 1
+  },
+  "visitorSupplyModel": {
+    "baseOrdersPerMin": 15,
+    "baseAutoServesPerMin": 0.8,
+    "maxOrdersPerMin": 65.28,
+    "maxAutoServesPerMin": 31.140799999999995,
+    "fiveOrderSupplySeconds": 20,
+    "assumption": "order-supply estimate; not measured human play time; scene travel/patience/competing auto excluded"
+  },
+  "exchange": [
+    {
+      "money": 50000000,
+      "coupons": 1
+    },
+    {
+      "money": "10000000000000000000000",
+      "coupons": 200000000000000
+    }
+  ],
+  "issuance": {
+    "dailyVeg": 1,
+    "dailyScope": "per branch per day",
+    "weekStamp": 7,
+    "certificateDrink": 1,
+    "exchangeWon": 50000000
+  },
+  "logLimit": 80,
+  "couponPrimaryFailure": {
+    "memory": 4,
+    "disk": 5,
+    "log": [
+      {
+        "ts": 1791806400000,
+        "at": "2026. 10. 13. 오후 1:34:58",
+        "type": "veg",
+        "qty": 1,
+        "source": "coupon_use",
+        "note": "쿠폰함 로컬 사용 기록 (서버 승인 없음)"
+      }
+    ],
+    "dirty": true
+  },
+  "errors": []
+}

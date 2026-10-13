@@ -47,6 +47,9 @@ function harness() {
       base = await page.evaluate(() => {
         state = defaultState();
         sanitizeState();
+        state.missions.dailyList = missionList(false, { legacy: true });
+        state.missions.weeklyList = missionList(true, { legacy: true });
+        state.missions.dailyPolicy = state.missions.weeklyPolicy = 1;
         state.soundOn = false;
         state.profile.name = "검증";
         return JSON.parse(JSON.stringify(state));

@@ -1,0 +1,317 @@
+{
+  "browser": "151.0.7922.34",
+  "synthetic": true,
+  "initial": {
+    "daily": [
+      {
+        "id": "d_serve",
+        "type": "serve",
+        "title": "정확 서빙 6",
+        "target": 6,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "d_earn",
+        "type": "earn",
+        "title": "오늘 매출 40000",
+        "target": 40000,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "d_rep",
+        "type": "rep",
+        "title": "평점 4.2 이상",
+        "target": 1,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "d_tip",
+        "type": "tip",
+        "title": "팁 받기 3",
+        "target": 3,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "d_menu",
+        "type": "menu",
+        "title": "현재 운영 메뉴 판매 2",
+        "target": 2,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "d_service",
+        "type": "service",
+        "title": "추가 서빙 12",
+        "target": 12,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "d_orders",
+        "type": "orders",
+        "title": "전체 메뉴 판매 6",
+        "target": 6,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "d_active",
+        "type": "active",
+        "title": "접속 운영(초) 60",
+        "target": 60,
+        "current": 0,
+        "done": false
+      }
+    ],
+    "weekly": [
+      {
+        "id": "w_stamp",
+        "type": "stamp",
+        "title": "일간 올클 7",
+        "target": 7,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "w_sales",
+        "type": "sales",
+        "title": "주간 매출 900000",
+        "target": 900000,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "w_rep",
+        "type": "rep",
+        "title": "평점 4.4 이상",
+        "target": 1,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "w_tip",
+        "type": "tip",
+        "title": "팁 받기 20",
+        "target": 20,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "w_menu",
+        "type": "menu",
+        "title": "현재 운영 메뉴 판매 30",
+        "target": 30,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "w_service",
+        "type": "service",
+        "title": "추가 서빙 60",
+        "target": 60,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "w_orders",
+        "type": "orders",
+        "title": "전체 메뉴 판매 60",
+        "target": 60,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "w_active",
+        "type": "active",
+        "title": "접속 운영(초) 300",
+        "target": 300,
+        "current": 0,
+        "done": false
+      }
+    ]
+  },
+  "unavailable": {
+    "goalMenu": "any",
+    "pool": [
+      "fried"
+    ]
+  },
+  "max": {
+    "daily": [
+      {
+        "id": "d_serve",
+        "type": "serve",
+        "title": "정확 서빙 6",
+        "target": 6,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "d_earn",
+        "type": "earn",
+        "title": "오늘 매출 40000",
+        "target": 40000,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "d_rep",
+        "type": "rep",
+        "title": "평점 4.2 이상",
+        "target": 1,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "d_tip",
+        "type": "tip",
+        "title": "팁 받기 3",
+        "target": 3,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "d_menu",
+        "type": "menu",
+        "title": "현재 운영 메뉴 판매 2",
+        "target": 2,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "d_service",
+        "type": "service",
+        "title": "추가 서빙 12",
+        "target": 12,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "d_orders",
+        "type": "orders",
+        "title": "전체 메뉴 판매 6",
+        "target": 6,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "d_active",
+        "type": "active",
+        "title": "접속 운영(초) 60",
+        "target": 60,
+        "current": 0,
+        "done": false
+      }
+    ],
+    "weekly": [
+      {
+        "id": "w_stamp",
+        "type": "stamp",
+        "title": "일간 올클 7",
+        "target": 7,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "w_sales",
+        "type": "sales",
+        "title": "주간 매출 900000",
+        "target": 900000,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "w_rep",
+        "type": "rep",
+        "title": "평점 4.4 이상",
+        "target": 1,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "w_tip",
+        "type": "tip",
+        "title": "팁 받기 20",
+        "target": 20,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "w_menu",
+        "type": "menu",
+        "title": "현재 운영 메뉴 판매 30",
+        "target": 30,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "w_service",
+        "type": "service",
+        "title": "추가 서빙 60",
+        "target": 60,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "w_orders",
+        "type": "orders",
+        "title": "전체 메뉴 판매 60",
+        "target": 60,
+        "current": 0,
+        "done": false
+      },
+      {
+        "id": "w_active",
+        "type": "active",
+        "title": "접속 운영(초) 300",
+        "target": 300,
+        "current": 0,
+        "done": false
+      }
+    ]
+  },
+  "manualOpportunity": {
+    "prefundedAutoProgress": 10,
+    "tickSeconds": 0.05,
+    "customerAfterTick": "leaving",
+    "actorProgress": 1
+  },
+  "visitorSupplyModel": {
+    "baseOrdersPerMin": 15,
+    "baseAutoServesPerMin": 0.8,
+    "maxOrdersPerMin": 65.28,
+    "maxAutoServesPerMin": 31.140799999999995,
+    "fiveOrderSupplySeconds": 20,
+    "assumption": "order-supply estimate; not measured human play time; scene travel/patience/competing auto excluded"
+  },
+  "exchange": [
+    {
+      "money": 50000000,
+      "coupons": 1
+    },
+    {
+      "money": "10000000000000000000000",
+      "coupons": 200000000000000
+    }
+  ],
+  "issuance": {
+    "dailyVeg": 1,
+    "dailyScope": "per branch per day",
+    "weekStamp": 7,
+    "certificateDrink": 1,
+    "exchangeWon": 50000000
+  },
+  "logLimit": 80,
+  "couponPrimaryFailure": {
+    "memory": 5,
+    "disk": 5,
+    "log": [],
+    "dirty": false
+  },
+  "errors": []
+}

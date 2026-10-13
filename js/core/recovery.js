@@ -139,6 +139,25 @@ const SaveRecovery = (() => {
         )
           return "미션 목표/완료 상태가 올바르지 않습니다.";
     }
+    if (data.serviceVisit !== undefined && data.serviceVisit !== null) {
+      const v = data.serviceVisit;
+      if (!object(v) || typeof v.id !== "string" || !v.id || v.id.length > 80 ||
+          typeof v.table !== "string" || !v.table.trim() || v.table.length > 20 ||
+          ![v.startedAt, v.drinkConfirmedAt].every(x => Number.isFinite(x) && x >= 0) ||
+          !Number.isSafeInteger(v.vegConfirmed) || v.vegConfirmed < 0)
+        return "방문 서비스 기록이 올바르지 않습니다.";
+    }
+    if (data.missions?.visitChallenge !== undefined && data.missions.visitChallenge !== null) {
+      const c = data.missions.visitChallenge;
+      if (!object(c) || typeof c.id !== "string" || !c.id || c.id.length > 80 ||
+          ![c.startedAt, c.completedAt].every(x => Number.isFinite(x) && x >= 0) ||
+          !Number.isSafeInteger(c.serves) || c.serves < 0 || c.serves > 5 ||
+          (c.completedAt > 0 && c.serves !== 5))
+        return "방문 게임 도전 기록이 올바르지 않습니다.";
+    }
+    for (const key of ["dailyPolicy", "weeklyPolicy"])
+      if (data.missions?.[key] !== undefined && ![1, 2].includes(data.missions[key]))
+        return "지원하지 않는 반복 미션 정책입니다.";
     const meta = data._saveRecovery;
     if (
       meta !== undefined &&

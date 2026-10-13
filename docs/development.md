@@ -47,7 +47,7 @@ PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright" \
 npm run test:ci
 ```
 
-현재 앱 JS 22개와 도구/검사 helper CJS 15개, 총 **37개 문법 검사**, **223개 회귀 검사**를 실행한다. 기존 197개 assertion을 유지하고 손상/복구 26개를 추가했다. 이전 자동 backup 복구 시나리오는 명시적 후보 선택을 거쳐 같은 보존 assertion을 확인한다. 범위별 재현은 `node --test tests/branches.test.cjs`, `node --test tests/refactor.test.cjs`, `node --test tests/money.test.cjs`, `node --test tests/content.test.cjs` 등을 사용한다. 범위별 통과가 전체 통과를 대신하지 않는다.
+현재 앱 JS 22개와 도구/검사 helper CJS 16개, 총 **38개 문법 검사**, **254개 회귀 검사**를 실행한다. 기존 197개 assertion을 유지하고 손상/복구 26개를 추가했다. 이전 자동 backup 복구 시나리오는 명시적 후보 선택을 거쳐 같은 보존 assertion을 확인한다. 범위별 재현은 `node --test tests/branches.test.cjs`, `node --test tests/refactor.test.cjs`, `node --test tests/money.test.cjs`, `node --test tests/content.test.cjs` 등을 사용한다. 범위별 통과가 전체 통과를 대신하지 않는다.
 
 검사 helper는 각 검사 파일의 HTTP 서버를 임의 포트에 열고 브라우저/context를 정리한다. 자동 검사를 위해 아래 수동 서버를 따로 실행할 필요는 없다. 날짜 fixture·Asia/Seoul·기본 rAF 정지와 필요한 live 검사를 유지한다. Google Fonts 요청은 자동 검사에서 차단하고 기본 폰트를 사용한다.
 
@@ -186,3 +186,15 @@ measure-recovery는 자체 서버/Chromium context에서 합성 primary/backup�
 Firefox의 Xvfb·쓰기 가능한 XDG cache 및 sandbox 설정은 합성 localhost 프로필 검사에만 적용한다. 기본 workspace-write 실행은 /proc uid/shared-memory 제한으로 Firefox가 시작되지 않았고 WebKit의 wrapper 라이브러리도 진단했다. 자동 검토가 허용한 제한 밖 exec에서 두 엔진의 실제 probe가 통과했다. 이 결과는 제한된 기본 명령/실제 iPhone 설치/전체 회귀가 자동으로 통과한다는 뜻이 아니다. 필요 권한 없이 기본 실행이 실패하면 실패/미검증을 그대로 기록한다. CA/TLS/apt signature 검증을 끄지 않는다.
 
 검사 helper는 SessionOwner의 시작을 20초 내 확인한다. 앱 코드/생성물을 전체 검사 중 수정하면 HTML SRI와 실제 파일이 엇갈릴 수 있으므로 최종 source를 고정한 후 공통 명령을 실행한다. 시작 오류/멈춤을 무한 ready Promise 대기로 숨기지 않는다. 새 복구 case의 읽기/쓰기/삭제 실패만 해당 context에 주입하고 실제 저장·클라이언트 lock·워커와 분리해 기록한다. metadata·원문 보관/초기화 경계는 [복구 정책](save-recovery-policy.md)에 있다.
+
+
+## 반복 미션·방문 서비스 (IMP-15)
+
+```bash
+PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright" node scripts/measure-missions.cjs
+PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright" node --test tests/repeat-missions.test.cjs tests/repeat-pwa.test.cjs
+```
+
+measure는 별도 localhost 합성 상태에서 실제 v1/v2 목표·메뉴 후보·최대 성장 자동 입력 기회·주문 공급 시간 추정·큰 금액 교환·사용 저장 실패를 출력한다. 원/자동속도/가격 모델은 변경하지 않는다. 출력의 20초는 초반 15주문/분에서 5주문의 공급 추정으로 사람의 플레이 시간 측정이 아니다.
+
+기존 223 회귀 fixture의 현재 미션 기간은 명시적인 v1 snapshot으로 유지하며 원래 assertion은 삭제하지 않았다. 신규 31개는 다음 v2 기간·최대 자동 성장·paid/재시도/복구·실제 터치와 직원 전후 화면·기기 방문·지점/인계·SW 오프라인/대기/실패/설치 창을 검사한다. 실제 매장 혜택/운영 데이터는 사용하지 않는다. 재로딩 검사는 새 문서 DOMContentLoaded 후에 결과를 읽는다. 새 스크린샷/trace는 기존 결과 경로에 남기고 완료 보고서의 공개 자료는 합성 fixture만 복사한다.
