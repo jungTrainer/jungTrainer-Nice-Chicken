@@ -158,6 +158,20 @@ const SaveRecovery = (() => {
     for (const key of ["dailyPolicy", "weeklyPolicy"])
       if (data.missions?.[key] !== undefined && ![1, 2].includes(data.missions[key]))
         return "지원하지 않는 반복 미션 정책입니다.";
+    if (data.campaign !== undefined) {
+      const c = data.campaign;
+      if (!object(c) || c.version !== 1 || !Object.hasOwn(CAMPAIGN_MODES, c.mode) ||
+          !Number.isFinite(c.selectedAt) || c.selectedAt < 0 || !object(c.regions))
+        return "지원하지 않거나 잘못된 운영 모드입니다.";
+      for (const [id, r] of Object.entries(c.regions)) {
+        if (!REGION_MAP[id]) continue; // unknown extension regions remain opaque
+        if (!object(r) || ![r.unlockedAt, r.seenAt].every(x => Number.isFinite(x) && x >= 0) ||
+            typeof r.badgeAwarded !== "boolean" || (r.seenAt > 0 && !r.unlockedAt) ||
+            (r.badgeAwarded && !r.seenAt) ||
+            (r.goalAtUnlock !== undefined && (!isMoney(r.goalAtUnlock) || moneyCompare(r.goalAtUnlock, 0) < 0)))
+          return "지역 엔딩 해금/완료 기록이 올바르지 않습니다.";
+      }
+    }
     const meta = data._saveRecovery;
     if (
       meta !== undefined &&

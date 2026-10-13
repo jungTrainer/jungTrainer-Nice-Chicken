@@ -1,11 +1,11 @@
 /* IMP-12: generated release block; update with npm run pwa:build. */
 // BEGIN PWA RELEASE
 const RELEASE = {
-  "version": "imp12-47d05dbdd6690fb6cce8",
+  "version": "imp12-c16d98d7ce115b44772b",
   "required": [
     {
       "path": "index.html",
-      "hash": "714790971eb008d5b4a6f4240401339c970b2efe1229e24f25ce847dab5f508c",
+      "hash": "914a131ed230eb441b475e88bfddc5368d89f32a55371208cf5536eba936802d",
       "mime": "text/html"
     },
     {
@@ -25,22 +25,22 @@ const RELEASE = {
     },
     {
       "path": "js/core/config.js",
-      "hash": "1ad35b942e49347d92eea6ea48d99cbbcfd8885dd7ea800662bad1aa7f835236",
+      "hash": "51563f7e567ecf40c67d6b0cb6e0d2d7ea45cc6178a7212a5931cf3f3835a5b3",
       "mime": "javascript"
     },
     {
       "path": "js/core/content.js",
-      "hash": "be0b552e97e7a8128514e465075229f2604d19c3b11ae45a121d9ef012e7ab9b",
+      "hash": "494adc36e480abb6b46471552e2229ba04fd1b5310b6cda92a98765d874f8557",
       "mime": "javascript"
     },
     {
       "path": "js/core/state.js",
-      "hash": "f7ca44504552f2e9260f4ba289daae98823249a28ffc19dc90a51b2e5140cc11",
+      "hash": "99b4c0a525d6f42a0936be344d8f0baab170e56a653cd202d2038688c904c317",
       "mime": "javascript"
     },
     {
       "path": "js/core/recovery.js",
-      "hash": "540e3e1bb8ad1a31e1f7f577c60cd9df01796ed223eafe01e99b4366316b9ae8",
+      "hash": "52ccaa7f618a61528803baf516555b21469443e16a265c9773830fce478dad32",
       "mime": "javascript"
     },
     {
@@ -50,7 +50,7 @@ const RELEASE = {
     },
     {
       "path": "js/core/persistence.js",
-      "hash": "c2ca818c61a584b51a6c329fbac76c4e15385f26898a636083ea45d0f5cfd15c",
+      "hash": "239459996d6c7e994a5bd490c0e21c80fae330aeea385ae22f04702f117c5df2",
       "mime": "javascript"
     },
     {
@@ -80,12 +80,12 @@ const RELEASE = {
     },
     {
       "path": "js/core/ending.js",
-      "hash": "4c736562ab3c0a45e1234e3a684a6b0ad6e8c642d0c1fea644679d8afc5a4cf3",
+      "hash": "78ad7a762d37fa352a19c613b010099057da782140187086e881ad81ef6d12d0",
       "mime": "javascript"
     },
     {
       "path": "js/core/branches.js",
-      "hash": "9d0badd8ebd023fcf5ad3c467965c00314c1c5f0f5878a13f3b73cc59003addc",
+      "hash": "9b63d60d046fe1dd9e7380da01b81e7a42a1e975ac4a92107b6fc85752e96b76",
       "mime": "javascript"
     },
     {
@@ -95,7 +95,7 @@ const RELEASE = {
     },
     {
       "path": "js/main.js",
-      "hash": "05d43f71cb8786ed05fb11e7bfec8b8abd675fc04b7a718b3874dbff2746ea0b",
+      "hash": "f1a52a834eccbd3298ac943605eaeba7c2d659de0cce26a846b2ace19cf380d2",
       "mime": "javascript"
     },
     {
@@ -110,7 +110,7 @@ const RELEASE = {
     },
     {
       "path": "js/core/boot.js",
-      "hash": "cb2dcfbcca5df9c4bf3da41377927ee0e3611fd6501446d9ae9d94c63d06b4dc",
+      "hash": "e444d8c732cf111e19d0a8f090f17316a7d640ced53c6aa35974d771cf9b8e03",
       "mime": "javascript"
     },
     {

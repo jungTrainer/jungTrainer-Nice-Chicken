@@ -4,6 +4,7 @@ const defaultState = () => ({
   moneyEncoding: MONEY_ENCODING,
 
   profile: { name: "" },
+  campaign: { version: 1, mode: "legacy", selectedAt: 0, regions: {} },
   endingUnlocked: false,
   endingPrompted: false,
   endingSeen: false,

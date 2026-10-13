@@ -1,6 +1,6 @@
 # 본사·지점 데이터 규칙
 
-적용일: 2026-10-13, IMP-07/IMP-08/IMP-10/IMP-11. 저장 키와 버전은 유지한다.
+적용일: 2026-10-13, IMP-07/IMP-08/IMP-10/IMP-11/IMP-15/IMP-16. 저장 키와 버전은 유지한다.
 
 ## 본사 공용
 
@@ -102,3 +102,9 @@ manifest·콘텐츠 버전·셸/선택 미디어 캐시는 저장 데이터 밖�
 `serviceVisit`(id/table/startedAt/drinkConfirmedAt/vegConfirmed)는 본사 공용 기기 기록이다. 지점 이동해도 현재 테이블 방문은 같다. 게임 도전·달력 전환은 새 식사가 아니다. 명시적 새 방문만 새 id를 만들며 사용 로그를 삭제하지 않는다. 같은 현재 방문의 음료 재사용을 막고, 공개 PIN/다른 기기·실제 테이블 횟수와 구분한다. veg는 기존 통합 쿠폰이며 제공량/추가 한도를 임의 분리하지 않는다.
 
 새 사용/교환 로그의 before/after/table/visitId는 정확한 쿠폰 수량/방문을 기록하며 기존 로그의 없는 값을 추측 채우지 않는다. 기존 최근80개 보존 규칙/명시적 기록 정리는 유지하고 기록 정리만으로 현재 음료 제공 상태가 풀리지 않는다. 사용/교환/새 방문/기록 정리는 primary commit 실패 때 영향을 준 필드와 이전 dirty를 복원한다. 실패 동안 다른 게임 진행을 과거 snapshot으로 덮어쓰지 않는다. 복구 후보/세대와 원문 보관은 IMP-14 그대로다. [기간·서비스 정책](missions-service-policy.md)을 따른다.
+
+## IMP-16 모드·지역 엔딩
+
+`campaign={version:1,mode,selectedAt,regions}`는 본사 공용이다. 구 저장의 누락은 `legacy` 기본값이며 이지/노말은 확인과 primary 저장 성공으로만 선택한다. `regions[id]`의 unlockedAt/seenAt/badgeAwarded와 modeAtUnlock/goalAtUnlock은 당시 해금과 첫 완료의 기록이다. 이미 해금/완료한 기록은 상위 모드 전환이나 달력/지점 이동으로 취소·재지급하지 않는다. 기념 칭호는 표시 효과이며 돈/실물 쿠폰/새 수익 배율이 없다.
+
+해금 조건은 해당 지점의 totalSales+offlineSalesTotal이다. 활성 지점은 state, 비활성 지점은 보관 data를 읽으며 root 보유금/다른 지점 수익/확정 미수령을 지역 매출에 더하지 않는다. 이미 열린 지점·paid/가족 1회 효과·서비스 방문과 로그를 보존한다. mode 선택은 미래 지점 오픈 비용과 목표만 바꾸며 기존 receipt의 금액/메뉴/기간을 재계산하지 않는다. 지역 이야기 view/token/uiRows는 저장 밖이다. 성공 import/reset만 view를 취소하고 새 writer는 최신 저장의 archive를 상속한다. 실패는 원래 모드/기록/dirty를 유지한다. 지역/모드 extension은 원문대로 유지하며 알려지지 않은 버전·잘못된 완료 기록은 복구 검사에서 중단한다. [정책/측정](campaign-policy.md)을 따른다.

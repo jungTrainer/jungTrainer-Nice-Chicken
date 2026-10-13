@@ -1,10 +1,10 @@
 # 실행 구조와 상태 변경 계약
 
-적용: IMP-08/10/11/12/13/14, 2026-10-13. 데이터 범위는 [본사·지점 규칙](data-ownership.md), 금액은 [성장·금액 정책](economy-policy.md)을 따른다. 모듈 분리는 [IMP-08 보고서](improvements/IMP-08-state-modules.md)에 기록했다.
+적용: IMP-08/10/11/12/13/14/15/16, 2026-10-13. 데이터 범위는 [본사·지점 규칙](data-ownership.md), 금액은 [성장·금액 정책](economy-policy.md)을 따른다. 모듈 분리는 [IMP-08 보고서](improvements/IMP-08-state-modules.md)에 기록했다.
 
 ## 정의와 시작 순서
 
-`index.html`은 아래 순서로 클래식 스크립트를 불러온다. 함수는 한 곳에서 정의하며 설치 과정에서 교체하거나 감싸지 않는다. 기존 브라우저 API를 보존하기 위해 ES module로 전환하지 않았다. 전체 전역 함수 246개와 최상위 변수의 소유 파일은 [전역 목록](runtime-globals.json)에 기록했다. 목록에는 UI 콜백 안의 지역 함수와 객체 메서드는 제외했다.
+`index.html`은 아래 순서로 클래식 스크립트를 불러온다. 함수는 한 곳에서 정의하며 설치 과정에서 교체하거나 감싸지 않는다. 기존 브라우저 API를 보존하기 위해 ES module로 전환하지 않았다. 전체 전역 함수 247개와 최상위 변수의 소유 파일은 [전역 목록](runtime-globals.json)에 기록했다. 목록에는 UI 콜백 안의 지역 함수와 객체 메서드는 제외했다.
 
 | 순서 | 파일 | 소유하는 정의·데이터 | 호출 시 의존성 |
 | --- | --- | --- | --- |
@@ -50,7 +50,7 @@
 
 ## 변경 시 검증
 
-`npm run doctor`, `npm run check`, `npm test`를 실행한다. 현재 검증 목표는 기존 197개와 저장 복구 26개, 총 223개다. IMP-09부터 고정 Playwright Chromium을 기본으로 사용하고 문법 검사는 앱 JS 22개와 도구/helper CJS 15개, 총 37개를 포함한다. 설치/정의 중복 검사는 `tests/refactor.test.cjs`, 지점/저장 원본의 규칙은 `tests/branches.test.cjs`에 있다. 브라우저 검사는 자체 HTTP 서버와 Chromium을 열고 종료한다.
+`npm run doctor`, `npm run check`, `npm test`를 실행한다. 현재 검증 목표는 기존 254개와 모드/지역 엔딩 26개, 총 280개다. IMP-09부터 고정 Playwright Chromium을 기본으로 사용하고 문법 검사는 앱 JS 22개와 도구/helper CJS 17개, 총 39개를 포함한다. 설치/정의 중복 검사는 `tests/refactor.test.cjs`, 지점/저장 원본의 규칙은 `tests/branches.test.cjs`에 있다. 브라우저 검사는 자체 HTTP 서버와 Chromium을 열고 종료한다.
 
 측정은 `node scripts/measure-runtime.cjs [비교할 정적 웹앱 디렉터리]`를 사용한다. 게임 API를 계측하는 래퍼는 이 별도 브라우저 측정 페이지에만 존재하며 앱에 설치되지 않는다. 연산 수와 표시 정확도를 먼저 비교하고 실행 시간은 동일 기기/부하에서 참고한다. CI의 시간 성능 임계값으로 사용하지 않는다.
 
@@ -110,3 +110,11 @@ boot의 load는 정상 본 저장/진짜 신규만 운영하고, backup 미리�
 방문 게임 시작 실패는 기존 도전/dirty를 유지한다. 표시 캐시는 저장 데이터가 아니며 열린 미션/쿠폰 화면에서 내용이 달라질 때만 textContent를 쓴다. 로그와 테이블은 HTML로 삽입하지 않는다. HTML scripts21/필수셸26과 전역 함수246개는 유지하고 두 namespace binding만 추가했다. 앱22/CJS16, 총38개 문법 검사다. 기존223과 신규31 회귀를 검증한다. v2 목표/방문 백업은 IMP-15 이후 셸에서 사용한다. 구 셸은 새 목표/음료 확인을 이해하지 못하므로 downgrade 후보로 안내하지 않는다.
 
 열린 미션 카드의 진행/완료는 updateUI에서 기존 DOM의 표시 값만 갱신한다. row별 DOM 참조를 캐시하고 동일 텍스트 write/카드 재생성을 하지 않아 포커스·스크롤을 유지한다. 기존 지정 메뉴 기간에는 실제 메뉴 이름과 운영 선택 안내를 표시한다. 새 대기 타이머/저장·목표 전환을 조회에서 실행하지 않는다.
+
+## IMP-16 지역 이야기와 모드 commit
+
+config의 CAMPAIGN_MODES/REGION_ENDINGS와 content의 Campaign 정의는 기존 설치 순서를 따른다. content는 state보다 먼저 정의하지만 정책/상태 접근은 boot 이후 메서드 호출에서만 한다. defaultState/load는 campaign 누락의 legacy 기본만 보완하고 recovery가 구조/지원 버전을 검사한다. sanitize가 완료/칭호를 추측하지 않는다. writer boot의 오프라인 처리 뒤와 기존 tick의 저장 앞에 Campaign.check가 실제 기록 매출 해금을 확인해 dirty(false)를 표시한다. reader는 해금/dirty/지급을 실행하지 않는다. 표시 함수는 상태를 바꾸지 않고 6개 row를 재사용한다.
+
+getRegionUnlockCost 하나가 정확한 모드 비용을 반환한다. main unlockBranch/BranchManager.unlockNext는 BranchManager.unlock 단일 commit에 위임하며 표시/활성 조건도 같은 비용/이전 지역 조건을 사용한다. 실패는 보유금/오픈/지점/mapSelected/시각/dirty를 복구하고 재차 차감하지 않는다. Campaign.choose/complete도 영향을 준 필드만 보관하고 save 성공 뒤 적용을 알린다. 틱/연구/배달 캐시/정산 호출을 감싸거나 새 타이머를 설치하지 않았다.
+
+지역 dim은 기존 ui 입력 owner 아래이며 완료는 root/region/epoch token을 검사한다. show/닫기/재생은 보상/seen을 변경하지 않고 첫 성공 완료만 기념을 기록한다. 열린 지역 이야기는 PWA/인계/가족 자동 팝업보다 우선한다. 성공 import/reset/새 작성자 init에서는 view를 닫는다. 기존 가족 endingUnlocked/endingSeen/robotGrandson은 지우지 않고 새 후보만 모드 금액+6지역 조건으로 비교한다. 현재 scripts21/셸26/앱22와247개 함수, CJS17/문법39·회귀280이다. 구 셸로 새 campaign 백업을 내려서 운영하지 않는다.

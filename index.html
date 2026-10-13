@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>나이스치킨 타이쿤 (방치+서빙)</title>
-  <meta name="app-version" content="imp12-47d05dbdd6690fb6cce8" />
+  <meta name="app-version" content="imp12-c16d98d7ce115b44772b" />
   <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#FF9F1C">
   <link rel="apple-touch-icon" href="./icon-192.png">
@@ -260,6 +260,13 @@ document.addEventListener('DOMContentLoaded', ()=>{
   <div class="dim" id="modalSettings">
     <div class="modal" style="text-align:left;">
       <h3 style="text-align:center;">⚙️ 설정</h3>
+      <div class="card" style="flex-direction:column;align-items:stretch;">
+        <h4>운영 모드 · 지역 이야기</h4>
+        <p id="campaignStatus" role="status" tabindex="-1" style="white-space:pre-line;overflow-wrap:anywhere;"></p>
+        <div class="row"><button class="btn gray" id="chooseMode-legacy">기존 운영</button><button class="btn alt" id="chooseMode-easy">이지</button><button class="btn alt" id="chooseMode-normal">노말</button></div>
+        <p class="note">능동 운영 모델 목표: 이지 첫5~10분/전체1~2시간, 노말 첫15~25분/전체5~8시간. 실제 사람/자동/앱 부재 시간은 다릅니다. 선택은 진행 초기화/보상 수령이 아닙니다. 지역 기념은 실물 쿠폰 미발급입니다.</p>
+        <div id="campaignRegions"></div>
+      </div>
 
       <div class="pwa-settings">
         <p id="sessionWriterStatus" role="status"></p>
@@ -299,6 +306,15 @@ document.addEventListener('DOMContentLoaded', ()=>{
         <button class="btn" id="closeSettings">닫기</button>
       </div>
       <div class="note">※ 과금/로그인 없이 로컬 저장(LocalStorage)만 사용합니다. 쿠폰과 혜택 내역은 기기 기록이며 서버 검증/매장 승인이 없습니다.</div>
+    </div>
+  </div>
+
+  <div class="dim" id="modalRegionEnding">
+    <div class="modal" style="text-align:left;">
+      <h3 id="regionEndingTitle">지역 이야기</h3>
+      <p id="regionEndingText" style="white-space:pre-line;overflow-wrap:anywhere;line-height:1.6;"></p>
+      <p id="regionEndingReward" class="note"></p>
+      <div class="row"><button class="btn alt" id="completeRegionEnding">읽음 · 기념 완료 저장</button><button class="btn gray" id="closeRegionEnding">닫기 (완료 아님)</button></div>
     </div>
   </div>
 
@@ -401,24 +417,24 @@ document.addEventListener('DOMContentLoaded', ()=>{
 <script src="./js/core/money.js" integrity="sha256-8l6tHA96EN28kfa3khY1So19NYExVZRDoAA1t8zuAOw=" crossorigin="anonymous"></script>
 <script src="./js/core/utils.js" integrity="sha256-rMb8jDUvlaPmk9VhbNRBrAuP4uAL90TbDOj4Yj9JlcU=" crossorigin="anonymous"></script>
 <script src="./js/core/audio.js" integrity="sha256-sHFMyhuEgs2lhttc2pyqwwqcgZ9XW0Xozmq7W5xIW24=" crossorigin="anonymous"></script>
-<script src="./js/core/config.js" integrity="sha256-GtNblC5JNH2S7qbqSNmcu8/YiF3X6oAGYrrRqn+DUjY=" crossorigin="anonymous"></script>
-<script src="./js/core/content.js" integrity="sha256-vgtVLpfnqBKFFORlB1Ip8mBNGcOxGuRaEh2e8BLnq5s=" crossorigin="anonymous"></script>
-<script src="./js/core/state.js" integrity="sha256-98pEUEVS8ukmD0uiidqumIIySaKP/BnckKUbLlFAzBE=" crossorigin="anonymous"></script>
-<script src="./js/core/recovery.js" integrity="sha256-VA4+G7itGjHh9/V3xgzZ3wF5btIj6v4B6ZtDZjFrmug=" crossorigin="anonymous"></script>
+<script src="./js/core/config.js" integrity="sha256-UVY/flZ+z0DGfWsMtuDS1+pFzGF4pyEqWTHPPzg1pbM=" crossorigin="anonymous"></script>
+<script src="./js/core/content.js" integrity="sha256-SUrcNuSAq7a0ZHFVLiIpugT9G1MQts2pKph2XYdPhVc=" crossorigin="anonymous"></script>
+<script src="./js/core/state.js" integrity="sha256-mbTApSXW9CoJNr40TY8LqrFw5WplPNIC0gOGiMkEwxc=" crossorigin="anonymous"></script>
+<script src="./js/core/recovery.js" integrity="sha256-Usyqf2GKYVKIA7r1FlVbIUaUQ+FqJlyXc4MPzkeNrTI=" crossorigin="anonymous"></script>
 <script src="./js/core/session.js" integrity="sha256-7JJOAPnHMzRAVT/BtEtnQzGMM/qAglWj5UXwMuIyE5c=" crossorigin="anonymous"></script>
-<script src="./js/core/persistence.js" integrity="sha256-wsqBjGGlhLUabDKfusdsThU4XyaJimNgg+pF0PXP0Vw=" crossorigin="anonymous"></script>
+<script src="./js/core/persistence.js" integrity="sha256-I5RZmW1sfplKW9SQwOIcgPrjMK7qOFriLwRwLxF8XfI=" crossorigin="anonymous"></script>
 <script src="./js/core/growth.js" integrity="sha256-dXstgJOKZAc0UWZBubduFeF7oTmTP0HnP7fWUX7sG9E=" crossorigin="anonymous"></script>
 <script src="./js/core/research.js" integrity="sha256-hZm8YgGc0JcOgwAOYzWkYwxYhJRlGTmMxYkf0KINf80=" crossorigin="anonymous"></script>
 <script src="./js/core/offline.js" integrity="sha256-1UXckpVuU/s8Zbg1dWLlGRw43iRxmFXHVW8BFDwI4bA=" crossorigin="anonymous"></script>
 <script src="./js/core/missions.js" integrity="sha256-fWDXFtwOLLpFVF/OKwCLt+f3b7/pldue78Ekb5y/s7o=" crossorigin="anonymous"></script>
 <script src="./js/core/economy.js" integrity="sha256-vfKgSdhC97njkD0+KXkdbJEK2CqvD0TmNl/2pQz1PzU=" crossorigin="anonymous"></script>
-<script src="./js/core/ending.js" integrity="sha256-THNlYqs8CkXhI046aEprCtboxkLQwf6mRGedivxaTPM=" crossorigin="anonymous"></script>
-<script src="./js/core/branches.js" integrity="sha256-nQut2OvQI/z1rTxGeWXAAxTBxfD1h4oT87c8xZADrdw=" crossorigin="anonymous"></script>
+<script src="./js/core/ending.js" integrity="sha256-eK16di03+jUqGcYTsBAJkFfaeCFAGHCG6IGtge9tEtA=" crossorigin="anonymous"></script>
+<script src="./js/core/branches.js" integrity="sha256-m2PWDQRv4d2ec4DaAbgeekKh6XWsSpIQe2/IV1Lpa3Y=" crossorigin="anonymous"></script>
 <script src="./js/core/services.js" integrity="sha256-sRqkDRQQ26XEep04VSahqeeM5sQAPMRIxHZRME3MgTM=" crossorigin="anonymous"></script>
-<script src="./js/main.js" integrity="sha256-BdQ/ccuHhu0F+xHnv+yLir1nX8BLenGLOHTb/ydG6gs=" crossorigin="anonymous"></script>
+<script src="./js/main.js" integrity="sha256-8aUqg07MvTKYrJQ2Berrp8LWWd4MziaoRrKs4ZzzgNI=" crossorigin="anonymous"></script>
 <script src="./js/core/ui.js" integrity="sha256-5vEwaddSoFIlIe8Znfar4dL+DOKGv63Gm7O7OjLYJ8E=" crossorigin="anonymous"></script>
 <script src="./js/core/pwa.js" integrity="sha256-V9kIrz8dBh/RilvFaqD3slfNp0vxcEHZ4Hyb3EsvSgc=" crossorigin="anonymous"></script>
-<script src="./js/core/boot.js" integrity="sha256-yy3PvMpd+cS/PaQTd5J+4ONhH9ZQFEbZrp2Uxj0GtNw=" crossorigin="anonymous"></script>
+<script src="./js/core/boot.js" integrity="sha256-5ETYxzLPER4Z0KjwkPFzFqfWQM7VPGqjWXTXcc+bjgM=" crossorigin="anonymous"></script>
 
 <!-- [NEW] Management Report Modal -->
 <div class="dim" id="modalStats">

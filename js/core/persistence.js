@@ -179,6 +179,7 @@ function importSaveData(raw) {
     return false;
   }
   cancelEndingRuntime();
+  Campaign.restore();
   restoreEndingUI();
   renderOfflineReward();
   buildMenuGrid();
@@ -203,6 +204,7 @@ function load(selected = null) {
 
     // deep patches
     state.profile = { ...defaultState().profile, ...(parsed.profile || {}) };
+    state.campaign = { ...defaultState().campaign, ...(parsed.campaign || {}) };
     state.coupons = { ...defaultState().coupons, ...(parsed.coupons || {}) };
     state.cert = { ...defaultState().cert, ...(parsed.cert || {}) };
 
@@ -243,6 +245,7 @@ function sanitizeState() {
   // shallow merge critical top-level objects
   if (!state || typeof state !== "object") state = d;
   if (!state.profile) state.profile = d.profile;
+  if (!state.campaign) state.campaign = d.campaign;
   if (typeof state.soundOn !== "boolean") state.soundOn = d.soundOn;
 
   // money/rep/level

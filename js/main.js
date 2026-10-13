@@ -323,6 +323,15 @@ function initDOMRefs() {
     document.getElementById("showStaffCoupon").focus();
   });
 
+  for (const mode of Object.keys(CAMPAIGN_MODES))
+    document.getElementById("chooseMode-" + mode)?.addEventListener("click", () => Campaign.choose(mode));
+  document.getElementById("campaignRegions")?.addEventListener("click", event => {
+    const button = event.target.closest("[data-campaign-region]");
+    if (button) Campaign.showRegion(button.dataset.campaignRegion);
+  });
+  document.getElementById("completeRegionEnding")?.addEventListener("click", () => Campaign.complete());
+  document.getElementById("closeRegionEnding")?.addEventListener("click", () => Campaign.close());
+
   // PIN 입력 관련
   if (pinCancelBtn) {
     pinCancelBtn.addEventListener("click", () => {
@@ -632,6 +641,7 @@ safeOn(document.getElementById("openSettings"), "click", () => {
   unlockAudioOnce();
   startBGM();
   modalSettings?.classList.add("on");
+  Campaign.render();
 });
 
 /* --------------------
@@ -748,38 +758,7 @@ function moveBranch(id) {
   closeExpansionModal();
 }
 function unlockBranch(id) {
-  // Only allow unlocking in order (previous region must be unlocked)
-  const idx = REGIONS.findIndex((r) => r.id === id);
-  if (idx < 0) return;
-  if (state.regionUnlocked && state.regionUnlocked[id]) {
-    showToast("이미 오픈한 지역입니다!");
-    return;
-  }
-  const prev = REGIONS[idx - 1];
-  if (prev && !(state.regionUnlocked && state.regionUnlocked[prev.id])) {
-    showToast("이전 지역을 먼저 해금하세요!");
-    return;
-  }
-  const loc = REGIONS[idx];
-  const need = loc.unlockCost || 0;
-  if (moneyCompare(state.money, need) < 0) {
-    showToast("자금이 부족합니다!");
-    sfxWrong();
-    return;
-  }
-  unlockAudioOnce();
-  startBGM();
-  state.money = moneySub(state.money, need);
-  state.regionUnlocked = state.regionUnlocked || {};
-  state.regionUnlocked[id] = true;
-
-  BranchManager.ensure(id); // allocate branch slot
-  markStateChanged("main");
-  save(true);
-  updateUI();
-  renderMapUI();
-  showToast(`${loc.name} 오픈을 축하합니다! 🎉`);
-  sfxConfirm();
+  return BranchManager.unlock(id);
 }
 
 function renderExpansionCards() {
@@ -815,8 +794,8 @@ function renderExpansionCards() {
       btnHtml = `<button class="btn alt loc-btn" data-action="move-branch" data-region-id="${loc.id}" type="button">이동하기 🚀</button>`;
     } else {
       if (isNext) {
-        const canAfford = moneyCompare(state.money, loc.unlockCost || 0) >= 0;
-        const costText = fmtWon(loc.unlockCost || 0);
+        const canAfford = Campaign.canUnlockRegion(loc.id) && moneyCompare(state.money, getRegionUnlockCost(loc.id)) >= 0;
+        const costText = fmtWon(getRegionUnlockCost(loc.id));
         btnHtml = `<button class="btn loc-btn" ${canAfford ? "" : "disabled"} data-action="unlock-branch" data-region-id="${loc.id}" type="button">${costText} 오픈 🔓</button>`;
       } else {
         btnHtml = `<button class="btn gray loc-btn" disabled>이전 지역 필요 🔒</button>`;
@@ -4034,7 +4013,7 @@ function renderMapUI() {
     if (unlocked) {
       right.textContent = `x${r.priceMul.toFixed(1)}`;
     } else {
-      right.textContent = `해금 ${fmtCompact(r.unlockCost || 0)}`;
+      right.textContent = `해금 ${fmtCompact(getRegionUnlockCost(r.id))}`;
     }
 
     node.appendChild(left);
@@ -4052,7 +4031,10 @@ function renderMapUI() {
     btnGo.style.opacity = btnGo.disabled ? 0.6 : 1;
   }
   if (btnUn) {
-    btnUn.disabled = !nextLocked || curId === next.id;
+    const cost = getRegionUnlockCost(next.id);
+    btnUn.disabled = !nextLocked || curId === next.id || !Campaign.canUnlockRegion(next.id) || moneyCompare(state.money, cost) < 0;
+    btnUn.textContent = curId === next.id ? "마지막 지역" : `${fmtWon(cost)} 해금`;
+    btnUn.title = moneyExactText(cost);
     btnUn.style.opacity = btnUn.disabled ? 0.6 : 1;
   }
 
@@ -4060,7 +4042,7 @@ function renderMapUI() {
     if (curId === REGIONS[REGIONS.length - 1].id) {
       hint.textContent = "최종 지역에 도달했습니다. 🚀";
     } else {
-      hint.textContent = `다음 해금: ${next.name} (비용 ${fmtCompact(next.unlockCost || 0)})`;
+      hint.textContent = `다음 해금: ${next.name} (비용 ${fmtCompact(getRegionUnlockCost(next.id))})`;
     }
   }
 }
@@ -4144,6 +4126,7 @@ function updateUI() {
 
     updateEconomyUI();
     renderManagementContent();
+    Campaign.render();
     RepeatMissions.render();
     if (modalCoupons?.classList.contains("on")) BenefitService.render();
 
@@ -4189,6 +4172,7 @@ function updateStatsUI() {
 
     renderMenuStats();
     renderManagementContent();
+    Campaign.render();
     RepeatMissions.render();
     if (modalCoupons?.classList.contains("on")) BenefitService.render();
 
@@ -4269,6 +4253,7 @@ function tick(dt) {
     } catch (e) {
       console.error("research error", e);
     }
+    Campaign.check();
     checkEndingCondition();
 
     state._saveAcc += dt;
