@@ -1,0 +1,162 @@
+{
+  "root": "/tmp/nice-chicken-imp16-baseline",
+  "mode": "legacy",
+  "channel": "offline",
+  "proposal": null,
+  "browser": "151.0.7922.34",
+  "precision": {
+    "start": 9007199254740992,
+    "after": "9007199254740993",
+    "sales": 1
+  },
+  "overflowCost": "212327440198757385209141381034011712365420004659578469309484539461138900502177251747813461684380702347618533365123495563189243429042814537783922303393120463038520864192812956414265302903489566772805262156598625268856606212261057914862248685034067896269065135976201455933709020444998156345497675138361048034960267",
+  "thresholds": [
+    {
+      "level": 1,
+      "required": "0"
+    },
+    {
+      "level": 10,
+      "required": "6500000"
+    },
+    {
+      "level": 100,
+      "required": "50000000000"
+    },
+    {
+      "level": 500,
+      "required": "135720880833400602"
+    },
+    {
+      "level": 999,
+      "required": "10000000000000000000000"
+    }
+  ],
+  "endingTarget": "10000000000000000000000",
+  "checkpoints": [
+    {
+      "region": "changnyeong",
+      "avgPrice": 44921218133.333336,
+      "servedPerMin": 62.61455999999999,
+      "deliveryPerMin": 100,
+      "incomePerMin": 2953358423486.822,
+      "nextUnlockMinutes": 0.016929878744947092,
+      "endingYearsFromZero": 6442.115199751557
+    },
+    {
+      "region": "busan",
+      "avgPrice": 2246060906666.6665,
+      "servedPerMin": 62.61455999999999,
+      "deliveryPerMin": 100,
+      "incomePerMin": 147667921174341.1,
+      "nextUnlockMinutes": 0.13543902995957674,
+      "endingYearsFromZero": 128.84230399503116
+    },
+    {
+      "region": "seoul",
+      "avgPrice": 89842436266666.67,
+      "servedPerMin": 62.61455999999999,
+      "deliveryPerMin": 100,
+      "incomePerMin": 5906716846973644,
+      "nextUnlockMinutes": 1.692987874494709,
+      "endingYearsFromZero": 3.221057599875778
+    },
+    {
+      "region": "japan",
+      "avgPrice": 2246060906666666.8,
+      "servedPerMin": 62.61455999999999,
+      "deliveryPerMin": 100,
+      "incomePerMin": 147667921174341120,
+      "nextUnlockMinutes": 3.3859757489894178,
+      "endingYearsFromZero": 0.12884230399503113
+    },
+    {
+      "region": "usa",
+      "avgPrice": 89842436266666670,
+      "servedPerMin": 62.61455999999999,
+      "deliveryPerMin": 100,
+      "incomePerMin": 5906716846973644000,
+      "nextUnlockMinutes": 3.3859757489894187,
+      "endingYearsFromZero": 0.0032210575998757787
+    },
+    {
+      "region": "mars",
+      "avgPrice": 4492121813333333500,
+      "servedPerMin": 62.61455999999999,
+      "deliveryPerMin": 100,
+      "incomePerMin": 295335842348682250000,
+      "nextUnlockMinutes": 0.06771951497978836,
+      "endingYearsFromZero": 0.00006442115199751557
+    }
+  ],
+  "model": {
+    "channel": "offline",
+    "assumptions": {
+      "integration": "Number approximation; actual settlement uses integer-won APIs",
+      "manual": "perfect player fills remaining arrivals; no walking/patience/crowd loss",
+      "offline": "8h return/claim schedule, no purchases/research starts while absent, old completed effects used for receipt",
+      "purchase": "same greedy marginal income/cost, up to 40 per return/minute",
+      "clock": "minute-based model; not a human play-time guarantee",
+      "offlineMaxHours": 8
+    },
+    "firstRegionEndingMinute": null,
+    "chapters": [],
+    "horizonMinutes": 43200,
+    "endingMinute": null,
+    "milestones": [
+      {
+        "region": "busan",
+        "minute": 1920
+      },
+      {
+        "region": "seoul",
+        "minute": 3840
+      },
+      {
+        "region": "japan",
+        "minute": 9120
+      },
+      {
+        "region": "usa",
+        "minute": 16320
+      },
+      {
+        "region": "mars",
+        "minute": 22080
+      }
+    ],
+    "levels": [
+      {
+        "level": 10,
+        "minute": 480
+      },
+      {
+        "level": 135,
+        "minute": 1920
+      },
+      {
+        "level": 503,
+        "minute": 12000
+      }
+    ],
+    "finalRegion": "mars",
+    "finalMoney": "7.716620368072868e+21",
+    "finalLevel": 986,
+    "finalRate": {
+      "avgPrice": 11653200000000000,
+      "servedPerMin": 45.73989999999999,
+      "deliveryPerMin": 0,
+      "incomePerMin": 559667012813999900
+    }
+  },
+  "actualTenMinutes": {
+    "seed": 12345,
+    "stepSeconds": 0.1,
+    "simulatedMinutes": 10,
+    "serveCount": 703,
+    "deliveryCount": 1000,
+    "onlineCount": 2,
+    "earned": "11438834002598400000000",
+    "perMinute": 1.14388340025984e+21
+  }
+}
