@@ -306,7 +306,7 @@ async function useCoupon(type) {
     sfxWrong();
     return;
   }
-  if (!confirm("쿠폰을 사용 처리할까요?\nPIN CODE 입력이 필요합니다.")) {
+  if (!confirm("기기 내부 쿠폰 사용 기록을 남길까요?\n공개 로컬 PIN 확인이며 서버/매장 승인이 아닙니다.")) {
     return;
   }
   const ok = await askPIN();
@@ -321,7 +321,7 @@ async function useCoupon(type) {
     type,
     qty: 1,
     source: "coupon_use",
-    note: "쿠폰함에서 사용 처리",
+    note: "쿠폰함 로컬 사용 기록 (서버 승인 없음)",
   });
   showToast("✅ 사용되었습니다.");
   sfxConfirm();

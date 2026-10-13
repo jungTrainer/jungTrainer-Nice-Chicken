@@ -5,7 +5,8 @@
     "check": "node scripts/check-js.cjs",
     "test": "node --test tests/*.test.cjs",
     "doctor": "node scripts/check-environment.cjs",
-    "test:ci": "bash scripts/ci-checks.sh"
+    "test:ci": "bash scripts/ci-checks.sh",
+    "pwa:build": "node scripts/build-pwa.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"

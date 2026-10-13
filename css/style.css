@@ -714,3 +714,9 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .management-choice:disabled{opacity:.6;cursor:default;}
 .management-choice:focus-visible{outline:3px solid #146a98;outline-offset:2px;}
 .management-story{border-top:1px solid #e8dfd5;margin-top:12px;padding-top:8px;}
+/* IMP-12 uses the existing settings scroll/focus surface. */
+.pwa-settings { min-width:0; border:1px solid #e3d5bc; border-radius:12px; padding:12px; margin:12px 0; }
+.pwa-settings h4 { margin:0; }
+.pwa-settings p { overflow-wrap:anywhere; }
+.pwa-settings .row { flex-wrap:wrap; }
+.pwa-settings button { min-height:44px; white-space:normal; max-width:100%; }
