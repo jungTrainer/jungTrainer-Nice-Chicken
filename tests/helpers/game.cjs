@@ -78,17 +78,63 @@ function harness() {
     });
     const currentCase = ++caseNumber;
     await context.addInitScript(
-      ({ data, now, key, live }) => {
+      ({ data, now, key, live, rawSeed, storageFailure }) => {
         window.testNow = Number(sessionStorage.getItem("testNow")) || now;
         Date.now = () => window.testNow;
         if (!live) {
           requestAnimationFrame = () => 1;
           cancelAnimationFrame = () => {};
         }
-        if (data && !localStorage.getItem(key))
-          localStorage.setItem(key, JSON.stringify(data));
+        const get = Storage.prototype.getItem,
+          set = Storage.prototype.setItem,
+          remove = Storage.prototype.removeItem;
+        if (rawSeed && !get.call(localStorage, "_imp14_test_seeded")) {
+          for (const [suffix, raw] of Object.entries(rawSeed))
+            if (raw !== null) set.call(localStorage, key + suffix, raw);
+          set.call(localStorage, "_imp14_test_seeded", "1");
+        } else if (!rawSeed && data && !get.call(localStorage, key))
+          set.call(localStorage, key, JSON.stringify(data));
+        window.recoveryFailure = storageFailure || {};
+        window.recoveryTestStorage = { get, set, remove };
+        if (storageFailure) {
+          Storage.prototype.getItem = function (k) {
+            if (
+              window.recoveryFailure.read &&
+              [key, key + "_backup", key + "_resetFence"].includes(k)
+            )
+              throw Error("synthetic read denial");
+            return get.call(this, k);
+          };
+          Storage.prototype.setItem = function (k, v) {
+            const targets = {
+              primary: key,
+              backup: key + "_backup",
+              fence: key + "_resetFence",
+              archive: key + "_recoveryArchive",
+            };
+            if (
+              Object.entries(targets).some(
+                ([n, target]) => window.recoveryFailure[n] && k === target,
+              )
+            )
+              throw Error("synthetic " + k + " quota");
+            return set.call(this, k, v);
+          };
+          Storage.prototype.removeItem = function (k) {
+            if (window.recoveryFailure.delete && k === key + "_backup")
+              throw Error("synthetic delete denial");
+            return remove.call(this, k);
+          };
+        }
       },
-      { data, now: NOW, key: KEY, live: options.live || false },
+      {
+        data,
+        now: NOW,
+        key: KEY,
+        live: options.live || false,
+        rawSeed: options.rawSeed,
+        storageFailure: options.storageFailure,
+      },
     );
     const page = await context.newPage(),
       errors = [],
@@ -101,6 +147,13 @@ function harness() {
     await page.route("https://fonts.googleapis.com/**", (r) => r.abort());
     try {
       await page.goto(url);
+      await page.waitForFunction(
+        () =>
+          typeof SessionOwner !== "undefined" &&
+          SessionOwner.mode !== "starting",
+        null,
+        { polling: 100, timeout: 20000 },
+      );
       await page.evaluate(() => SessionOwner.ready);
       await page.evaluate(() =>
         document.getElementById("splashScreen")?.remove(),

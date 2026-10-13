@@ -51,6 +51,7 @@ const PwaRuntime = (() => {
         : "브라우저 메뉴의 앱 설치/홈 화면 추가를 사용하세요. HTTPS 또는 localhost가 필요합니다.";
   }
   function safeReason() {
+    if (SaveRecovery.busy) return "저장 진단/복구 작업을 마친 뒤 적용하세요.";
     if (!SessionOwner.canMutate())
       return "운영 창에서만 새 버전을 적용할 수 있습니다.";
     if (!bootReady || deferRecoveryWrites)

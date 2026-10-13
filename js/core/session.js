@@ -37,13 +37,16 @@ const SessionOwner = (() => {
     }
   }
   const el = (name) => document.getElementById(name);
-  const canMutate = () => held && mode === "writer";
+  const canMutate = () => held && mode === "writer" && SaveRecovery.canOperate;
   function render() {
     if (!el("sessionControls")) return;
     document.getElementById("app").inert = !canMutate();
-    el("sessionControls").hidden = canMutate() && !requested;
-    el("sessionStatus").textContent = message;
-    el("sessionRequest").hidden = canMutate();
+    el("sessionControls").hidden =
+      canMutate() && !requested && !SaveRecovery.visible;
+    el("sessionStatus").textContent = SaveRecovery.blocked
+      ? "저장 복구가 필요합니다. 원문을 보관하고 후보를 선택하세요."
+      : message;
+    el("sessionRequest").hidden = held;
     el("sessionRequest").disabled =
       acquiring || mode === "unsupported" || mode === "conflict";
     el("sessionYield").hidden = !canMutate();
@@ -52,6 +55,7 @@ const SessionOwner = (() => {
     el("sessionWriterStatus").textContent = canMutate()
       ? "이 창에서 운영 중입니다."
       : "읽기 전용입니다. 다른 창의 진행을 변경하지 않습니다.";
+    SaveRecovery.render();
   }
   function cancelInputs() {
     if (typeof pinResolver === "function") {
@@ -65,7 +69,8 @@ const SessionOwner = (() => {
     if (typeof cancelEndingRuntime === "function") cancelEndingRuntime();
   }
   function viewLatest() {
-    if (canMutate() || mode === "conflict" || !initializeReader) return;
+    if ((held && mode === "writer") || mode === "conflict" || !initializeReader)
+      return;
     try {
       initializeReader();
       cancelInputs(); // Reader controls remain usable; no blocked receipt/PIN overlay.
@@ -99,6 +104,8 @@ const SessionOwner = (() => {
   }
   function safeReason() {
     if (!canMutate()) return "현재 운영 창에서만 넘길 수 있습니다.";
+    if (SaveRecovery.busy)
+      return "저장 진단/복구 작업을 마치고 닫은 뒤 넘겨주세요.";
     if (PwaRuntime.applying) return "앱 업데이트가 끝난 뒤 넘겨주세요.";
     if (endingPhase !== "idle" || endingEls().popup.style.display === "flex")
       return "엔딩을 마치거나 닫은 뒤 넘겨주세요.";
@@ -177,7 +184,11 @@ const SessionOwner = (() => {
               releaseLock = done;
             });
             try {
-              expected = localStorage.getItem(key);
+              try {
+                expected = localStorage.getItem(key);
+              } catch (_) {
+                expected = undefined;
+              }
               initializeWriter();
               message = "이 창에서 운영 중입니다. 다른 창은 읽기 전용입니다.";
               send("owner");
@@ -326,7 +337,15 @@ const SessionOwner = (() => {
       acquire();
   });
   window.addEventListener("storage", (event) => {
+    if (event.key === key + "_resetFence") {
+      SaveRecovery.refresh();
+      return;
+    }
     if (event.key !== key && event.key !== null) return;
+    if (held && mode === "writer" && SaveRecovery.blocked) {
+      SaveRecovery.refresh();
+      return;
+    }
     if (canMutate()) {
       try {
         verify(localStorage.getItem(key));
@@ -391,6 +410,17 @@ const SessionOwner = (() => {
     request,
     yieldWriter,
     canMutate,
+    ownsLock: () => held,
+    refresh: render,
+    recoveryAccess(raw) {
+      if (!held || !["writer", "conflict"].includes(mode)) return false;
+      if (localStorage.getItem(key) !== raw) return false;
+      mode = "writer";
+      expected = raw;
+      epoch++;
+      cancelInputs();
+      return true;
+    },
     verify,
     committed,
     observed(raw) {

@@ -1,11 +1,11 @@
 /* IMP-12: generated release block; update with npm run pwa:build. */
 // BEGIN PWA RELEASE
 const RELEASE = {
-  "version": "imp12-6a9b5bcf6a988785adc2",
+  "version": "imp12-4d94e3e3805a2b229738",
   "required": [
     {
       "path": "index.html",
-      "hash": "1a696295c86a125ece5c0f8df16a68183c952608e39a19e12de920347e91c30d",
+      "hash": "0763e01b2304ca80619a673aba0bfdaf8f37fbaa06eb4f500877003a08cff673",
       "mime": "text/html"
     },
     {
@@ -39,13 +39,18 @@ const RELEASE = {
       "mime": "javascript"
     },
     {
+      "path": "js/core/recovery.js",
+      "hash": "fdaec689ea1aa6ab438ec2cee8bcce4537755ef19f498557f70dfc30e6262156",
+      "mime": "javascript"
+    },
+    {
       "path": "js/core/session.js",
-      "hash": "cb9fc8f70b3d6304b18e6008723d8e04467994b5af3bb47d6a755a8fed66abd4",
+      "hash": "ec924e00f9c7333440553fc1b44b6743318c33fa808255a3e545f032e2321397",
       "mime": "javascript"
     },
     {
       "path": "js/core/persistence.js",
-      "hash": "bf7f9fdccec6756d167d915653b1851657f070adad8f551c5da76b457c832048",
+      "hash": "c2ca818c61a584b51a6c329fbac76c4e15385f26898a636083ea45d0f5cfd15c",
       "mime": "javascript"
     },
     {
@@ -100,17 +105,17 @@ const RELEASE = {
     },
     {
       "path": "js/core/pwa.js",
-      "hash": "f8945118d8a7790f534c7b000aeb0fa7d8dae233489378e486e81a443fc9d2dc",
+      "hash": "57d908af3f1d061fd18a5bc56aa0f7b257cda74bf17041d9e07c9bdc4b2f4a07",
       "mime": "javascript"
     },
     {
       "path": "js/core/boot.js",
-      "hash": "7d427dd67b28e1326ddfb84c97596c6698332aade28e6e68b626174b9f9de889",
+      "hash": "cb2dcfbcca5df9c4bf3da41377927ee0e3611fd6501446d9ae9d94c63d06b4dc",
       "mime": "javascript"
     },
     {
       "path": "css/style.css",
-      "hash": "5959df95e84e848b037fe8f32c634a90191a7db0ed70d832b6acb8df27484148",
+      "hash": "8a331d59fe0d7b68340b2ea3715d53e68dcc484c531b883a44fb019f03cabb23",
       "mime": "text/css"
     },
     {
