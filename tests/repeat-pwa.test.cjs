@@ -40,7 +40,11 @@ test('waiting/failed update never applies during provision PIN; later successful
   assert.deepEqual(await data(p),before);
   await p.locator('#pinCancel').tap();await wait(p,()=>!BenefitService.pending);await p.keyboard.press('Escape');assert.deepEqual(await data(p),before);
   await p.evaluate(()=>{window.originalSet=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k===SAVE_KEY)throw Error('quota');return originalSet.call(this,k,v);};});
-  await p.locator('#applyPwaUpdate').tap();assert.equal(await p.evaluate(()=>window.pwaFixtureVersion),undefined);assert.deepEqual(await data(p),before);
+  await p.locator('#applyPwaUpdate').tap();
+  // The DOM input returns before async worker checks/save: keep the injected failure until it is handled.
+  await wait(p,()=>document.getElementById('pwaStatus').textContent.includes('저장에 실패'));
+  assert.equal(await p.evaluate(()=>PwaRuntime.applying),false);
+  assert.equal(await p.evaluate(()=>window.pwaFixtureVersion),undefined);assert.deepEqual(await data(p),before);
   await p.evaluate(()=>{Storage.prototype.setItem=originalSet;});
   // The successful update reloads immediately: dispatch one real click without waiting on the old document.
   await Promise.all([p.waitForEvent('domcontentloaded'),p.locator('#applyPwaUpdate').click({noWaitAfter:true})]);await p.waitForFunction(()=>window.pwaFixtureVersion==='b',null,{polling:100,timeout:20000});await p.evaluate(()=>SessionOwner.ready);assert.deepEqual(await data(p),before);
