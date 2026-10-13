@@ -48,7 +48,7 @@ document.addEventListener(
     }
     function owned(target) {
       return (
-        !top || top.contains(target) || (panel(top) && nav.contains(target))
+        !!target.closest?.("#sessionControls") || !top || top.contains(target) || (panel(top) && nav.contains(target))
       );
     }
     function sync() {

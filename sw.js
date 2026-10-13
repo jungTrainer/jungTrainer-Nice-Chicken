@@ -1,11 +1,11 @@
 /* IMP-12: generated release block; update with npm run pwa:build. */
 // BEGIN PWA RELEASE
 const RELEASE = {
-  "version": "imp12-afd50cd87091d22baced",
+  "version": "imp12-6a9b5bcf6a988785adc2",
   "required": [
     {
       "path": "index.html",
-      "hash": "3554e9b38ee2d64cf1f2f6a8814d698807c0c5a1b154bc4c6bc9f8c84f36d4c1",
+      "hash": "1a696295c86a125ece5c0f8df16a68183c952608e39a19e12de920347e91c30d",
       "mime": "text/html"
     },
     {
@@ -30,7 +30,7 @@ const RELEASE = {
     },
     {
       "path": "js/core/content.js",
-      "hash": "31fb9d396bab9095bbdfca65c67a4a5e0c6b80afe36e29fcdf5f88d8ea86445e",
+      "hash": "be0b552e97e7a8128514e465075229f2604d19c3b11ae45a121d9ef012e7ab9b",
       "mime": "javascript"
     },
     {
@@ -39,13 +39,18 @@ const RELEASE = {
       "mime": "javascript"
     },
     {
+      "path": "js/core/session.js",
+      "hash": "cb9fc8f70b3d6304b18e6008723d8e04467994b5af3bb47d6a755a8fed66abd4",
+      "mime": "javascript"
+    },
+    {
       "path": "js/core/persistence.js",
-      "hash": "234a417d519baf5a19190410dd1da385d0d566e154a22b67b94603092a4515a8",
+      "hash": "bf7f9fdccec6756d167d915653b1851657f070adad8f551c5da76b457c832048",
       "mime": "javascript"
     },
     {
       "path": "js/core/growth.js",
-      "hash": "b97eea191bf633cb99be5cd94ceb6011cfaf1a0c362d7643e0d1855b3c5d7ec7",
+      "hash": "757b2d80938a640734516641b9b76e15e17ba139933f41e73fb7d6517eec1bd1",
       "mime": "javascript"
     },
     {
@@ -55,57 +60,57 @@ const RELEASE = {
     },
     {
       "path": "js/core/offline.js",
-      "hash": "800509b3e0b2751d862eb18af6ea91c2ee06173af0e6f7a964085fbece3f5e86",
+      "hash": "d545dc92956e53fb3c65b8357562e5191c38de24719855c7556f01143c08e1b0",
       "mime": "javascript"
     },
     {
       "path": "js/core/missions.js",
-      "hash": "69980a7c61c14fb3fc9b9effd6cfbc9182eee0badce989a1349bca6aa136353b",
+      "hash": "a7971b65af9312b54dde54d942c2cea5421f5d1bc2a1af2fd2610f005033f683",
       "mime": "javascript"
     },
     {
       "path": "js/core/economy.js",
-      "hash": "fd0bc4aef18b2174d37e4cb3eac6f4fc83fd90151b56bb2fe098559f3a03ff3d",
+      "hash": "2d951d11edf08c51557bbf3ea4780c1529078f0c47bebc38818caccb72bdcdb5",
       "mime": "javascript"
     },
     {
       "path": "js/core/ending.js",
-      "hash": "7b150289022fb3b20b02f74be29778c510be4d8d2af10e0b4bb536e96c7a5ab0",
+      "hash": "4c736562ab3c0a45e1234e3a684a6b0ad6e8c642d0c1fea644679d8afc5a4cf3",
       "mime": "javascript"
     },
     {
       "path": "js/core/branches.js",
-      "hash": "9ccd80b888eb0ef8e6e553bea3b712538eb11cd973ab8296e45696b4910473b5",
+      "hash": "9d0badd8ebd023fcf5ad3c467965c00314c1c5f0f5878a13f3b73cc59003addc",
       "mime": "javascript"
     },
     {
       "path": "js/core/services.js",
-      "hash": "e218b5f904f49b5146e205592ba78a19b15bfc488497783a31e8c92885759679",
+      "hash": "b11aa40d1410dba5c47a9d385526a1a9e78ce6c4003cc448c47651304dcc8133",
       "mime": "javascript"
     },
     {
       "path": "js/main.js",
-      "hash": "8b43a6180af15a0673e55b425761c60f22f9f4b79ce8e2c16395cd18485a0aaa",
+      "hash": "9f003e14009ef14bfccaa16b061341bc68a1c836cae30bf34a299253fe8e8e3e",
       "mime": "javascript"
     },
     {
       "path": "js/core/ui.js",
-      "hash": "d8395b9f7d98f277d16682d309390d556bcb3014aae079d312acc90b63cbe7a2",
+      "hash": "e6f13069d752a0522521ef199df6abe1d2fe0ce286bfadc69bb3bb3a32d827c1",
       "mime": "javascript"
     },
     {
       "path": "js/core/pwa.js",
-      "hash": "226e25fa8d08c416bef0851adf2fb7bf050944c187935d4d1b4c283cac92d23d",
+      "hash": "f8945118d8a7790f534c7b000aeb0fa7d8dae233489378e486e81a443fc9d2dc",
       "mime": "javascript"
     },
     {
       "path": "js/core/boot.js",
-      "hash": "13fcce4a5a2fdbc5354729d626c63aed99d724e40b9f7f4f044d717dabb07c19",
+      "hash": "7d427dd67b28e1326ddfb84c97596c6698332aade28e6e68b626174b9f9de889",
       "mime": "javascript"
     },
     {
       "path": "css/style.css",
-      "hash": "9cfcef5755123460edb9ef1ddc48bacce58f45c89cef3fcfedcf6e346574304b",
+      "hash": "5959df95e84e848b037fe8f32c634a90191a7db0ed70d832b6acb8df27484148",
       "mime": "text/css"
     },
     {
@@ -272,12 +277,105 @@ async function soleAppClient(source) {
   return clients.length === 1 && clients[0].id === source?.id;
 }
 
+async function liveVersions() {
+  const clients = (
+    await self.clients.matchAll({ type: "window", includeUncontrolled: true })
+  ).filter((c) => ownedPath(new URL(c.url)));
+  const versions = await Promise.all(
+    clients.map(
+      (client) =>
+        new Promise((resolve, reject) => {
+          const channel = new MessageChannel();
+          const timer = setTimeout(() => {
+            channel.port1.close();
+            reject(Error("unresponsive-client"));
+          }, 1500);
+          channel.port1.onmessage = ({ data }) => {
+            clearTimeout(timer);
+            channel.port1.close();
+            if (
+              data?.protocol !== 13 ||
+              typeof data.version !== "string" ||
+              typeof data.updating !== "boolean"
+            )
+              reject(Error("unknown-client"));
+            else
+              resolve({
+                id: client.id,
+                version: data.version,
+                updating: data.updating,
+              });
+          };
+          client.postMessage({ type: "PWA_VERSION_QUERY" }, [channel.port2]);
+        }),
+    ),
+  );
+  return versions;
+}
+async function pruneShells(source) {
+  if (self.registration.installing || self.registration.waiting)
+    return { ok: false, reason: "update-pending" };
+  const cache = await caches.open(CACHE_NAME);
+  for (const asset of RELEASE.required)
+    if (!(await cache.match(assetURL(asset.path))))
+      return { ok: false, reason: "incomplete-shell" };
+  const versions = await liveVersions();
+  if (versions.some((client) => client.updating))
+    return { ok: false, reason: "update-pending" };
+  if (!versions.some((c) => c.id === source?.id))
+    return { ok: false, reason: "unknown-client" };
+  const preserve = new Set([
+    CACHE_NAME,
+    ...versions.map((c) => CACHE_PREFIX + c.version),
+  ]);
+  const ids = versions
+    .map((c) => c.id)
+    .sort()
+    .join("|");
+  let deleted = 0;
+  for (const name of await caches.keys()) {
+    if (!name.startsWith(CACHE_PREFIX) || preserve.has(name)) continue;
+    const latest = await liveVersions();
+    if (
+      latest.some((client) => client.updating) ||
+      latest
+        .map((c) => c.id)
+        .sort()
+        .join("|") !== ids
+    )
+      return { ok: false, reason: "clients-changed", deleted };
+    const current = (
+      await self.clients.matchAll({ type: "window", includeUncontrolled: true })
+    ).filter((c) => ownedPath(new URL(c.url)));
+    if (
+      self.registration.installing ||
+      self.registration.waiting ||
+      current
+        .map((c) => c.id)
+        .sort()
+        .join("|") !== ids
+    )
+      return { ok: false, reason: "clients-changed", deleted };
+    await caches.delete(name);
+    deleted++;
+  }
+  return { ok: true, deleted, preserved: [...preserve] };
+}
+
 self.addEventListener("message", (event) => {
   const port = event.ports[0];
   if (!port) return;
   event.waitUntil(
     (async () => {
       const message = event.data || {};
+      if (message.type === "PRUNE") {
+        try {
+          port.postMessage(await pruneShells(event.source));
+        } catch (error) {
+          port.postMessage({ ok: false, reason: error.message });
+        }
+        return;
+      }
       if (message.type === "STATUS") {
         port.postMessage({
           ok: true,

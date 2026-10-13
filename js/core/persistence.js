@@ -2,6 +2,7 @@
 let deferRecoveryWrites = false;
 let lastStateChangeReason = "";
 function markStateChanged(reason, effectsChanged = true) {
+  if (!SessionOwner.canMutate()) return;
   _saveDirty = true;
   lastStateChangeReason = reason;
   if (effectsChanged) invalidateDerivedEffects();
@@ -12,6 +13,7 @@ let _saveDirty = false;
 let _lastSaveWriteAt = 0;
 
 function save(force = false) {
+  if (!SessionOwner.canMutate()) return false;
   // localStorage는 동기식이라 자주 쓰면 렉 유발.
   // force=false는 '저장 필요'만 표시하고 실제 write는 autosave/종료 시에만 수행.
   if (!force) {
@@ -21,9 +23,10 @@ function save(force = false) {
   markStateChanged("save-request", false);
   if (deferRecoveryWrites) return true;
   try {
+    const prevSave = localStorage.getItem(SAVE_KEY);
+    if (!SessionOwner.verify(prevSave)) return false;
     BranchManager.saveCurrent();
     state.lastSeenAt = Date.now();
-    const prevSave = localStorage.getItem(SAVE_KEY);
     if (prevSave) {
       try {
         localStorage.setItem(SAVE_BACKUP_KEY, prevSave);
@@ -31,7 +34,9 @@ function save(force = false) {
         console.warn("[save] backup failed", backupError);
       }
     }
-    localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+    const nextSave = JSON.stringify(state);
+    localStorage.setItem(SAVE_KEY, nextSave);
+    SessionOwner.committed(nextSave);
     _saveDirty = false;
     _lastSaveWriteAt = Date.now();
     return true;
@@ -85,6 +90,23 @@ function readSavePayload() {
 
 function exportSaveData() {
   try {
+    if (!SessionOwner.canMutate()) {
+      const payload = readSavePayload();
+      return payload
+        ? JSON.stringify(
+            {
+              app: "niceChicken",
+              type: "manual-save-export",
+              version: 1,
+              saveKey: SAVE_KEY,
+              exportedAt: Date.now(),
+              data: payload.data,
+            },
+            null,
+            2,
+          )
+        : "";
+    }
     BranchManager.saveCurrent();
     const payload = {
       app: "niceChicken",
@@ -110,6 +132,7 @@ function isLikelyNiceChickenState(data) {
 }
 
 function importSaveData(raw) {
+  if (!SessionOwner.canMutate()) return false;
   if (!raw || !String(raw).trim()) {
     showToast("불러올 백업 JSON을 붙여넣어 주세요.");
     return false;
@@ -141,7 +164,13 @@ function importSaveData(raw) {
     return false;
   }
 
-  if (!replaceGameState({ ...defaultState(), ...imported, moneyEncoding: imported.moneyEncoding })) {
+  if (
+    !replaceGameState({
+      ...defaultState(),
+      ...imported,
+      moneyEncoding: imported.moneyEncoding,
+    })
+  ) {
     showToast("저장 실패. 기존 진행을 유지합니다.");
     return false;
   }
@@ -162,7 +191,11 @@ function load() {
   try {
     const parsed = payload.data;
     if (!parsed || typeof parsed !== "object") return false;
-    state = { ...defaultState(), ...parsed, moneyEncoding: parsed.moneyEncoding };
+    state = {
+      ...defaultState(),
+      ...parsed,
+      moneyEncoding: parsed.moneyEncoding,
+    };
 
     // deep patches
     state.profile = { ...defaultState().profile, ...(parsed.profile || {}) };
@@ -186,6 +219,7 @@ function load() {
     state.benefitsLog = parsed.benefitsLog || [];
 
     sanitizeState();
+    SessionOwner.observed(localStorage.getItem(SAVE_KEY));
 
     return true;
   } catch (e) {
@@ -327,6 +361,11 @@ function sanitizeState() {
 // Import/reset replace the state only when its synchronized snapshot is durable.
 // The original root is retained on failure, keeping valid delayed callbacks owned.
 function replaceGameState(next) {
+  if (
+    !SessionOwner.canMutate() ||
+    !SessionOwner.verify(localStorage.getItem(SAVE_KEY))
+  )
+    return false;
   captureBranchServiceTimers();
   const previous = state,
     wasDirty = _saveDirty;
@@ -346,6 +385,7 @@ function replaceGameState(next) {
   return false;
 }
 function resetGame() {
+  if (!SessionOwner.canMutate()) return false;
   if (!replaceGameState(defaultState())) {
     showToast("저장 실패. 초기화하지 않았습니다.");
     return false;

@@ -1,6 +1,6 @@
 # 실행 구조와 상태 변경 계약
 
-적용: IMP-08/10/11/12, 2026-10-13. 데이터 범위는 [본사·지점 규칙](data-ownership.md), 금액은 [성장·금액 정책](economy-policy.md)을 따른다. 모듈 분리는 [IMP-08 보고서](improvements/IMP-08-state-modules.md)에 기록했다.
+적용: IMP-08/10/11/12/13, 2026-10-13. 데이터 범위는 [본사·지점 규칙](data-ownership.md), 금액은 [성장·금액 정책](economy-policy.md)을 따른다. 모듈 분리는 [IMP-08 보고서](improvements/IMP-08-state-modules.md)에 기록했다.
 
 ## 정의와 시작 순서
 
@@ -12,16 +12,17 @@
 | 2–4 | `utils.js`, `audio.js`, `config.js` | 표시/날짜/입력 도우미, 오디오 런타임, 설정·정확한 레벨 앵커 | 금액 모듈, 브라우저 API; 설정은 데이터 생성만 실행 |
 | 5 | `content.js` | 지역/직원 콘텐츠·운영/메뉴 선택·정규화·명시적 저장/읽기·리포트 UI | 설정, 호출 시 상태/성장/정산/저장/DOM |
 | 6 | `state.js` | `defaultState`, `state`; 호환 schema와 moneyEncoding | 설정/금액 encoding |
-| 7 | `persistence.js` | dirty·저장·로드·내보내기·가져오기·초기화·sanitize | 본사/지점 상태, 금액 migration, BranchManager, 미션/연구, 엔딩/화면 복원 |
-| 8–9 | `growth.js`, `research.js` | 효과 합산·처리량, 고용/교육/업그레이드·연구·레벨, 구 연구 migration | 설정/상태, 정확한 비용/비교, 저장, 패널 렌더링 |
-| 10–11 | `offline.js`, `missions.js` | 미수령 확정/수령, 목표/진행/보상, 인증서 지급과 미리보기 | 처리량/가격/정확한 공통 수익 기록, 저장, 지점 snapshot |
-| 12 | `economy.js` | `getMenuPrice`, `upgradeCost`, `recordIncome`, 서빙/팁/배달 지급·급여·쿠폰, 수익 화면 갱신 | 정확한 원 연산, 성장 효과, 미션, 저장, 서비스 연출, DOM refs |
-| 13 | `ending.js` | 정확한 목표 비교/재생/완료, 취소 가능한 음원·타이핑·페이드·완료 타이머 | 금액/상태/저장, STAFF_POOL 원본, UI |
-| 14–15 | `branches.js`, `services.js` | snapshot 교체, ServiceRuntime 소유권, 온라인/배달/자동/생성 진행 | sanitize·연구 slots, 성장/정산, 장면/연출 |
-| 16 | `main.js` | DOM refs와 입력, 고객·장면·패널·통계 렌더링, `tick`/`frame` | 위 단일 사업 함수들 |
-| 17 | `ui.js` | 모달/패널의 포커스·닫기·배경 입력·안전 영역 | 장면·엔딩 함수, DOM |
-| 18 | `pwa.js` | 브라우저 설치·대기 업데이트·버전/저장 후 적용 | DOM 준비, boot 완료 통지, 기존 저장/엔딩/입력 소유권; 사업 데이터 필드 추가 없음 |
-| 19 | `boot.js` | `init`/`initAfterLoad`, 오류 복구와 watchdog | 모든 정의가 로드된 뒤 시작 |
+| 7 | `session.js` | origin/save-key Web Lock·작성자/독자·인계·epoch·충돌 원문 | state 이후 정의; DOM/저장/boot 함수는 시작 시 호출 |
+| 8 | `persistence.js` | dirty·저장·로드·내보내기·가져오기·초기화·sanitize | 본사/지점 상태, 금액 migration, BranchManager, 미션/연구, 엔딩/화면 복원 |
+| 9–10 | `growth.js`, `research.js` | 효과 합산·처리량, 고용/교육/업그레이드·연구·레벨, 구 연구 migration | 설정/상태, 정확한 비용/비교, 저장, 패널 렌더링 |
+| 11–12 | `offline.js`, `missions.js` | 미수령 확정/수령, 목표/진행/보상, 인증서 지급과 미리보기 | 처리량/가격/정확한 공통 수익 기록, 저장, 지점 snapshot |
+| 13 | `economy.js` | `getMenuPrice`, `upgradeCost`, `recordIncome`, 서빙/팁/배달 지급·급여·쿠폰, 수익 화면 갱신 | 정확한 원 연산, 성장 효과, 미션, 저장, 서비스 연출, DOM refs |
+| 14 | `ending.js` | 정확한 목표 비교/재생/완료, 취소 가능한 음원·타이핑·페이드·완료 타이머 | 금액/상태/저장, STAFF_POOL 원본, UI |
+| 15–16 | `branches.js`, `services.js` | snapshot 교체, ServiceRuntime 소유권, 온라인/배달/자동/생성 진행 | sanitize·연구 slots, 성장/정산, 장면/연출 |
+| 17 | `main.js` | DOM refs와 입력, 고객·장면·패널·통계 렌더링, `tick`/`frame` | 위 단일 사업 함수들 |
+| 18 | `ui.js` | 모달/패널의 포커스·닫기·배경 입력·안전 영역 | 장면·엔딩 함수, DOM |
+| 19 | `pwa.js` | 브라우저 설치·대기 업데이트·버전/저장 후 적용 | DOM 준비, boot 완료 통지, 기존 저장/엔딩/입력 소유권; 사업 데이터 필드 추가 없음 |
+| 20 | `boot.js` | `init`/`initAfterLoad`, 오류 복구와 watchdog | 모든 정의가 로드된 뒤 시작 |
 
 이 표의 core 파일은 `js/core/`에 있다. 실행 시 상호 호출은 남아 있으나 이전 함수의 캡처·재할당 체인은 없다. `main.js`의 DOM 입력 delegation은 평가 시 연결되고, `ui.js`는 DOMContentLoaded에서 입력 소유권을 구성한다. 마지막 `boot.js`의 DOMContentLoaded가 DOM refs·저장 lifecycle을 연결한 뒤 load → sanitize/bootstrap → 오프라인 확정 → 엔딩 UI 복원 → 단일 rAF를 시작한다. 이벤트 연결 guard와 엔딩 WeakSet은 버튼을 여러 번 연결하지 않는다.
 
@@ -48,7 +49,7 @@
 
 ## 변경 시 검증
 
-`npm run doctor`, `npm run check`, `npm test`를 실행한다. 현재 174개 검사는 기존 148개와 PWA/운영 26개다. IMP-09부터 고정 Playwright Chromium을 기본으로 사용하고 문법 검사는 앱 JS 20개와 도구/helper CJS 11개, 총 31개를 포함한다. 설치/정의 중복 검사는 `tests/refactor.test.cjs`, 지점/저장 원본의 규칙은 `tests/branches.test.cjs`에 있다. 브라우저 검사는 자체 HTTP 서버와 Chromium을 열고 종료한다.
+`npm run doctor`, `npm run check`, `npm test`를 실행한다. 현재 197개 검사는 기존 174개와 동시성/복구 23개다. IMP-09부터 고정 Playwright Chromium을 기본으로 사용하고 문법 검사는 앱 JS 21개와 도구/helper CJS 13개, 총 34개를 포함한다. 설치/정의 중복 검사는 `tests/refactor.test.cjs`, 지점/저장 원본의 규칙은 `tests/branches.test.cjs`에 있다. 브라우저 검사는 자체 HTTP 서버와 Chromium을 열고 종료한다.
 
 측정은 `node scripts/measure-runtime.cjs [비교할 정적 웹앱 디렉터리]`를 사용한다. 게임 API를 계측하는 래퍼는 이 별도 브라우저 측정 페이지에만 존재하며 앱에 설치되지 않는다. 연산 수와 표시 정확도를 먼저 비교하고 실행 시간은 동일 기기/부하에서 참고한다. CI의 시간 성능 임계값으로 사용하지 않는다.
 
@@ -79,3 +80,11 @@ content는 config 다음, state 이전에 정의한다. 등록하는 클릭은 �
 `PwaRuntime`은 상태에 저장하지 않는 registration/waiting/설치 prompt/적용 중 flag만 소유한다. ui 뒤 boot 앞에서 정의하고 기존 표면/입력 소유권을 그대로 사용한다. boot의 init 성공 후 ready를 알린다. 설정 버튼은 한 번 연결한다. 엔딩/PIN/다른 모달·패널/백업 입력·다른 scope 창이 남아 있으면 적용을 막는다. `save(true)` 성공 후에만 기다리는 워커에 명시적 APPLY를 보내며, 해당 controllerchange에서 한 번 reload한다. 적용 중 tick/사용자 입력은 중단하고 응답 실패/10초 전환 지연에는 해제한다. 절대 연구/버프 시각·정산·서비스 캐시 소유권은 바꾸지 않는다.
 
 pwa 조회·설치·닫기는 dirty/보상/쿠폰을 변경하지 않는다. 적용만 기존 강제 저장을 사용하며 원 encoding·본사/지점 snapshot·확정 receipt를 보존한다. 캐시는 별도 CacheStorage이고 LocalStorage/backup을 삭제하지 않는다. 기존 registration은 오프라인에서도 재사용하며 신규 등록 실패 후 온라인 재접속/확인으로 재시도한다. 설치 번들은 생성된 해시 목록과 HTML SRI로 고정한다. [설치/복구 정책](pwa-operations.md)과 [쿠폰 서버 조건](coupon-server-contract.md)을 따른다.
+
+## IMP-13 작성자와 문서 수명
+
+`SessionOwner`는 게임 저장 밖에서 origin/save-key Web Lock과 문서 id/epoch·마지막 성공 본 저장 원문을 소유한다. boot는 refs/입력/저장 lifecycle 연결 후 잠금을 얻은 문서만 init한다. 독자는 load/정규화/표시만 하고 오프라인 확정·미션 변경·사업 입력·tick·dirty·저장을 실행하지 않는다. 읽기 전용 정규화 결과는 write하지 않는다. 창 인계에서 새 작성자는 최신 저장을 다시 load하고 기존 서비스 소유자/연구 캐시를 bind한다. 숨김 문서로 획득했으면 즉시 tick을 정지한다. 숨김 작성자는 lock을 유지하고 기존 visibility 저장을 사용하며, 복귀 때 기존 오프라인 규칙으로 한 번 처리한다.
+
+`save(true)`는 capture 앞에 canMutate/본 저장 원문 비교를 실행한다. 성공한 primary write 뒤 원문 기준을 갱신하며 dirty는 기존처럼 성공 뒤 해제한다. 외부 쓰기는 conflict로 운영을 멈추며 저장본/이 창 미저장본을 분리해서 백업한다. 독자의 export는 최신 디스크 envelope이며 view를 snapshot으로 저장하지 않는다. 정상 작성자의 기존 export/교체/rollback 계약은 유지한다. PIN await는 root/region/epoch를 다시 확인한다. 저장/효과/서비스 호출을 wrapper로 재할당하지 않았다.
+
+인계는 안전한 표면에서 명시적 성공 저장 후 lock 해제다. 저장 실패에는 원래 작성자/dirty가 남는다. Web Locks 미지원/거절은 읽기 전용으로 안전하게 실패한다. 다른 창은 clock lease로 강제 잠금을 빼앗지 않는다. 구 버전과 직접 저장 편집은 협력 잠금에 참여하지 않으므로 완전한 원자성 범위 밖이며 원문 비교/이벤트로 충돌을 감지한다. [문서 정책](session-ownership.md)에 지원과 실패 범위를 기록한다. 구 셸 정리는 실제 살아 있는 문서의 버전/설치 상태를 질문하고 현재·사용 중 버전/저장소를 보존한다.

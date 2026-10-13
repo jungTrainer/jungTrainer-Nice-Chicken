@@ -91,6 +91,7 @@ function spawnVisualRider(vehicle, isIdle = false) {
   });
 }
 function spawnLoop(dt) {
+  if (!SessionOwner.canMutate()) return false;
   const rates = computeRates();
   const ordersPerSec = rates.ordersPerMin / 60;
   state._spawnAcc += ordersPerSec * dt;
@@ -102,6 +103,7 @@ function spawnLoop(dt) {
 }
 
 function autoServe(dt) {
+  if (!SessionOwner.canMutate()) return false;
   ensureBranchServiceOwner();
   const rates = computeRates();
   const servesPerSec = (rates.autoServesPerMin / 60) * 2; // 2x faster auto-serve
@@ -122,6 +124,7 @@ function autoServe(dt) {
   }
 }
 function updateDelivery(dt, now) {
+  if (!SessionOwner.canMutate()) return false;
   ensureBranchServiceOwner();
   try {
     if (!state.delivery?.riders) {
@@ -206,6 +209,7 @@ function updateDelivery(dt, now) {
   }
 }
 function updateOnlineAuto(dt) {
+  if (!SessionOwner.canMutate()) return false;
   ensureBranchServiceOwner();
   try {
     onlineTimer += (computeRates().onlineOrdersPerMin / 60) * dt;

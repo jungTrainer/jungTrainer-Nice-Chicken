@@ -152,6 +152,7 @@ const BranchManager = {
   },
 
   move(id) {
+    if (!SessionOwner.canMutate()) return false;
     if (!REGION_MAP[id] || !state.regionUnlocked || !state.regionUnlocked[id]) {
       showToast("아직 해금되지 않은 지역이에요!");
       return false;
@@ -194,6 +195,7 @@ const BranchManager = {
   },
 
   unlockNext() {
+    if (!SessionOwner.canMutate()) return false;
     const cur = getRegion();
     const next = getNextRegion();
     if (cur.id === next.id) {

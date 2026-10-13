@@ -1,6 +1,6 @@
 # 개발·검사·CI 실행 안내
 
-기준: IMP-09/10/11/12, 2026-10-13. 게임은 정적 HTML/CSS/JS이며 일반 실행에는 npm 설치·빌드·백엔드가 필요 없다. 브라우저 검사에는 Node와 Playwright/Chromium을 설치한다. [데이터 규칙](data-ownership.md)과 [실행 계약](runtime-architecture.md)을 함께 따른다.
+기준: IMP-09/10/11/12/13, 2026-10-13. 게임은 정적 HTML/CSS/JS이며 일반 실행에는 npm 설치·빌드·백엔드가 필요 없다. 브라우저 검사에는 Node와 Playwright/Chromium을 설치한다. [데이터 규칙](data-ownership.md)과 [실행 계약](runtime-architecture.md)을 함께 따른다.
 
 ## 설치와 브라우저 선택
 
@@ -17,7 +17,7 @@ npm run check
 npm test
 ```
 
-`doctor`는 실행 파일 존재·권한과 실제 headless 브라우저 실행/DOM을 확인하고 Node·Playwright·Chromium 버전을 출력한다. 브라우저 경로를 설치 명령과 검사 명령에 같은 값으로 전달한다. `.cache/ms-playwright`와 `test-results`는 Git에 포함하지 않는다.
+`doctor`는 실행 파일 존재·권한, 실제 headless DOM과 기본 포커스 에뮬레이션 없는 headed 탭 숨김/복귀를 확인하고 Node·Playwright·Chromium 버전을 출력한다. 브라우저 경로를 설치 명령과 검사 명령에 같은 값으로 전달한다. `.cache/ms-playwright`와 `test-results`는 Git에 포함하지 않는다.
 
 Linux 라이브러리가 없는 새 머신에서는 `npx playwright install-deps chromium`을 추가로 실행한다. 이 명령은 관리자 권한이 필요하며 GitHub 호스팅 runner에서는 공통 스크립트가 실행한다. 이 클라우드 머신의 기존 라이브러리는 `doctor`로 검증했다. macOS/Windows는 OS별 Playwright 설치 안내를 따르고, Bash가 없는 환경에서는 공통 Bash 스크립트 대신 위 개별 npm 명령을 실행한다.
 
@@ -47,7 +47,7 @@ PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright" \
 npm run test:ci
 ```
 
-현재 앱 JS 20개와 도구/검사 helper CJS 11개, 총 **31개 문법 검사**, **174개 회귀 검사**를 실행한다. 기존 148개 assertion/fixture를 유지하고 PWA/운영 26개를 추가했다. 범위별 재현은 `node --test tests/branches.test.cjs`, `node --test tests/refactor.test.cjs`, `node --test tests/money.test.cjs`, `node --test tests/content.test.cjs` 등을 사용한다. 범위별 통과가 전체 통과를 대신하지 않는다.
+현재 앱 JS 21개와 도구/검사 helper CJS 13개, 총 **34개 문법 검사**, **197개 회귀 검사**를 실행한다. 기존 174개 assertion/fixture를 유지하고 동시성/복구 23개를 추가했다. 범위별 재현은 `node --test tests/branches.test.cjs`, `node --test tests/refactor.test.cjs`, `node --test tests/money.test.cjs`, `node --test tests/content.test.cjs` 등을 사용한다. 범위별 통과가 전체 통과를 대신하지 않는다.
 
 검사 helper는 각 검사 파일의 HTTP 서버를 임의 포트에 열고 브라우저/context를 정리한다. 자동 검사를 위해 아래 수동 서버를 따로 실행할 필요는 없다. 날짜 fixture·Asia/Seoul·기본 rAF 정지와 필요한 live 검사를 유지한다. Google Fonts 요청은 자동 검사에서 차단하고 기본 폰트를 사용한다.
 
@@ -149,3 +149,22 @@ PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright" node --test tests/pwa.test.
 온라인→오프라인에는 Chrome offline emulation과 서버의 503 차단을 함께 사용한다. Chrome의 브라우저 측 SW 업데이트 조회가 탭 emulation 밖에서 실행될 수 있어 서버도 전달을 막는다. 워커 응답을 route mock하거나 worker의 fetch/cache 구현을 대체하지 않는다. 기본 셸/저장 동작, 선택 미디어 누락, 대기/실패 업데이트, 작은 화면/실제 터치/입력, 엔딩/미수령·다른 탭·저장 실패, 지점/백업/import/reset을 검사한다. `test-results/verification/IMP-12-install.json`, screenshots/실패 PNG·trace·최근 요청 진단을 보관한다. 실제 OS의 홈 화면/런처 모양·iOS 설치 UI·프로덕션 Pages 배포는 이 Linux 자동 검사의 증명이 아니다.
 
 서버 계약 순수 검사는 공개 PIN을 인증으로 취급하지 않는다. 네트워크 호출/실혜택/운영 데이터 변경이 없으며 request/receipt 상관관계·불명확/인증/충돌 응답의 제안 계약만 검증한다. 실제 인증/DB 경쟁·audit는 백엔드와 스테이징 제공 뒤 검증한다. [운영/실패 복구](pwa-operations.md), [서버 연결 조건](coupon-server-contract.md)을 참고한다.
+
+## 여러 창과 실제 숨김 검사 (IMP-13)
+
+Linux의 실제 숨김 검사는 **Xvfb 또는 DISPLAY**가 필요하다. GitHub의 `playwright install-deps chromium`이 Xvfb를 포함한다. 로컬 GUI가 없으면 시스템 Xvfb를 설치하거나 검증한 실행 파일을 `PLAYWRIGHT_XVFB_EXECUTABLE`로 지정한다. 현재 Debian 13 클라우드는 서명된 trixie apt metadata/패키지 검증을 유지해 Xvfb를 `/workspace/.cache/nice-chicken-gui/root`에 추출했다. 시스템 패키지·CA·TLS를 변경하지 않았다. Xvfb 패키지 2:21.1.16-1.3+deb13u3, SHA256 `365da2b6c93339f34337c434a9489bb6411a240fa47b9f49693d3091745f28c2`; 의존 라이브러리는 doctor로 실행 확인한다. 새 OS에서는 해당 배포판의 지원 패키지를 사용한다.
+
+```bash
+export PLAYWRIGHT_XVFB_EXECUTABLE=/workspace/.cache/nice-chicken-gui/root/usr/bin/Xvfb
+export PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright"
+npm run doctor
+node --test tests/concurrency.test.cjs
+npm_config_cache=/tmp/nice-chicken-npm-cache npm run test:ci
+node scripts/measure-concurrency.cjs
+```
+
+`scripts/display.cjs`가 임시 display·프로필로 전체 Chromium을 실행하고 `connectOverCDP({noDefaults:true})`로 연결한다. 일반 Playwright 세션은 기본 포커스 에뮬레이션 때문에 document.hidden이 바뀌지 않는다. 별도 CDP 세션에서 에뮬레이션을 끄는 것으로는 원래 세션의 override를 해제할 수 없다. 실제 탭을 활성화해 문서 visibility와 운영 동작을 검증하며 document.hidden을 재정의하지 않는다. GUI 검사용 no-sandbox는 기존 Playwright와 같은 격리된 합성 프로필에서만 사용한다. 프로필/프로세스/display를 종료하고 네트워크 앱/PIN/실혜택을 건드리지 않는다. 기본 headless 전체 검사와 별개로 이 실제 headed case도 필수다.
+
+다중 창 fixture는 실제 Web Locks/LocalStorage/storage 이벤트/서비스워커를 쓴다. 미지원/거절·채널 없음·quota 오류만 해당 case의 capability/스토리지 경로에 합성 실패를 주입한다. Page.crash에서 실제 crash 이벤트를 확인하고 죽은 탭을 닫아 브라우저가 lock을 해제한 뒤 복구한다. 강제 종료 전 미저장 수익은 추측 복원하지 않는다. 작은 화면은 320×568/568×320 실제 tap·백업·인계와 PNG를 남긴다. 설치 창은 CDP PWA.install/standalone launch로 같은 origin 잠금을 확인한다.
+
+async 조건은 bounded loop에서 page.evaluate를 await한다. Playwright 1.62의 waitForFunction에 async predicate를 넣으면 Promise가 먼저 truthy로 판단될 수 있어 대기 워커의 버전/installed/CacheStorage를 실제 값으로 확인해야 한다. 실패 JSON/trace에 release fixture·실제 registration·캐시·요청을 보관한다. Xvfb ENOENT/실행 실패에는 경로·ldd·doctor를 확인하고 skip으로 우회하지 않는다. measure-concurrency는 자체 임시 HTTP/context를 정리하며 합성 이전/이후 JSON을 [검증 폴더](improvements/verification/)에 기록한다.

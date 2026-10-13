@@ -21,6 +21,7 @@ function recordIncome(
   amount,
   { menuId = null, actorKey = "system", count = 0, offline = false } = {},
 ) {
+  if (!SessionOwner.canMutate()) return false;
   if (!isMoney(amount) || moneyCompare(amount, 0) <= 0) return false;
   amount = normalizeMoney(amount);
   ensureMissionReset();
@@ -55,6 +56,7 @@ function recordIncome(
 }
 
 function processDelivery(vehicle) {
+  if (!SessionOwner.canMutate()) return false;
   const eff = sumEffects(),
     pool = getOrderMenuPool(),
     menu = pool[Math.floor(Math.random() * pool.length)];
@@ -136,6 +138,7 @@ function renderMenuStats() {
 }
 
 function serveByMenu(menuId, actorKey = "player") {
+  if (!SessionOwner.canMutate()) return false;
   ensureMissionReset();
   const sel = state.selectedCustomerId;
   if (!sel) {
@@ -267,6 +270,7 @@ function serveByMenu(menuId, actorKey = "player") {
 }
 
 function processPayroll() {
+  if (!SessionOwner.canMutate()) return false;
   // 하루 1번(날짜 바뀔 때) 알바 임금 지급: 1인당 80,000원
   const today = dayKey();
   if (!state.payroll) state.payroll = { lastDayKey: "", dailyWage: 80000 };
@@ -287,6 +291,7 @@ function processPayroll() {
 }
 
 function logBenefit({ type, qty = 1, source = "", note = "" }) {
+  if (!SessionOwner.canMutate()) return false;
   state.benefitsLog = state.benefitsLog || [];
   state.benefitsLog.unshift({
     ts: Date.now(),
@@ -301,6 +306,7 @@ function logBenefit({ type, qty = 1, source = "", note = "" }) {
 }
 
 async function useCoupon(type) {
+  if (!SessionOwner.canMutate()) return false;
   if (state.coupons[type] <= 0) {
     showToast("보유 쿠폰이 없어요.");
     sfxWrong();
@@ -309,7 +315,9 @@ async function useCoupon(type) {
   if (!confirm("기기 내부 쿠폰 사용 기록을 남길까요?\n공개 로컬 PIN 확인이며 서버/매장 승인이 아닙니다.")) {
     return;
   }
+  const ownership = SessionOwner.token();
   const ok = await askPIN();
+  if (!SessionOwner.matches(ownership)) return;
   if (!ok) {
     showToast("PIN이 올바르지 않아요.");
     sfxWrong();

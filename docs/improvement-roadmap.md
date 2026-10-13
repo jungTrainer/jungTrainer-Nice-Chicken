@@ -2,7 +2,7 @@
 
 갱신일: 2026-10-13 (한국 시간). 기준 저장소 `6b602e583644ec4ba21f4ed74924cc0b684c0c92`.
 
-현재 작업본의 보관 브랜치는 [`improvement-imp12-20261013`](https://github.com/jungTrainer/jungTrainer-Nice-Chicken/tree/improvement-imp12-20261013)이다. IMP-12 기준은 `origin/improvement-imp11-20261013`의 `c427ecf`이며 다음 환경은 IMP-12 브랜치를 선택한다. [Draft PR #6](https://github.com/jungTrainer/jungTrainer-Nice-Chicken/pull/6)의 리뷰는 IMP-11 대상이며 main 병합·배포는 수행하지 않았다.
+현재 작업본의 보관 브랜치는 [`improvement-imp13-20261013`](https://github.com/jungTrainer/jungTrainer-Nice-Chicken/tree/improvement-imp13-20261013)이다. IMP-13 기준은 `origin/improvement-imp12-20261013`의 `6d878ef`이며 다음 환경은 IMP-13 브랜치를 선택한다. [Draft PR #7](https://github.com/jungTrainer/jungTrainer-Nice-Chicken/pull/7)의 리뷰는 IMP-12 대상이며 main 병합·배포는 수행하지 않았다.
 
 이전 환경의 IMP-01~05 코드·문서와 검사 96개는 로컬/원격/Git 복구 객체에서 찾을 수 없었다. 사용자 승인 후 REC-01~05로 기능을 재구현하고 새 회귀 검사를 만들었다. 과거 완료 기록과 현재 재검증을 동일한 것으로 취급하지 않는다. [복구 보고서](improvements/REC-recovery.md)를 참고한다.
 
@@ -20,9 +20,10 @@
 | IMP-10 | 성장 곡선·큰 수 | 완료 | 성장/소실 측정·수일 목표·정확한 원/호환 저장·경계/브라우저 28개 추가·총 120개/문법 25개·CI |
 | IMP-11 | 이야기·지역 경영 콘텐츠 | 완료 | 희석 측정·직원 6종 담당자·지점 운영/대표 메뉴·7단계 이야기·실제 입력/저장/회귀 총 148개/문법 27개·CI |
 | IMP-12 | PWA·정적 운영 | 완료 | 실제 설치/standalone·해시 셸/SRI·대기/저장 후 적용·실패 복구·로컬 PIN 한계/서버 조건·174개/문법 31개 |
-| IMP-13 | 여러 창의 저장 소유권·복구 | 대기 | 동시 tick/저장/수령·인계/읽기 전용·실패/종료 복구·구 셸 정리 정책 |
+| IMP-13 | 여러 창의 저장 소유권·복구 | 완료 | 손실 재현·단일 Web Lock 작성자·읽기 전용/인계·저장/종료/충돌 복구·사용 중 셸 보존·197개/문법 34개·CI |
+| IMP-14 | 백업·복구 진단과 지원 브라우저 | 대기 | 본 저장/backup 손상·다중 키 실패·복구 출처·실제 브라우저 지원/읽기 전용 안내 |
 
-현재 검증 기준은 **174개**(기존 148개 + PWA/운영 26개)와 `npm run doctor`, `npm run check`(앱 JS 20개 + CJS 11개/생성물 일치)이다. [PWA 정책](pwa-operations.md), [서버 조건](coupon-server-contract.md), [IMP-12 보고서](improvements/IMP-12-pwa-operations.md)에 구현·검증·남은 문제를 기록했다. 코드·검사·보고서·커밋을 보관하고 패치/번들로 환경 변경 뒤 복구할 수 있게 한다.
+현재 검증 기준은 **197개**(기존 174개 + 동시성/복구 23개)와 `npm run doctor`, `npm run check`(앱 JS 21개 + CJS 13개/생성물 일치)이다. [작성자·인계 정책](session-ownership.md), [PWA 정책](pwa-operations.md), [서버 조건](coupon-server-contract.md), [IMP-13 보고서](improvements/IMP-13-session-ownership.md)에 구현·검증·남은 문제와 다음 프롬프트를 기록했다. 코드·검사·보고서·커밋을 보관하고 패치/번들로 복구한다.
 
 ## IMP-07 범위와 완료
 
@@ -97,7 +98,7 @@
 
 2026-10-13 완료. 기존 148개와 새 PWA/운영 26개, doctor·문법 31개·생성물 일치를 통과했다. 실제 Chromium 설치/standalone·워커·오프라인·대기/실패/저장/입력/지점/백업 경로를 검증하고 확정 미수령/지급 완료/정산을 보존했다. 서버가 없음을 확인하여 로컬 PIN 한계를 표시하고 서버 인증/발급/DB·운영 조건을 별도로 설계했다. 구현 SHA의 push/PR CI도 174개/문법 31개를 통과했고 완료 보고서/최종 보관 JSON에 실행 결과를 기록한다.
 
-## 다음 작업: IMP-13
+## IMP-13 범위와 완료
 
 1. 여러 탭/설치 창의 tick·저장·수령·이동·import/reset 덮어쓰기/중복을 재현/측정한다.
 2. 단일 작성자·인계·읽기 전용과 지원/미지원 브라우저·숨김/종료/저장 실패 복구 정책을 설계하고 구현한다.
@@ -107,3 +108,16 @@
 6. 커밋·패치·번들·보고서·다음 프롬프트를 남기며 실혜택/운영/main 병합·배포는 별도 승인 전 수행하지 않는다.
 
 복사할 [IMP-13 프롬프트](improvements/IMP-12-pwa-operations.md#imp-13-시작-프롬프트)를 사용한다.
+
+
+2026-10-13 완료. 실제 두 창의 수익 손실·중복 성공·지점 역행을 재현한 뒤 origin/저장 키의 단일 작성자와 성공 저장 후 인계를 구현했다. 저장 실패에는 lock/dirty를 유지하고 종료/crash 후 마지막 성공 저장에서 복구하며 구 창 충돌은 중단·두 백업으로 처리한다. 미지원은 읽기 전용이다. 문서 버전을 확인한 명시적 구 셸 정리로 사용 중 셸·저장을 보존한다. 실제 Chromium 탭/설치 창·숨김/복귀·오프라인·새/실패 업데이트·작은 화면·백업/import/reset과 로컬 197개/doctor/문법 34개를 통과했다. 구현 SHA `b9d680d`의 PR CI도 197개를 통과했다. 최종 문서 커밋의 원격 결과는 보관 CI JSON에 별도로 기록한다.
+
+## 다음 작업: IMP-14
+
+1. 본 저장/backup 손상·읽기/쓰기 거절·quota·reset 다중 키 실패와 복구 출처를 실제로 측정한다.
+2. 깨진 본 저장을 기본값/오래된 backup으로 자동 덮어쓰기 전 원본 보존·복구 선택/진단을 설계한다.
+3. Chromium 및 가능한 Firefox/WebKit의 잠금·숨김·종료/설치 기능을 확인하고 지원/읽기 전용/복구 가능 범위를 안내한다.
+4. 원 단위/확정 미수령/paid·직원/지점·서비스/연구·엔딩·입력·dirty·단일 작성자/PWA 계약과 197개 검사를 유지한다.
+5. 커밋·패치·번들·검증 자료를 보관하며 실제 혜택/운영 변경·main 병합/배포는 별도 승인 뒤 진행한다.
+
+복사할 [IMP-14 프롬프트](improvements/IMP-13-session-ownership.md#imp-14-시작-프롬프트)를 사용한다.

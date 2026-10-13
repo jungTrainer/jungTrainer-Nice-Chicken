@@ -398,7 +398,9 @@ function initDOMRefs() {
       ) {
         return;
       }
+      const ownership = SessionOwner.token();
       const ok = await askPIN();
+      if (!SessionOwner.matches(ownership)) return;
       if (!ok) {
         showToast("PIN이 올바르지 않아요.");
         sfxWrong();
@@ -960,6 +962,7 @@ safeOn(document.getElementById("statTotal"), "click", () => {
 -------------------- */
 let pinResolver = null;
 function askPIN() {
+  if (!SessionOwner.canMutate()) return false;
   return new Promise((resolve) => {
     pinResolver = resolve;
     pinInput.value = "";
@@ -1138,6 +1141,7 @@ function waitingSlots() {
    Customers spawn + move
 -------------------- */
 function spawnCustomer() {
+  if (!SessionOwner.canMutate()) return false;
   const rates = computeRates();
   if (state.customers.length >= CONFIG.maxCustomers) return;
 
@@ -3574,6 +3578,7 @@ function getCanvasPoint(e) {
 }
 
 function onCanvasDown(e) {
+  if (!SessionOwner.canMutate()) return false;
   if (
     document.querySelector(".panel.on") ||
     document.querySelector(".dim.on")
@@ -3995,7 +4000,7 @@ function frame(now) {
   } catch (e) {
     console.error("render error", e);
   }
-  state._lastFrameAt = Date.now();
+  if (SessionOwner.canMutate()) state._lastFrameAt = Date.now();
   rAF_ID = requestAnimationFrame(frame);
 }
 // boss fx tick (never throws)
@@ -4231,6 +4236,7 @@ function updateStatsUI() {
 }
 
 function tick(dt) {
+  if (!SessionOwner.canTick()) return;
   if (PwaRuntime.applying) return;
   markStateChanged("active-branch-tick");
   beginEffectBatch();

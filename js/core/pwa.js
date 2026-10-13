@@ -51,6 +51,8 @@ const PwaRuntime = (() => {
         : "브라우저 메뉴의 앱 설치/홈 화면 추가를 사용하세요. HTTPS 또는 localhost가 필요합니다.";
   }
   function safeReason() {
+    if (!SessionOwner.canMutate())
+      return "운영 창에서만 새 버전을 적용할 수 있습니다.";
     if (!bootReady || deferRecoveryWrites)
       return "앱 초기화가 끝난 뒤 다시 시도하세요.";
     if (
@@ -71,6 +73,23 @@ const PwaRuntime = (() => {
     if (el("saveTransferText")?.value.trim())
       return "백업/가져오기 작업을 마친 뒤 입력란을 비워 주세요.";
     return "";
+  }
+  async function prune() {
+    const reason = safeReason();
+    if (reason) {
+      failure = reason;
+      render();
+      return;
+    }
+    try {
+      const result = await message(navigator.serviceWorker.controller, "PRUNE");
+      failure = result.ok
+        ? `미사용 셸 ${result.deleted}개를 정리했습니다. 저장/보상은 유지됩니다.`
+        : "설치·대기 업데이트·응답하지 않는 창이 있어 정리하지 않았습니다. 사용 중인 셸을 보존합니다.";
+    } catch (_) {
+      failure = "셸 정리를 확인하지 못했습니다. 기존 셸과 저장을 유지합니다.";
+    }
+    render();
   }
   async function apply() {
     if (applying || !waiting) return false;
@@ -231,6 +250,16 @@ const PwaRuntime = (() => {
       render();
     }
   });
+  navigator.serviceWorker?.addEventListener("message", async (event) => {
+    if (event.data?.type === "PWA_VERSION_QUERY") {
+      const current = await navigator.serviceWorker.getRegistration();
+      event.ports[0]?.postMessage({
+        protocol: 13,
+        version,
+        updating: !!current?.installing || !!current?.waiting,
+      });
+    }
+  });
   for (const type of ["click", "pointerdown", "touchstart", "keydown"])
     window.addEventListener(
       type,
@@ -247,6 +276,7 @@ const PwaRuntime = (() => {
     () => {
       el("checkPwaUpdate").addEventListener("click", check);
       el("applyPwaUpdate").addEventListener("click", apply);
+      el("prunePwaCaches").addEventListener("click", prune);
       el("installPwa").addEventListener("click", async () => {
         const prompt = installPrompt;
         if (!prompt) return;

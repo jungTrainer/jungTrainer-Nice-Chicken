@@ -1,4 +1,7 @@
 const fs = require("node:fs");
+const os = require("node:os");
+const path = require("node:path");
+const { startHeadedContext } = require("./display.cjs");
 const { chromium } = require("playwright");
 const { browserOptions } = require("./browser-options.cjs");
 (async () => {
@@ -24,6 +27,30 @@ const { browserOptions } = require("./browser-options.cjs");
   } finally {
     await browser?.close();
   }
+  const profile = fs.mkdtempSync(
+    path.join(os.tmpdir(), "nice-chicken-doctor-"),
+  );
+  let native;
+  try {
+    native = await startHeadedContext(profile);
+    const a = await native.context.newPage(),
+      b = await native.context.newPage();
+    await a.setContent("<title>Background probe</title>");
+    await b.bringToFront();
+    await a.waitForFunction(() => document.hidden, null, {
+      polling: 100,
+      timeout: 5000,
+    });
+    await a.bringToFront();
+    await a.waitForFunction(() => !document.hidden, null, {
+      polling: 100,
+      timeout: 5000,
+    });
+    console.log("Native headed Chromium hide/resume (no focus emulation): OK");
+  } finally {
+    await native?.stop();
+    fs.rmSync(profile, { recursive: true, force: true });
+  }
 })().catch((error) => {
   console.error(error.message);
   console.error(
@@ -34,6 +61,9 @@ const { browserOptions } = require("./browser-options.cjs");
   );
   console.error(
     "For an existing browser set PLAYWRIGHT_CHROMIUM_EXECUTABLE to its executable path.",
+  );
+  console.error(
+    "Linux visibility checks require Xvfb or DISPLAY; use PLAYWRIGHT_XVFB_EXECUTABLE for a verified local Xvfb.",
   );
   process.exitCode = 1;
 });
