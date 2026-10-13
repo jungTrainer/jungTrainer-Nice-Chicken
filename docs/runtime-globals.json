@@ -1,5 +1,5 @@
 {
-  "source": "IMP-12; classic script load order in index.html; top-level declarations only",
+  "source": "IMP-13; classic script load order in index.html; top-level declarations only",
   "modules": [
     {
       "file": "js/core/money.js",
@@ -118,6 +118,13 @@
       "bindings": [
         "defaultState",
         "state"
+      ]
+    },
+    {
+      "file": "js/core/session.js",
+      "functions": [],
+      "bindings": [
+        "SessionOwner"
       ]
     },
     {
