@@ -1,4 +1,5 @@
-function missionList(weekly) {
+function missionList(weekly, { legacy = false } = {}) {
+  if (!legacy) return RepeatMissions.list(weekly);
   const types = weekly
     ? ["stamp", "sales", "rep", "tip", "menu", "upg", "sign", "expand"]
     : ["serve", "earn", "rep", "tip", "menu", "upg", "sign", "expand"];
@@ -38,11 +39,13 @@ function missionBaselines(weekly) {
   m[prefix + "Sign"] = state.upgrades.signboard || 0;
   m[prefix + "Expand"] = state.upgrades.expand || 0;
   if (weekly) {
+    m._weekActiveSec = 0;
     m._weekTip = 0;
     m._weekUpgBuys = 0;
     m._weekServe = 0;
     m._weekStartTotalSales = state.totalSales;
   } else {
+    m._dayActiveSec = 0;
     m._tipToday = 0;
     m._upgBuysToday = 0;
     m._serveToday = 0;
@@ -98,6 +101,7 @@ function startNewWeek({ resetCertificate = true } = {}) {
   m.weeklyStamps = 0;
   m.weeklyCompletedAt = 0;
   m.weeklyList = missionList(true);
+  m.weeklyPolicy = 2;
   missionBaselines(true);
   // Passive branch/week initialization must not revoke an HQ certificate.
   if (
@@ -125,6 +129,7 @@ function ensureMissionReset() {
   if (m.dailyKey !== dayKey()) {
     m.dailyKey = dayKey();
     m.dailyList = missionList(false);
+    m.dailyPolicy = 2;
     m.dailyCompletedToday = false;
     m.dailyStamps = 0;
     missionBaselines(false);
@@ -143,11 +148,13 @@ function ensureMissionReset() {
   repairMissionGoals();
 }
 
-function onServeOneOnline() {
+function onServeOneOnline(actorKey = "player") {
   if (!SessionOwner.canMutate()) return false;
+  ensureMissionReset();
   markStateChanged("serve-mission", false);
   state.missions._serveToday = (state.missions._serveToday || 0) + 1;
   state.missions._weekServe = (state.missions._weekServe || 0) + 1;
+  RepeatMissions.onServe(actorKey);
   updateMissionsOnlineOnly();
 }
 
@@ -168,6 +175,10 @@ function updateMissionsOnlineOnly() {
             ((weekly ? m._weekServe : m._serveToday) || 0) -
               (goal.serveBaseline || 0),
           );
+      if (goal.type === "service") value = (weekly ? m._weekServe : m._serveToday) || 0;
+      if (goal.type === "active") value = (weekly ? m._weekActiveSec : m._dayActiveSec) || 0;
+      if (goal.type === "orders" || (goal.type === "menu" && !goal.menuId))
+        value = MENUS.reduce((n, item) => n + Math.max(0, (state.menuStats[item.id]?.count || 0) - (m[prefix + "MenuCounts"]?.[item.id] || 0)), 0);
       if (goal.type === "stamp") value = m.weeklyStamps || 0;
       if (goal.type === "earn") value = state.todaySales;
       if (goal.type === "sales")
@@ -177,7 +188,7 @@ function updateMissionsOnlineOnly() {
       if (goal.type === "tip") value = (weekly ? m._weekTip : m._tipToday) || 0;
       if (goal.type === "upg")
         value = (weekly ? m._weekUpgBuys : m._upgBuysToday) || 0;
-      if (goal.type === "menu")
+      if (goal.type === "menu" && goal.menuId)
         value =
           (state.menuStats[goal.menuId || MENUS[0].id]?.count || 0) -
           (m[prefix + "MenuCounts"]?.[goal.menuId || MENUS[0].id] || 0);
@@ -336,3 +347,63 @@ function renderWeeklyCertificate() {
 
   updateUI();
 }
+
+// v2 goals start at the next period; v1 snapshots remain untouched.
+const RepeatMissions = {
+  list(weekly) {
+    const types = weekly
+      ? ["stamp", "sales", "rep", "tip", "menu", "service", "orders", "active"]
+      : ["serve", "earn", "rep", "tip", "menu", "service", "orders", "active"];
+    const targets = weekly ? [7, 900000, 1, 20, 30, 60, 60, 300] : [6, 40000, 1, 3, 2, 12, 6, 60];
+    const labels = {
+      stamp: "일간 올클", sales: "주간 매출", serve: "정확 서빙", earn: "오늘 매출",
+      rep: weekly ? "평점 4.4 이상" : "평점 4.2 이상", tip: "팁 받기", menu: "현재 운영 메뉴 판매",
+      service: "추가 서빙", orders: "전체 메뉴 판매", active: "접속 운영(초)",
+    };
+    return types.map((type, i) => ({ id: (weekly ? "w_" : "d_") + type, type, title: labels[type] + (type === "rep" ? "" : ` ${targets[i]}`), target: targets[i], current: 0, done: false }));
+  },
+  tick(dt) {
+    if (!SessionOwner.canTick() || !Number.isFinite(dt) || dt <= 0) return;
+    const m = state.missions;
+    m._dayActiveSec = (m._dayActiveSec || 0) + dt;
+    m._weekActiveSec = (m._weekActiveSec || 0) + dt;
+    // tick's existing dirty marker owns persistence; never create another timer/save.
+  },
+  startChallenge() {
+    if (!SessionOwner.canMutate()) return false;
+    const m = state.missions, previous = m.visitChallenge;
+    if (previous && !previous.completedAt && !confirm("진행 중인 게임 도전을 새로 시작할까요? 쿠폰/서비스 방문은 바뀌지 않습니다.")) return false;
+    const dirty = _saveDirty;
+    m.visitChallenge = { id: crypto.randomUUID(), startedAt: Date.now(), serves: 0, completedAt: 0 };
+    markStateChanged("visit-challenge");
+    if (!save(true)) {
+      if (previous === undefined) delete m.visitChallenge; else m.visitChallenge = previous;
+      BranchManager.saveCurrent(); _saveDirty = dirty;
+      showToast("저장 실패. 이전 도전을 유지합니다."); return false;
+    }
+    this.render(); return true;
+  },
+  onServe(actorKey) {
+    const c = state.missions.visitChallenge;
+    if (actorKey !== "player" || !c || c.completedAt) return;
+    c.serves = Math.min(5, c.serves + 1);
+    if (c.serves === 5) c.completedAt = Date.now();
+    markStateChanged("visit-challenge-progress", false);
+  },
+  render() {
+    const host = document.getElementById("missionExtraStatus");
+    if (!host || !document.getElementById("panel-mis")?.classList.contains("on")) return;
+    const c = state.missions.visitChallenge;
+    const upgrades = state.upgrades;
+    const achievements = [
+      ["첫 가족 고용", (upgrades.hire || 0) >= 1],
+      ["메뉴 2종 해금", getOpenMenuCount() >= 2],
+      ["연구 첫 완료", Object.values(state.research.levels).some(x => x > 0)],
+      ["첫 가게 확장", (upgrades.expand || 0) >= 1],
+      ["가족 6명 고용", (upgrades.hire || 0) >= 6],
+      ["가족 엔딩", state.endingSeen],
+    ];
+    const text = `짧은 방문 도전: ${c ? `${c.serves}/5회 직접 정확 서빙 · ${c.completedAt ? "완료" : "진행 중"}` : "시작 버튼을 눌러 주세요"}\n게임 기념 표시만 제공합니다. 쿠폰 자동 발급/서비스 사용이 아닙니다.\n성장 업적(새 보상 없음): ${achievements.map(([label,done]) => `${done ? "✓" : "○"} ${label}`).join(" · ")}\n일간 v${state.missions.dailyPolicy || 1} / 주간 v${state.missions.weeklyPolicy || 1}. 기존 목표는 현재 기간까지 보존하며 다음 기간부터 반복 v2입니다.`;
+    if (host.textContent !== text) host.textContent = text;
+  },
+};

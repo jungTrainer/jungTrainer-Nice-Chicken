@@ -1,11 +1,11 @@
 /* IMP-12: generated release block; update with npm run pwa:build. */
 // BEGIN PWA RELEASE
 const RELEASE = {
-  "version": "imp12-4d94e3e3805a2b229738",
+  "version": "imp12-3a97bd121840f8bf86f8",
   "required": [
     {
       "path": "index.html",
-      "hash": "0763e01b2304ca80619a673aba0bfdaf8f37fbaa06eb4f500877003a08cff673",
+      "hash": "99b21cfda1fe0b6e7986f120802449e5f488bbcdc9f19de333ecf29d6ab8c3a6",
       "mime": "text/html"
     },
     {
@@ -35,12 +35,12 @@ const RELEASE = {
     },
     {
       "path": "js/core/state.js",
-      "hash": "748eaf0e7629c270da8721d7dbe57bc971407fe8754913207857445295e9ed43",
+      "hash": "f7ca44504552f2e9260f4ba289daae98823249a28ffc19dc90a51b2e5140cc11",
       "mime": "javascript"
     },
     {
       "path": "js/core/recovery.js",
-      "hash": "fdaec689ea1aa6ab438ec2cee8bcce4537755ef19f498557f70dfc30e6262156",
+      "hash": "540e3e1bb8ad1a31e1f7f577c60cd9df01796ed223eafe01e99b4366316b9ae8",
       "mime": "javascript"
     },
     {
@@ -70,12 +70,12 @@ const RELEASE = {
     },
     {
       "path": "js/core/missions.js",
-      "hash": "a7971b65af9312b54dde54d942c2cea5421f5d1bc2a1af2fd2610f005033f683",
+      "hash": "b2d9b23cde4b3254d04542cfc6fbb18042b3d03b79a29aec744b133c56e4ad28",
       "mime": "javascript"
     },
     {
       "path": "js/core/economy.js",
-      "hash": "2d951d11edf08c51557bbf3ea4780c1529078f0c47bebc38818caccb72bdcdb5",
+      "hash": "bdf2a049d842f7b9e3903d3e29791d6c910ad82aaf0f44e6365ff6a50cf53f35",
       "mime": "javascript"
     },
     {
@@ -95,7 +95,7 @@ const RELEASE = {
     },
     {
       "path": "js/main.js",
-      "hash": "9f003e14009ef14bfccaa16b061341bc68a1c836cae30bf34a299253fe8e8e3e",
+      "hash": "05d43f71cb8786ed05fb11e7bfec8b8abd675fc04b7a718b3874dbff2746ea0b",
       "mime": "javascript"
     },
     {

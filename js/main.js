@@ -304,14 +304,24 @@ function initDOMRefs() {
   if (clearLogBtn) {
     clearLogBtn.addEventListener("click", () => {
       if (confirm("혜택 내역을 정리할까요? (로그만 삭제)")) {
-        state.benefitsLog = [];
-        markStateChanged("input-action");
-        save(true);
+        const committed = BenefitService.commit(() => { state.benefitsLog = []; });
         renderCoupons();
-        showToast("기록 정리 완료");
+        showToast(committed ? "기록 정리 완료. 방문 제공 상태는 보존됩니다." : "저장 실패. 기록을 보존했습니다.");
       }
     });
   }
+
+  document.getElementById("startVisitChallenge")?.addEventListener("click", () => RepeatMissions.startChallenge());
+  document.getElementById("startServiceVisit")?.addEventListener("click", () => BenefitService.startVisit());
+  document.getElementById("showStaffCoupon")?.addEventListener("click", () => {
+    document.getElementById("staffCouponView").hidden = false;
+    BenefitService.render();
+    document.getElementById("staffCouponView").focus();
+  });
+  document.getElementById("hideStaffCoupon")?.addEventListener("click", () => {
+    document.getElementById("staffCouponView").hidden = true;
+    document.getElementById("showStaffCoupon").focus();
+  });
 
   // PIN 입력 관련
   if (pinCancelBtn) {
@@ -378,52 +388,7 @@ function initDOMRefs() {
     });
   }
   if (useCertDrinkBtn) {
-    useCertDrinkBtn.addEventListener("click", async () => {
-      unlockAudioOnce();
-      startBGM();
-      if (!state.cert.issuedThisWeek) {
-        showToast("먼저 인증서를 발급하세요!");
-        sfxWrong();
-        return;
-      }
-      if (state.coupons.drink <= 0) {
-        showToast("사용 가능한 음료 쿠폰이 없어요.");
-        sfxWrong();
-        return;
-      }
-      if (
-        !confirm(
-          "기기 내부 음료 사용 기록을 남길까요?\n공개 로컬 PIN 확인이며 서버/매장 승인이 아닙니다.",
-        )
-      ) {
-        return;
-      }
-      const ownership = SessionOwner.token();
-      const ok = await askPIN();
-      if (!SessionOwner.matches(ownership)) return;
-      if (!ok) {
-        showToast("PIN이 올바르지 않아요.");
-        sfxWrong();
-        return;
-      }
-      state.coupons.drink -= 1;
-      state.cert.usedAt = Date.now();
-      logBenefit({
-        type: "drink",
-        qty: 1,
-        source: "cert_use",
-        note: "인증서 로컬 사용 기록 (서버 승인 없음)",
-      });
-      startNewWeek();
-      showToast("✅ 사용되었습니다. 주간 미션이 초기화되었습니다.");
-      sfxConfirm();
-      markStateChanged("input-action");
-      save(true);
-      updateUI();
-      renderCoupons();
-      renderPanel("mis");
-      renderPanel("shr");
-    });
+    useCertDrinkBtn.addEventListener("click", () => useCoupon("drink", { certificate: true }));
   }
 
   if (useDrinkCouponBtn) {
@@ -451,18 +416,13 @@ function initDOMRefs() {
         sfxWrong();
         return;
       }
-      state.money = moneySub(state.money, CONFIG.exchangeUnit);
-      state.coupons.drink += 1;
-      logBenefit({
-        type: "drink",
-        qty: 1,
-        source: "exchange",
-        note: "5,000만원 교환",
+      const committed = BenefitService.commit(() => {
+        state.money = moneySub(state.money, CONFIG.exchangeUnit);
+        const before = state.coupons.drink;
+        state.coupons.drink++;
+        logBenefit({ type: "drink", source: "exchange", note: "5,000만원 교환", before, after: state.coupons.drink });
       });
-      showToast("교환 완료! 음료 쿠폰 +1");
-      sfxConfirm();
-      markStateChanged("input-action");
-      save(true);
+      showToast(committed ? "교환 완료! 음료 쿠폰 +1" : "저장 실패. 돈과 쿠폰은 그대로입니다.");
       updateUI();
       renderExchange();
       renderCoupons();
@@ -1780,7 +1740,8 @@ function renderCoupons() {
   uiDrinkCoupons2.textContent = state.coupons.drink;
   uiVegCoupons2.textContent = state.coupons.veg;
 
-  benefitLogList.innerHTML = "";
+  BenefitService.render();
+  benefitLogList.textContent = "";
   const logs = state.benefitsLog || [];
   if (logs.length === 0) {
     benefitLogList.textContent = "기록이 없어요.";
@@ -1788,9 +1749,9 @@ function renderCoupons() {
   }
   const lines = logs.slice(0, 30).map((l) => {
     const label = l.type === "drink" ? "음료" : "무/양배추";
-    return `• [${l.at}] ${label} x${l.qty} (${l.source}) ${l.note ? "- " + l.note : ""}`;
+    return `• [${l.at}] ${label} x${l.qty} (${l.source}) ${l.note || ""}${l.before !== undefined ? ` · 잔량 ${l.before} → ${l.after}` : " · 기존 기록(전후 수량 없음)"}${l.table ? ` · 테이블 ${l.table} · 방문 ${l.visitId || "미기록"}` : ""}`;
   });
-  benefitLogList.innerHTML = lines.join("<br>");
+  benefitLogList.textContent = lines.join("\n");
 }
 
 function renderExchange() {
@@ -3825,9 +3786,10 @@ function renderPanel(key) {
 
   // --- [3] 미션 패널 (mis) ---
   else if (key === "mis") {
+    RepeatMissions.render();
     misGuide.innerHTML = `
       <b>📌 스탬프 받는 방법</b><br>
-      1) <b>일간 미션 8개</b>를 모두 완료하면 <b>주간 스탬프 +1</b> (하루 1회)<br>
+      1) <b>일간 미션 ${state.missions.dailyList.length}개</b>를 모두 완료하면 <b>주간 스탬프 +1</b> (하루 1회)<br>
       2) <b>주간 스탬프 7/7</b> + <b>주간 미션 올클</b> 시 인증서 발급 가능<br>
       <span style="color:#666;">※ 미션 진행은 접속 중(온라인 플레이)에서만 반영됩니다.</span>
     `;
@@ -4182,6 +4144,8 @@ function updateUI() {
 
     updateEconomyUI();
     renderManagementContent();
+    RepeatMissions.render();
+    if (modalCoupons?.classList.contains("on")) BenefitService.render();
 
     // coupons modal quick sync
     setText(uiDrinkCoupons2, state.coupons?.drink ?? 0);
@@ -4225,6 +4189,8 @@ function updateStatsUI() {
 
     renderMenuStats();
     renderManagementContent();
+    RepeatMissions.render();
+    if (modalCoupons?.classList.contains("on")) BenefitService.render();
 
     // R&D 탭은 기존 로직 유지(있으면)
     try {
@@ -4253,6 +4219,7 @@ function tick(dt) {
     if (state.play && typeof state.play.onlineSecTotal === "number")
       state.play.onlineSecTotal += dt;
     ensureMissionReset();
+    RepeatMissions.tick(dt);
     processPayroll();
     ensureResearchSlots();
     ensureStaffStats();

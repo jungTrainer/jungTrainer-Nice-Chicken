@@ -56,6 +56,7 @@ const defaultState = () => ({
 
   coupons: { drink: 0, veg: 0 }, // 음료/무양배추
   benefitsLog: [],
+  serviceVisit: null, // HQ local visit context, independent of game challenge
 
   cert: {
     issuedAt: 0,

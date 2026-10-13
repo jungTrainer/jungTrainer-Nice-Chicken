@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>나이스치킨 타이쿤 (방치+서빙)</title>
-  <meta name="app-version" content="imp12-4d94e3e3805a2b229738" />
+  <meta name="app-version" content="imp12-3a97bd121840f8bf86f8" />
   <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#FF9F1C">
   <link rel="apple-touch-icon" href="./icon-192.png">
@@ -141,6 +141,11 @@ document.addEventListener('DOMContentLoaded', ()=>{
       각 미션 카드의 <b>조건</b>을 만족하면 자동 체크됩니다.
     </div>
     <div class="scroll">
+      <div class="card" style="flex-direction:column;align-items:stretch;">
+        <h4>성장 업적 · 짧은 방문 도전</h4>
+        <p id="missionExtraStatus" style="white-space:pre-line;overflow-wrap:anywhere;"></p>
+        <button class="btn alt" id="startVisitChallenge">게임 도전 시작 / 다시 도전</button>
+      </div>
       <div class="card" style="flex-direction:column; align-items:stretch;">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <h4 style="margin:0;">🗓️ 일간 미션 (올클 보상: 무/양배추 쿠폰)</h4>
@@ -301,6 +306,17 @@ document.addEventListener('DOMContentLoaded', ()=>{
   <div class="dim" id="modalCoupons">
     <div class="modal" style="text-align:left;">
       <h3 style="text-align:center;">🎟️ 쿠폰함 / 혜택 내역</h3>
+      <div class="card" style="flex-direction:column;align-items:stretch;">
+        <label for="serviceTable">테이블 표시 (새 손님/식사 때 새 방문)</label>
+        <input id="serviceTable" maxlength="20" autocomplete="off" placeholder="예: 3번" style="min-height:44px;max-width:100%;box-sizing:border-box;">
+        <p id="serviceVisitSummary"></p>
+        <div class="row"><button class="btn alt" id="startServiceVisit">새 방문 기록</button><button class="btn" id="showStaffCoupon">직원에게 보여주기</button></div>
+        <div id="staffCouponView" hidden tabindex="-1" aria-label="직원 제공 확인 정보">
+          <p id="staffCouponStatus" style="white-space:pre-line;overflow-wrap:anywhere;"></p>
+          <button class="btn gray" id="hideStaffCoupon">직원 화면 닫기</button>
+        </div>
+        <p class="note">보여주기/닫기는 사용이 아닙니다. 아래 제공 확인 → 로컬 PIN → 저장 성공 뒤 사용 기록을 남깁니다. 다른 기기의 테이블 횟수는 직원이 확인합니다.</p>
+      </div>
 
       <div class="card" style="flex-direction:column; align-items:stretch;">
         <div style="display:flex; justify-content:space-between;">
@@ -308,7 +324,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
           <div><b id="uiDrinkCoupons2">0</b>개</div>
         </div>
         <div class="row">
-          <button class="btn alt" id="useDrinkCoupon">음료쿠폰 사용</button>
+          <button class="btn alt" id="useDrinkCoupon">음료 제공 확인 / 로컬 기록</button>
         </div>
         <div class="note">※ 기기 내부 사용 기록입니다. 공개 PIN은 서버 검증·실제 매장 승인이 아닙니다.</div>
       </div>
@@ -319,7 +335,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
           <div><b id="uiVegCoupons2">0</b>개</div>
         </div>
         <div class="row">
-          <button class="btn alt" id="useVegCoupon">무/양배추쿠폰 사용</button>
+          <button class="btn alt" id="useVegCoupon">무/양배추 제공 확인 / 로컬 기록</button>
         </div>
         <div class="note">※ 기기 내부 사용 기록입니다. 공개 PIN은 서버 검증·실제 매장 승인이 아닙니다.</div>
       </div>
@@ -329,7 +345,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
           <div><b>혜택 내역</b></div>
           <button class="btn gray" id="clearLog" style="padding:5px 7px;">기록정리</button>
         </div>
-        <div id="benefitLogList" class="note" style="margin-top:10px; max-height:180px; overflow:auto;"></div>
+        <div id="benefitLogList" class="note" style="margin-top:10px; max-height:180px; overflow:auto; white-space:pre-line; overflow-wrap:anywhere;"></div>
       </div>
 
       <div class="row">
@@ -387,19 +403,19 @@ document.addEventListener('DOMContentLoaded', ()=>{
 <script src="./js/core/audio.js" integrity="sha256-sHFMyhuEgs2lhttc2pyqwwqcgZ9XW0Xozmq7W5xIW24=" crossorigin="anonymous"></script>
 <script src="./js/core/config.js" integrity="sha256-GtNblC5JNH2S7qbqSNmcu8/YiF3X6oAGYrrRqn+DUjY=" crossorigin="anonymous"></script>
 <script src="./js/core/content.js" integrity="sha256-vgtVLpfnqBKFFORlB1Ip8mBNGcOxGuRaEh2e8BLnq5s=" crossorigin="anonymous"></script>
-<script src="./js/core/state.js" integrity="sha256-dI6vDnYpwnDahyHX2+V7yXFAf+h1SRMgeFdEUpXp7UM=" crossorigin="anonymous"></script>
-<script src="./js/core/recovery.js" integrity="sha256-/a7GieoapqtDjsLO6LzORTd1XvGfSYVX9w38MOYmIVY=" crossorigin="anonymous"></script>
+<script src="./js/core/state.js" integrity="sha256-98pEUEVS8ukmD0uiidqumIIySaKP/BnckKUbLlFAzBE=" crossorigin="anonymous"></script>
+<script src="./js/core/recovery.js" integrity="sha256-VA4+G7itGjHh9/V3xgzZ3wF5btIj6v4B6ZtDZjFrmug=" crossorigin="anonymous"></script>
 <script src="./js/core/session.js" integrity="sha256-7JJOAPnHMzRAVT/BtEtnQzGMM/qAglWj5UXwMuIyE5c=" crossorigin="anonymous"></script>
 <script src="./js/core/persistence.js" integrity="sha256-wsqBjGGlhLUabDKfusdsThU4XyaJimNgg+pF0PXP0Vw=" crossorigin="anonymous"></script>
 <script src="./js/core/growth.js" integrity="sha256-dXstgJOKZAc0UWZBubduFeF7oTmTP0HnP7fWUX7sG9E=" crossorigin="anonymous"></script>
 <script src="./js/core/research.js" integrity="sha256-hZm8YgGc0JcOgwAOYzWkYwxYhJRlGTmMxYkf0KINf80=" crossorigin="anonymous"></script>
 <script src="./js/core/offline.js" integrity="sha256-1UXckpVuU/s8Zbg1dWLlGRw43iRxmFXHVW8BFDwI4bA=" crossorigin="anonymous"></script>
-<script src="./js/core/missions.js" integrity="sha256-p5cbZa+TErVN3lTZQsLOpUIfXRvCoa8v0mEPAFAz9oM=" crossorigin="anonymous"></script>
-<script src="./js/core/economy.js" integrity="sha256-LZUdEe3wjFFVe78+pHgMFSkHjwxHvrw4gYysy3K9zbU=" crossorigin="anonymous"></script>
+<script src="./js/core/missions.js" integrity="sha256-stmyPN5LMlTQRULPxvuxgEKz0Dt5oprsdEsTPFbkrSg=" crossorigin="anonymous"></script>
+<script src="./js/core/economy.js" integrity="sha256-vfKgSdhC97njkD0+KXkdbJEK2CqvD0TmNl/2pQz1PzU=" crossorigin="anonymous"></script>
 <script src="./js/core/ending.js" integrity="sha256-THNlYqs8CkXhI046aEprCtboxkLQwf6mRGedivxaTPM=" crossorigin="anonymous"></script>
 <script src="./js/core/branches.js" integrity="sha256-nQut2OvQI/z1rTxGeWXAAxTBxfD1h4oT87c8xZADrdw=" crossorigin="anonymous"></script>
 <script src="./js/core/services.js" integrity="sha256-sRqkDRQQ26XEep04VSahqeeM5sQAPMRIxHZRME3MgTM=" crossorigin="anonymous"></script>
-<script src="./js/main.js" integrity="sha256-nwA+FACe8Uv8yqFrBhNBvGihyDbK4wvzSimSU/6Ojj4=" crossorigin="anonymous"></script>
+<script src="./js/main.js" integrity="sha256-BdQ/ccuHhu0F+xHnv+yLir1nX8BLenGLOHTb/ydG6gs=" crossorigin="anonymous"></script>
 <script src="./js/core/ui.js" integrity="sha256-5vEwaddSoFIlIe8Znfar4dL+DOKGv63Gm7O7OjLYJ8E=" crossorigin="anonymous"></script>
 <script src="./js/core/pwa.js" integrity="sha256-V9kIrz8dBh/RilvFaqD3slfNp0vxcEHZ4Hyb3EsvSgc=" crossorigin="anonymous"></script>
 <script src="./js/core/boot.js" integrity="sha256-yy3PvMpd+cS/PaQTd5J+4ONhH9ZQFEbZrp2Uxj0GtNw=" crossorigin="anonymous"></script>
