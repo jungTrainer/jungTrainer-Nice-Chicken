@@ -1,5 +1,5 @@
 {
-  "source": "IMP-14; classic script load order in index.html; top-level declarations only",
+  "source": "IMP-15; classic script load order in index.html; top-level declarations only",
   "modules": [
     {
       "file": "js/core/money.js",
@@ -218,7 +218,9 @@
         "generateWeeklyCertificate",
         "renderWeeklyCertificate"
       ],
-      "bindings": []
+      "bindings": [
+        "RepeatMissions"
+      ]
     },
     {
       "file": "js/core/economy.js",
@@ -237,7 +239,9 @@
         "useCoupon",
         "getLifetimeSales"
       ],
-      "bindings": []
+      "bindings": [
+        "BenefitService"
+      ]
     },
     {
       "file": "js/core/ending.js",

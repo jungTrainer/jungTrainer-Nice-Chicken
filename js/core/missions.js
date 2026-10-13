@@ -385,7 +385,7 @@ const RepeatMissions = {
   },
   onServe(actorKey) {
     const c = state.missions.visitChallenge;
-    if (actorKey !== "player" || !c || c.completedAt) return;
+    if (!c || c.completedAt) return;
     c.serves = Math.min(5, c.serves + 1);
     if (c.serves === 5) c.completedAt = Date.now();
     markStateChanged("visit-challenge-progress", false);
@@ -403,7 +403,7 @@ const RepeatMissions = {
       ["가족 6명 고용", (upgrades.hire || 0) >= 6],
       ["가족 엔딩", state.endingSeen],
     ];
-    const text = `짧은 방문 도전: ${c ? `${c.serves}/5회 직접 정확 서빙 · ${c.completedAt ? "완료" : "진행 중"}` : "시작 버튼을 눌러 주세요"}\n게임 기념 표시만 제공합니다. 쿠폰 자동 발급/서비스 사용이 아닙니다.\n성장 업적(새 보상 없음): ${achievements.map(([label,done]) => `${done ? "✓" : "○"} ${label}`).join(" · ")}\n일간 v${state.missions.dailyPolicy || 1} / 주간 v${state.missions.weeklyPolicy || 1}. 기존 목표는 현재 기간까지 보존하며 다음 기간부터 반복 v2입니다.`;
+    const text = `짧은 방문 도전: ${c ? `${c.serves}/5회 정확 서빙(직접/자동) · ${c.completedAt ? "완료" : "진행 중"}` : "시작 버튼을 눌러 주세요"}\n게임 기념 표시만 제공합니다. 쿠폰 자동 발급/서비스 사용이 아닙니다.\n성장 업적(새 보상 없음): ${achievements.map(([label,done]) => `${done ? "✓" : "○"} ${label}`).join(" · ")}\n일간 v${state.missions.dailyPolicy || 1} / 주간 v${state.missions.weeklyPolicy || 1}. 기존 목표는 현재 기간까지 보존하며 다음 기간부터 반복 v2입니다.`;
     if (host.textContent !== text) host.textContent = text;
   },
 };
