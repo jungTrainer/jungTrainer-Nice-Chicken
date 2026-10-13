@@ -2,7 +2,7 @@
 
 갱신일: 2026-10-13 (한국 시간). 기준 저장소 `6b602e583644ec4ba21f4ed74924cc0b684c0c92`.
 
-현재 작업본의 보관 브랜치는 [`improvement-imp15-20261013`](https://github.com/jungTrainer/jungTrainer-Nice-Chicken/tree/improvement-imp15-20261013)이다. IMP-15 기준은 `origin/improvement-imp14-20261013`의 `a991396`이며 다음 환경은 IMP-15 브랜치를 선택한다. [Draft PR #9](https://github.com/jungTrainer/jungTrainer-Nice-Chicken/pull/9)의 리뷰 대상은 IMP-14이며 main 병합·배포는 수행하지 않았다.
+현재 작업본의 보관 브랜치는 [`improvement-imp16-20261013`](https://github.com/jungTrainer/jungTrainer-Nice-Chicken/tree/improvement-imp16-20261013)이다. IMP-16 기준은 `origin/improvement-imp15-20261013`의 `491e4aa`이며 다음 환경은 IMP-16 브랜치를 선택한다. [Draft PR #10](https://github.com/jungTrainer/jungTrainer-Nice-Chicken/pull/10)의 base는 IMP-15이며 main 병합·배포는 수행하지 않았다.
 
 이전 환경의 IMP-01~05 코드·문서와 검사 96개는 로컬/원격/Git 복구 객체에서 찾을 수 없었다. 사용자 승인 후 REC-01~05로 기능을 재구현하고 새 회귀 검사를 만들었다. 과거 완료 기록과 현재 재검증을 동일한 것으로 취급하지 않는다. [복구 보고서](improvements/REC-recovery.md)를 참고한다.
 
@@ -23,9 +23,10 @@
 | IMP-13 | 여러 창의 저장 소유권·복구 | 완료 | 손실 재현·단일 Web Lock 작성자·읽기 전용/인계·저장/종료/충돌 복구·사용 중 셸 보존·197개/문법 34개·CI |
 | IMP-14 | 백업·복구 진단과 지원 브라우저 | 완료 | 손실 재현·원문 보존/명시적 선택·세대 차단·실패/재시도·실제 SW/설치/FF/WK·223개/문법 37개·CI |
 | IMP-15 | 반복 미션·방문용 서비스 쿠폰 | 완료 | 기존 기간 보존/다음 반복 v2·최대 자동 성장 도전·직원 보여주기/방문/전후 기록·commit 실패 복구·254개/문법38·CI |
-| IMP-16 | 지역 엔딩·이지/노말 | 대기 | 도달 시간 재측정·한 앱의 모드/지역 이야기·기존1회 효과/저장/발급 정책 보존 |
+| IMP-16 | 지역 엔딩·이지/노말 | 완료 | 9채널 측정·능동이지5/90분/노말18/312분·명시적모드·6지역해금/첫기념/재생·기존원/paid/쿠폰보존·280개/문법39·CI |
+| IMP-17 | 첫 방문 안내·접근성·실기기 검증 | 대기 | 모드/매출/기념 안내·사람 성장 비교·지원별 실제 입력/설치·실물 정책은 미적용 유지 |
 
-현재 검증 기준은 **254개**(기존223개 + 반복 미션/쿠폰31개), `npm run doctor`, `npm run check`(앱 JS22개 + CJS16개/생성물 일치)다. [복구 정책](save-recovery-policy.md), [데이터 규칙](data-ownership.md), [IMP-15 보고서](improvements/IMP-15-missions-coupons.md)와 [미션·서비스 정책](missions-service-policy.md)에 구현·검증·한계와 다음 프롬프트를 기록했다. 사용자 방향에 따라 백엔드·계정·서버 쿠폰 개발은 제외하고 [제품 방향](product-direction.md)의 반복 미션/서비스·지역 엔딩/난이도·점진적 광고 순서를 따른다.
+현재 검증 기준은 **280개**(기존254개 + 모드/지역/PWA26개), `npm run doctor`, `npm run check`(앱 JS22개 + CJS17개/생성물 일치)다. [복구 정책](save-recovery-policy.md), [데이터 규칙](data-ownership.md), [IMP-16 보고서](improvements/IMP-16-regional-endings.md)와 [모드 정책](campaign-policy.md)에 구현·검증·한계와 다음 프롬프트를 기록했다. 최종 SHA의 실제 CI 결과는 PR checks와 보관 CI JSON에서 확인한다. 백엔드·계정·서버 쿠폰 개발은 제외하고 [제품 방향](product-direction.md)의 오프라인 게임/서비스 방향을 따른다. 새 발급/통합 한도·양배추/무 제공량은 미적용 검토안이고 실제 운영 변경을 하지 않는다.
 
 ## IMP-07 범위와 완료
 
@@ -149,3 +150,13 @@
 5. 기존254개/새 경계·모드 검사·doctor/check/test/최종 SHA CI와 커밋·patch/bundle·완료 보고서를 남긴다. 백엔드·광고·헬/실제 혜택/운영/main 병합·배포는 이번 범위에서 제외한다.
 
 [IMP-16 시작 프롬프트](improvements/IMP-15-missions-coupons.md#imp-16-시작-프롬프트)를 사용한다.
+
+## IMP-16 범위와 완료
+
+1. 기존100해·능동/자동/8시간 복귀 오프라인과 초안/최종9채널을 같은 성장 모델로 비교한다.
+2. 한 앱의 명시적 기존/이지/노말 선택, 6지역 매출 이야기·첫 완료 기념·재생을 구현한다. 정확한 원 목표/미래 지점 비용만 바꾼다.
+3. 구 저장 기본legacy·이미 열린/paid/쿠폰/가족1회·확정 receipt·원문/세대·writer/reader/PWA 규칙을 보존한다. 실물 정책/과거 수익을 변경하지 않는다.
+4. 원 경계·저장 실패/재시도·복구/기간·실제 작은 화면/다중탭·오프라인/새/실패워커·설치창·백업/import/reset을 검증한다.
+5. 기존254+신규26=280개·doctor/check39·생성물일치·finalSHA CI, 단계별 커밋/patch/bundle·보고서/후속프롬프트를 보관한다.
+
+2026-10-13 완료. 능동 이지5/90분·노말18/312분은 설계 목표 안이다. 자동92/299분, 8시간마다 복귀하는 오프라인4일8시간/5일8시간과 구100해98.5시간을 구분했다. 사람 완주 시간 보장으로 표시하지 않는다. 게임 기념은 돈/실물 미발급이고 기존5,000만원 교환/쿠폰/paid를 유지했다. 로컬280개와 원격 최종 CI 자료를 [완료 보고서](improvements/IMP-16-regional-endings.md)에 연결한다. 복사할 [IMP-17 프롬프트](improvements/IMP-16-regional-endings.md#imp-17-시작-프롬프트)를 사용한다.
