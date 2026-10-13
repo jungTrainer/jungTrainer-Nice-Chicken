@@ -4,14 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>나이스치킨 타이쿤 (방치+서빙)</title>
-  <meta name="app-version" content="imp12-c16d98d7ce115b44772b" />
+  <meta name="app-version" content="imp12-9d486574e2fa5c6e79ec" />
   <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#FF9F1C">
   <link rel="apple-touch-icon" href="./icon-192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./css/style.css" integrity="sha256-ijMdWf4Ne2g0Cy6jcV1T5o3MSExTG4g6RPsBnwPKuyM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="./css/style.css" integrity="sha256-oL4D0+OJULPR9vDLIq31NP1jcShBNLVdOAyrcrplsXs=" crossorigin="anonymous">
 
 
 </head>
@@ -131,18 +131,19 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
   <section class="panel" id="panel-mis">
     <div class="pHead">
-      <h3>📅 일간/주간 미션</h3>
+      <h3>📅 반복 미션 · 성장 업적</h3>
       <button class="closeBtn" data-close>✕</button>
     </div>
     <div class="note" style="margin:10px 12px 0 12px; line-height:1.35;">
-      <b>미션은 “온라인 플레이 중”에만 진행</b>돼요.<br>
+      <b>반복 미션은 “온라인 플레이 중”에만 진행</b>돼요. 최대 성장 뒤에도 기간이 바뀌면 가능한 서빙 목표로 이어집니다. 현재 기간의 기존 목표·지급 상태는 유지해요.<br>
       • <b>일간 미션</b>: 8종 모두 완료하면 보상 + 주간스탬프 1개 획득<br>
       • <b>주간 미션</b>: 일간 올클 7번을 포함한 8종 모두 완료하면 인증서 발급 가능<br>
       각 미션 카드의 <b>조건</b>을 만족하면 자동 체크됩니다.
     </div>
     <div class="scroll">
       <div class="card" style="flex-direction:column;align-items:stretch;">
-        <h4>성장 업적 · 짧은 방문 도전</h4>
+        <h4>🎮 성장 업적 · 짧은 방문 도전</h4>
+        <p class="note">게임 목표: 성장 기록과 방문 도전 기념입니다. 확인·재도전으로 돈이나 실물 쿠폰을 지급하지 않습니다.</p>
         <p id="missionExtraStatus" style="white-space:pre-line;overflow-wrap:anywhere;"></p>
         <button class="btn alt" id="startVisitChallenge">게임 도전 시작 / 다시 도전</button>
       </div>
@@ -241,8 +242,11 @@ document.addEventListener('DOMContentLoaded', ()=>{
   <!-- Profile name modal (first run) -->
   <div class="dim" id="modalProfile">
     <div class="modal" style="text-align:left;">
-      <h3 style="text-align:center;">🧾 사용자 이름</h3>
-      <p style="text-align:center; margin-bottom:10px;">처음 1회만 입력해요. (빈값 가능)</p>
+      <h3 style="text-align:center;">🐔 처음 오셨나요?</h3>
+      <p>손님을 누르고 주문과 같은 메뉴를 눌러 서빙해요. 첫 손님은 자동 선택됩니다. 업그레이드·직원 고용으로 성장해요.</p>
+      <p>기본 모드는 <b>기존 운영</b>입니다. 이지/노말은 설정에서 직접 선택해요. 아래 안내를 스크롤해서 읽고, 언제든 설정에서 다시 볼 수 있어요.</p>
+      <p style="text-align:center; margin-bottom:10px;">이름은 처음 1회만 입력해요. (빈값 가능)</p>
+      <label for="nameInput">게임에서 사용할 이름 (선택)</label>
       <input id="nameInput" type="text" placeholder="한글 최대 10글자" inputmode="text" autocomplete="off" />
       <div class="mini">
         • 한글만 입력 가능<br>
@@ -250,9 +254,38 @@ document.addEventListener('DOMContentLoaded', ()=>{
         • 빈값 가능(표시 안 함)
       </div>
       <div class="row">
-        <button class="btn" id="saveName">저장</button>
+        <button class="btn" id="saveName">이름 저장 · 게임 시작</button>
       </div>
-      <div class="note">※ 이름은 기기(LocalStorage)에만 저장됩니다.</div>
+      <div class="note">※ 이름은 기기(LocalStorage)에만 저장됩니다. 안내는 설정에서 다시 볼 수 있어요.</div>
+      <div data-game-guide></div>
+    </div>
+  </div>
+
+  <template id="gameGuideTemplate">
+    <div class="game-guide">
+      <h4>1. 주문에 맞춰 서빙해요</h4>
+      <p>손님을 누르고 주문과 같은 메뉴 버튼을 눌러요. 첫 손님은 자동 선택됩니다. 수익으로 업그레이드하고 직원을 고용하면 자동 서빙을 도와줘요. 미수령 수익은 확인 후 직접 수령해요.</p>
+      <h4>2. 모드는 설정 → 운영 모드</h4>
+      <p><b>처음에는 기존 운영</b>입니다. 안내를 읽거나 닫아도 모드는 바뀌지 않아요.</p>
+      <ul>
+        <li><b>기존 운영</b>: 기존 지점 비용과 100해 가족 목표를 유지해요.</li>
+        <li><b>이지</b>: 지점 해금 비용과 지역·가족 목표를 낮춘 짧은 성장 경로예요.</li>
+        <li><b>노말</b>: 이지보다 높은 목표로 더 길게 운영해요.</li>
+      </ul>
+      <p>이지 첫 지역 5~10분/전체 1~2시간, 노말 첫 지역 15~25분/전체 5~8시간은 능동 운영 모델의 설계 목표예요. 자동 운영·앱을 닫은 시간과 실제 플레이 시간은 다릅니다.</p>
+      <p>설정에서 모드를 직접 선택하고 확인해야 적용돼요. 현재 진행·기존 해금·미수령·지급 기록은 유지하며, 이후 지점 비용과 이야기 목표만 바뀝니다. 일반 서빙 가격·속도와 쿠폰 규칙은 같아요.</p>
+      <h4>3. 지도에서 지역과 가족 목표를 확인해요</h4>
+      <p>지도는 지점별 기록 매출과 다음 해금 비용·조건을 보여줘요. 이지/노말은 해당 지점의 기록 매출 목표로 지역 이야기가 열리고, 이전 지역 이야기 해금과 보유금이 다음 지점을 열어요. 지역 이야기는 설정에서 읽습니다.</p>
+      <p>이지/노말 가족 엔딩은 지역 이야기 6곳 해금과 보유금 목표가 필요해요. 기존 운영은 100해 보유금 목표입니다. 지역 기념은 한 번 기록되고, 다시 읽어도 돈·쿠폰을 주지 않아요.</p>
+      <h4>4. 게임 목표와 실물 혜택은 달라요</h4>
+      <p><b>성장 업적·방문 도전</b>은 게임 기록입니다. <b>일간/주간 반복 미션</b>은 기간별 목표이며 기존 완료 보상·인증서 규칙을 유지해요. <b>쿠폰함</b>은 실물 혜택 수량과 사용 기록입니다.</p>
+      <p>음료는 테이블의 한 방문에 한 병입니다. 다른 기기의 횟수는 공유되지 않으며 직원 확인이 필요해요. 보여주기·안내 닫기는 사용이나 지급이 아닙니다. 게임머니 5,000만원당 음료 쿠폰 1장 교환은 그대로예요. 로컬 PIN은 서버 인증이 아닙니다.</p>
+    </div>
+  </template>
+  <div class="dim" id="modalGameGuide">
+    <div class="modal" style="text-align:left;">
+      <h3>🐔 게임 첫 방문 안내</h3>
+      <div data-game-guide></div>
     </div>
   </div>
 
@@ -260,6 +293,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   <div class="dim" id="modalSettings">
     <div class="modal" style="text-align:left;">
       <h3 style="text-align:center;">⚙️ 설정</h3>
+      <button class="btn alt" id="openGameGuide" type="button">게임 방법 · 첫 방문 안내</button>
       <div class="card" style="flex-direction:column;align-items:stretch;">
         <h4>운영 모드 · 지역 이야기</h4>
         <p id="campaignStatus" role="status" tabindex="-1" style="white-space:pre-line;overflow-wrap:anywhere;"></p>
@@ -322,6 +356,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   <div class="dim" id="modalCoupons">
     <div class="modal" style="text-align:left;">
       <h3 style="text-align:center;">🎟️ 쿠폰함 / 혜택 내역</h3>
+      <p class="note">실물 혜택: 보유 쿠폰과 제공 전후의 기기 기록입니다. 게임 업적과 구분되며 열기·닫기·직원에게 보여주기로 지급하거나 사용하지 않습니다. 음료는 테이블 한 방문에 한 병이며 기기 간 횟수는 공유되지 않습니다.</p>
       <div class="card" style="flex-direction:column;align-items:stretch;">
         <label for="serviceTable">테이블 표시 (새 손님/식사 때 새 방문)</label>
         <input id="serviceTable" maxlength="20" autocomplete="off" placeholder="예: 3번" style="min-height:44px;max-width:100%;box-sizing:border-box;">
@@ -418,7 +453,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 <script src="./js/core/utils.js" integrity="sha256-rMb8jDUvlaPmk9VhbNRBrAuP4uAL90TbDOj4Yj9JlcU=" crossorigin="anonymous"></script>
 <script src="./js/core/audio.js" integrity="sha256-sHFMyhuEgs2lhttc2pyqwwqcgZ9XW0Xozmq7W5xIW24=" crossorigin="anonymous"></script>
 <script src="./js/core/config.js" integrity="sha256-UVY/flZ+z0DGfWsMtuDS1+pFzGF4pyEqWTHPPzg1pbM=" crossorigin="anonymous"></script>
-<script src="./js/core/content.js" integrity="sha256-SUrcNuSAq7a0ZHFVLiIpugT9G1MQts2pKph2XYdPhVc=" crossorigin="anonymous"></script>
+<script src="./js/core/content.js" integrity="sha256-1vj93AFB2ZG4DwIMRvqCYORHWUw0PiblSKOT3u8J8hY=" crossorigin="anonymous"></script>
 <script src="./js/core/state.js" integrity="sha256-mbTApSXW9CoJNr40TY8LqrFw5WplPNIC0gOGiMkEwxc=" crossorigin="anonymous"></script>
 <script src="./js/core/recovery.js" integrity="sha256-Usyqf2GKYVKIA7r1FlVbIUaUQ+FqJlyXc4MPzkeNrTI=" crossorigin="anonymous"></script>
 <script src="./js/core/session.js" integrity="sha256-7JJOAPnHMzRAVT/BtEtnQzGMM/qAglWj5UXwMuIyE5c=" crossorigin="anonymous"></script>
@@ -431,8 +466,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
 <script src="./js/core/ending.js" integrity="sha256-eK16di03+jUqGcYTsBAJkFfaeCFAGHCG6IGtge9tEtA=" crossorigin="anonymous"></script>
 <script src="./js/core/branches.js" integrity="sha256-m2PWDQRv4d2ec4DaAbgeekKh6XWsSpIQe2/IV1Lpa3Y=" crossorigin="anonymous"></script>
 <script src="./js/core/services.js" integrity="sha256-sRqkDRQQ26XEep04VSahqeeM5sQAPMRIxHZRME3MgTM=" crossorigin="anonymous"></script>
-<script src="./js/main.js" integrity="sha256-8aUqg07MvTKYrJQ2Berrp8LWWd4MziaoRrKs4ZzzgNI=" crossorigin="anonymous"></script>
-<script src="./js/core/ui.js" integrity="sha256-5vEwaddSoFIlIe8Znfar4dL+DOKGv63Gm7O7OjLYJ8E=" crossorigin="anonymous"></script>
+<script src="./js/main.js" integrity="sha256-EmqefdINs69847PjfLZxyzL90R6OwNBjGZ5ANFKRSt0=" crossorigin="anonymous"></script>
+<script src="./js/core/ui.js" integrity="sha256-codjz/j1whhZnNDu2eEkc2AbRTv09tx1iLrH6LbS0SA=" crossorigin="anonymous"></script>
 <script src="./js/core/pwa.js" integrity="sha256-V9kIrz8dBh/RilvFaqD3slfNp0vxcEHZ4Hyb3EsvSgc=" crossorigin="anonymous"></script>
 <script src="./js/core/boot.js" integrity="sha256-5ETYxzLPER4Z0KjwkPFzFqfWQM7VPGqjWXTXcc+bjgM=" crossorigin="anonymous"></script>
 
@@ -504,7 +539,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       <button class="closeBtn" id="closeExpansionModalBtn" type="button">✕</button>
     </div>
 
-    <div style="background:#f0f2f5; height:380px; overflow-x:auto; overflow-y:hidden; display:flex; align-items:center; padding:0 15px; gap:15px; scroll-snap-type: x mandatory;" id="mapWrap">
+    <div style="background:#f0f2f5; height:380px; overflow-x:auto; overflow-y:hidden; display:flex; align-items:center; padding:0 15px; gap:15px; scroll-snap-type: x mandatory;" id="mapWrap" tabindex="0" aria-label="좌우 지점 목록, 카드 안에서 상하로 매출과 해금 조건 확인">
     </div>
 
     <div style="background:#fff; border-radius:0 0 20px 20px; padding:15px; text-align:center;">

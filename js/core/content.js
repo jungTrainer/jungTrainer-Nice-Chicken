@@ -589,6 +589,33 @@ const Campaign = {
     const data = id === state.regionId ? state : state.branches?.[id]?.data;
     return moneyAdd(data?.totalSales || 0, data?.offlineSalesTotal || 0);
   },
+  // Presentation only: never unlock, normalize, dirty or save on a view.
+  regionSummary(id) {
+    const index = REGIONS.findIndex(region => region.id === id);
+    const record = state.campaign.regions[id], rules = this.rules();
+    const sales = this.sales(id), goal = record?.goalAtUnlock || rules.goals?.[index];
+    const opened = !!state.regionUnlocked[id], cost = getRegionUnlockCost(id);
+    const previous = REGIONS[index - 1];
+    const requirements = previous
+      ? `${previous.name} 지점 오픈${state.campaign.mode === "legacy" ? "" : " + 지역 이야기 해금"} · 보유금 ${fmtWon(cost)} 필요`
+      : "첫 지점입니다.";
+    const shortage = moneyMax(0, moneySub(cost, state.money));
+    return {
+      goal, ratio: goal ? moneyRatio(sales, goal) : 0,
+      progress: `기록 매출 ${fmtWon(sales)}${goal ? ` / 목표 ${fmtWon(goal)}` : " (기존 운영: 지역 목표 없음)"}`,
+      ending: record?.unlockedAt
+        ? `지역 엔딩: ${record.badgeAwarded ? "기념 완료 · 다시보기 가능" : "해금 · 설정에서 이야기 보기"}`
+        : goal
+          ? `지역 엔딩: ${opened ? "이 지점의" : "지점 오픈 후 이 지점의"} 기록 매출 ${fmtWon(goal)} 달성`
+          : "지역 엔딩: 설정에서 이지/노말을 명시적으로 선택하면 시작",
+      unlock: opened ? "지점 오픈 완료 · 해금 비용 재지급 없음"
+        : `해금 비용 ${fmtWon(cost)} · ${requirements} · ${this.canUnlockRegion(id) ? "이전 지역 조건 충족" : "이전 지역 조건 미충족"} · ${moneyCompare(shortage, 0) > 0 ? `보유금 ${fmtWon(shortage)} 부족` : "보유금 충족"}`,
+    };
+  },
+  familySummary() {
+    const count = REGIONS.filter(region => state.campaign.regions[region.id]?.unlockedAt).length;
+    return `가족 목표: 보유금 ${fmtWon(state.money)} / ${fmtWon(this.rules().ending)}${state.campaign.mode === "legacy" ? " (기존 운영)" : ` · 지역 이야기 해금 ${count}/6 필요`}${state.endingUnlocked ? " · 가족 엔딩 해금 완료" : ""}`;
+  },
   updateUnlocks() {
     if (!SessionOwner.canMutate() || state.campaign.mode === "legacy") return false;
     let changed = false;
@@ -677,7 +704,7 @@ const Campaign = {
     const status = document.getElementById("campaignStatus");
     if (!status) return;
     const rules = this.rules(), count = REGIONS.filter(r => state.campaign.regions[r.id]?.badgeAwarded).length;
-    const text = `${rules.label} · 지역 기념 ${count}/6 · 가족 엔딩 목표 ${fmtWon(rules.ending)}\n기존 기록/미수령/paid는 보존됩니다. 모드는 게임 성장용이며 실물 서비스 한도를 바꾸지 않습니다.`;
+    const text = `${rules.label} · 지역 기념 ${count}/6 · ${this.familySummary()}\n기존 기록/미수령/paid는 보존됩니다. 모드는 게임 성장용이며 실물 서비스 한도를 바꾸지 않습니다.`;
     if (status.textContent !== text) status.textContent = text;
     for (const mode of Object.keys(CAMPAIGN_MODES)) {
       const button = document.getElementById("chooseMode-" + mode), disabled = mode === state.campaign.mode;
@@ -697,14 +724,12 @@ const Campaign = {
       });
     }
     REGIONS.forEach((region, i) => {
-      const record = state.campaign.regions[region.id], goal = record?.goalAtUnlock || rules.goals?.[i];
-      const label = record?.unlockedAt
-        ? `${record.badgeAwarded ? "기념 완료" : "이야기 해금"} · 해금 당시 목표 ${fmtWon(goal || 0)}`
-        : goal ? `기록된 지점 매출 ${fmtWon(this.sales(region.id))} / ${fmtWon(goal)}` : "이지/노말을 명시적으로 선택하면 지역 이야기를 시작합니다.";
+      const record = state.campaign.regions[region.id], summary = this.regionSummary(region.id);
+      const label = `${summary.progress}\n${summary.ending}\n${summary.unlock}`;
       const row = this.uiRows[i]; if (row.p.textContent !== label) row.p.textContent = label;
       const disabled = !record?.unlockedAt;
       if (row.button.disabled !== disabled) row.button.disabled = disabled;
-      const btnText = record?.seenAt ? "다시보기" : "이야기 보기";
+      const btnText = !record?.unlockedAt ? "이야기 잠김" : record?.seenAt ? "다시보기" : "이야기 보기";
       if (row.button.textContent !== btnText) row.button.textContent = btnText;
     });
   },

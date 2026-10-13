@@ -2,6 +2,9 @@
 document.addEventListener(
   "DOMContentLoaded",
   () => {
+    document.querySelectorAll("[data-game-guide]").forEach(container => {
+      container.append(document.getElementById("gameGuideTemplate").content.cloneNode(true));
+    });
     const app = document.getElementById("app"),
       nav = app.querySelector("nav");
     const surfaces = [
