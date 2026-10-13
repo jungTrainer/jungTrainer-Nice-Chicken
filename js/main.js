@@ -393,7 +393,7 @@ function initDOMRefs() {
       }
       if (
         !confirm(
-          "음료 서비스 사용 처리(본사 사용)하시겠어요?\nPIN CODE 입력이 필요합니다.",
+          "기기 내부 음료 사용 기록을 남길까요?\n공개 로컬 PIN 확인이며 서버/매장 승인이 아닙니다.",
         )
       ) {
         return;
@@ -410,7 +410,7 @@ function initDOMRefs() {
         type: "drink",
         qty: 1,
         source: "cert_use",
-        note: "인증서(본사 사용 처리)로 사용",
+        note: "인증서 로컬 사용 기록 (서버 승인 없음)",
       });
       startNewWeek();
       showToast("✅ 사용되었습니다. 주간 미션이 초기화되었습니다.");
@@ -1653,7 +1653,7 @@ function ensureSaveTransferUI() {
     <div class="note">※ 다른 기기/브라우저로 옮길 때는 백업 만들기 → 복사 → 별도 메모장에 보관하세요.</div>
   `;
 
-  const note = box.querySelector(".note");
+  const note = box.querySelector(":scope > .note");
   if (note) box.insertBefore(card, note);
   else box.appendChild(card);
 
@@ -4231,6 +4231,7 @@ function updateStatsUI() {
 }
 
 function tick(dt) {
+  if (PwaRuntime.applying) return;
   markStateChanged("active-branch-tick");
   beginEffectBatch();
   try {

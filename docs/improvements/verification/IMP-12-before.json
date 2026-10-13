@@ -1,0 +1,31 @@
+{
+  "base": "c427ecf7c85a04ed05b6e85b52323031738c43bb",
+  "command": "npm_config_cache=/tmp/nice-chicken-npm-cache PLAYWRIGHT_BROWSERS_PATH=\"$PWD/.cache/ms-playwright\" npm run test:ci",
+  "tests": 148,
+  "pass": 148,
+  "fail": 0,
+  "skip": 0,
+  "syntax": 27,
+  "pages": {
+    "build_type": "legacy",
+    "source": {
+      "branch": "main",
+      "path": "/"
+    },
+    "status": "errored"
+  },
+  "backend": "none (user confirmed)",
+  "manifestLinked": false,
+  "workerRegistered": false,
+  "oldWorkerRequired": [
+    "./",
+    "./index.html",
+    "./manifest.json",
+    "./icon-192.png",
+    "./icon-512.png"
+  ],
+  "oldWorkerCachesRuntimeJS": false,
+  "optionalMissing": "sign images fallback",
+  "actualBenefitsUsed": false,
+  "deployed": false
+}

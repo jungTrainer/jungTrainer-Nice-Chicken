@@ -319,7 +319,7 @@ function renderWeeklyCertificate() {
   x.fillStyle = "#333";
   x.textAlign = "center";
   x.font = "34px sans-serif";
-  x.fillText("※ 인증서 사용 처리는 PIN CODE 확인 후 처리됩니다.", 540, 1710);
+  x.fillText("※ 로컬 PIN 확인/기기 기록입니다. 서버·매장 인증이 아닙니다.", 540, 1710);
 
   const dataUrl = c.toDataURL("image/png");
   sharePreview.src = dataUrl;

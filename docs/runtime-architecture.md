@@ -1,6 +1,6 @@
 # 실행 구조와 상태 변경 계약
 
-적용: IMP-08/10/11, 2026-10-13. 데이터 범위는 [본사·지점 규칙](data-ownership.md), 금액은 [성장·금액 정책](economy-policy.md)을 따른다. 모듈 분리는 [IMP-08 보고서](improvements/IMP-08-state-modules.md)에 기록했다.
+적용: IMP-08/10/11/12, 2026-10-13. 데이터 범위는 [본사·지점 규칙](data-ownership.md), 금액은 [성장·금액 정책](economy-policy.md)을 따른다. 모듈 분리는 [IMP-08 보고서](improvements/IMP-08-state-modules.md)에 기록했다.
 
 ## 정의와 시작 순서
 
@@ -20,7 +20,8 @@
 | 14–15 | `branches.js`, `services.js` | snapshot 교체, ServiceRuntime 소유권, 온라인/배달/자동/생성 진행 | sanitize·연구 slots, 성장/정산, 장면/연출 |
 | 16 | `main.js` | DOM refs와 입력, 고객·장면·패널·통계 렌더링, `tick`/`frame` | 위 단일 사업 함수들 |
 | 17 | `ui.js` | 모달/패널의 포커스·닫기·배경 입력·안전 영역 | 장면·엔딩 함수, DOM |
-| 18 | `boot.js` | `init`/`initAfterLoad`, 오류 복구와 watchdog | 모든 정의가 로드된 뒤 시작 |
+| 18 | `pwa.js` | 브라우저 설치·대기 업데이트·버전/저장 후 적용 | DOM 준비, boot 완료 통지, 기존 저장/엔딩/입력 소유권; 사업 데이터 필드 추가 없음 |
+| 19 | `boot.js` | `init`/`initAfterLoad`, 오류 복구와 watchdog | 모든 정의가 로드된 뒤 시작 |
 
 이 표의 core 파일은 `js/core/`에 있다. 실행 시 상호 호출은 남아 있으나 이전 함수의 캡처·재할당 체인은 없다. `main.js`의 DOM 입력 delegation은 평가 시 연결되고, `ui.js`는 DOMContentLoaded에서 입력 소유권을 구성한다. 마지막 `boot.js`의 DOMContentLoaded가 DOM refs·저장 lifecycle을 연결한 뒤 load → sanitize/bootstrap → 오프라인 확정 → 엔딩 UI 복원 → 단일 rAF를 시작한다. 이벤트 연결 guard와 엔딩 WeakSet은 버튼을 여러 번 연결하지 않는다.
 
@@ -47,7 +48,7 @@
 
 ## 변경 시 검증
 
-`npm run doctor`, `npm run check`, `npm test`를 실행한다. 현재 148개 검사는 IMP-10의 120개와 콘텐츠/선택 28개다. IMP-09부터 고정 Playwright Chromium을 기본으로 사용하고 문법 검사는 앱 JS 19개와 도구/helper CJS 8개, 총 27개를 포함한다. 설치/정의 중복 검사는 `tests/refactor.test.cjs`, 지점/저장 원본의 규칙은 `tests/branches.test.cjs`에 있다. 브라우저 검사는 자체 HTTP 서버와 Chromium을 열고 종료한다.
+`npm run doctor`, `npm run check`, `npm test`를 실행한다. 현재 174개 검사는 기존 148개와 PWA/운영 26개다. IMP-09부터 고정 Playwright Chromium을 기본으로 사용하고 문법 검사는 앱 JS 20개와 도구/helper CJS 11개, 총 31개를 포함한다. 설치/정의 중복 검사는 `tests/refactor.test.cjs`, 지점/저장 원본의 규칙은 `tests/branches.test.cjs`에 있다. 브라우저 검사는 자체 HTTP 서버와 Chromium을 열고 종료한다.
 
 측정은 `node scripts/measure-runtime.cjs [비교할 정적 웹앱 디렉터리]`를 사용한다. 게임 API를 계측하는 래퍼는 이 별도 브라우저 측정 페이지에만 존재하며 앱에 설치되지 않는다. 연산 수와 표시 정확도를 먼저 비교하고 실행 시간은 동일 기기/부하에서 참고한다. CI의 시간 성능 임계값으로 사용하지 않는다.
 
@@ -71,3 +72,10 @@ content는 config 다음, state 이전에 정의한다. 등록하는 클릭은 �
 `getOrderMenuPool()`은 방문/배달/온라인/새 오프라인의 유일한 후보 원본이다. 기존 손님/확정 receipt를 다시 쓰지 않는다. `getMenuOfferSummary`는 실제 가격 함수와 정수 합계를 사용하며 UI 평균은 원 미만 내림이다. 리포트가 열리고 해당 탭이 활성일 때만 콘텐츠 DOM을 만든다. 표시는 경제 상태를 지급하거나 이야기 읽음으로 바꾸지 않는다. [콘텐츠 설계](content-design.md)에 선택·소유권·모델 한계를 기록했다.
 
 열린 운영 탭은 기존 updateUI에서 성장/가격/조건을 갱신한다. managementRenderOwner/Key는 저장되지 않는 UI 표시 캐시다. 상태 소유자와 표시 원본 값이 같으면 DOM을 재사용하며 값이 바뀌면 포커스와 스크롤을 보존해 갱신한다. 서비스 캐시/dirty/타이머와 공유하지 않는다.
+
+
+## IMP-12 설치와 업데이트 소유권
+
+`PwaRuntime`은 상태에 저장하지 않는 registration/waiting/설치 prompt/적용 중 flag만 소유한다. ui 뒤 boot 앞에서 정의하고 기존 표면/입력 소유권을 그대로 사용한다. boot의 init 성공 후 ready를 알린다. 설정 버튼은 한 번 연결한다. 엔딩/PIN/다른 모달·패널/백업 입력·다른 scope 창이 남아 있으면 적용을 막는다. `save(true)` 성공 후에만 기다리는 워커에 명시적 APPLY를 보내며, 해당 controllerchange에서 한 번 reload한다. 적용 중 tick/사용자 입력은 중단하고 응답 실패/10초 전환 지연에는 해제한다. 절대 연구/버프 시각·정산·서비스 캐시 소유권은 바꾸지 않는다.
+
+pwa 조회·설치·닫기는 dirty/보상/쿠폰을 변경하지 않는다. 적용만 기존 강제 저장을 사용하며 원 encoding·본사/지점 snapshot·확정 receipt를 보존한다. 캐시는 별도 CacheStorage이고 LocalStorage/backup을 삭제하지 않는다. 기존 registration은 오프라인에서도 재사용하며 신규 등록 실패 후 온라인 재접속/확인으로 재시도한다. 설치 번들은 생성된 해시 목록과 HTML SRI로 고정한다. [설치/복구 정책](pwa-operations.md)과 [쿠폰 서버 조건](coupon-server-contract.md)을 따른다.

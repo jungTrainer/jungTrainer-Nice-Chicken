@@ -1,0 +1,53 @@
+{
+  "base": "c427ecf7c85a04ed05b6e85b52323031738c43bb",
+  "implementationCommit": "d51267e2ec0a522055ace6708f7d4ad2b23e5f66",
+  "release": "imp12-afd50cd87091d22baced",
+  "command": "npm_config_cache=/tmp/nice-chicken-npm-cache PLAYWRIGHT_BROWSERS_PATH=\"$PWD/.cache/ms-playwright\" npm run test:ci",
+  "tests": 174,
+  "pass": 174,
+  "fail": 0,
+  "cancelled": 0,
+  "skip": 0,
+  "oldTests": 148,
+  "addedTests": 26,
+  "newBrowserTests": 19,
+  "newPureTests": 7,
+  "syntax": 31,
+  "install": {
+    "browser": {
+      "protocolVersion": "1.3",
+      "product": "Chrome/151.0.7922.34",
+      "revision": "@782af9cb30a53f54487e5d2e44738645a8ec457c",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36",
+      "jsVersion": "15.1.206.8"
+    },
+    "manifestURL": "http://127.0.0.1:43025/jungTrainer-Nice-Chicken/manifest.json",
+    "installability": {
+      "installabilityErrors": []
+    },
+    "realServiceWorker": true,
+    "nativeInstall": {
+      "badgeCount": 0,
+      "fileHandlers": []
+    },
+    "launch": {
+      "targetId": "34D54BA4218463388D1352E405E3B9E7"
+    },
+    "standalone": true
+  },
+  "swMode": "real HTTP/Chromium/CacheStorage; server release swap, no SW mocks",
+  "offline": "Chromium emulation plus server denial (browser-level SW update fetch may bypass tab emulation)",
+  "sourceOwnership": "no new save schema or economic formulas",
+  "benefits": "synthetic fixtures only; no backend or production redemption",
+  "deployed": false,
+  "additionalVerification": {
+    "command": "node --test --test-name-pattern=\"Chromium installs|online to offline\" tests/pwa.test.cjs",
+    "tests": 2,
+    "pass": 2,
+    "fail": 0,
+    "skip": 0,
+    "uncachedRequestRejected": true,
+    "standaloneScreenshot": "nice-chicken-imp12-standalone.png",
+    "standaloneScreenshotAfterSplash": true
+  }
+}

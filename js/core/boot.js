@@ -148,6 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ensureSaveTransferUI();
     preloadSignImages();
     init();
+    PwaRuntime.ready();
   } catch (e) {
     console.error("boot error", e);
   } finally {

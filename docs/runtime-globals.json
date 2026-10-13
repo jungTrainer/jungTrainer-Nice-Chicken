@@ -1,5 +1,5 @@
 {
-  "source": "IMP-11; classic script load order in index.html; top-level declarations only",
+  "source": "IMP-12; classic script load order in index.html; top-level declarations only",
   "modules": [
     {
       "file": "js/core/money.js",
@@ -490,6 +490,13 @@
       "file": "js/core/ui.js",
       "functions": [],
       "bindings": []
+    },
+    {
+      "file": "js/core/pwa.js",
+      "functions": [],
+      "bindings": [
+        "PwaRuntime"
+      ]
     },
     {
       "file": "js/core/boot.js",

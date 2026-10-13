@@ -4,13 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>나이스치킨 타이쿤 (방치+서빙)</title>
-  <!-- manifest removed for file:// compatibility -->
+  <meta name="app-version" content="imp12-afd50cd87091d22baced" />
+  <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#FF9F1C">
   <link rel="apple-touch-icon" href="./icon-192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/style.css" integrity="sha256-nPzvV1USNGDtue8d3Ei6zOWPRcic7z/P7c9uNGV0MEs=" crossorigin="anonymous">
 
 
 </head>
@@ -199,7 +200,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
           <p id="certStatus" style="margin-top:10px; color:#333; font-weight:700;">상태 확인 중...</p>
           <p class="note" style="margin-top:10px;">
             - 인증서 발급 시 <b>음료 쿠폰 1장</b>이 지급됩니다.<br>
-            - 음료 서비스 사용 처리는 <b>PIN CODE 입력이 </b>필요합니다.
+            - 음료 서비스 사용 처리는 <b>로컬 PIN 확인이 </b>필요합니다. 서버/매장 인증은 아닙니다.
           </p>
         </div>
       </div>
@@ -255,6 +256,18 @@ document.addEventListener('DOMContentLoaded', ()=>{
     <div class="modal" style="text-align:left;">
       <h3 style="text-align:center;">⚙️ 설정</h3>
 
+      <div class="pwa-settings">
+        <h4>앱 설치와 업데이트</h4>
+        <p id="pwaStatus" role="status" aria-live="polite">앱 설치 상태를 확인합니다.</p>
+        <p id="pwaInstallHelp" class="note"></p>
+        <div class="row">
+          <button type="button" class="btn alt" id="installPwa" disabled>앱 설치</button>
+          <button type="button" class="btn alt" id="checkPwaUpdate" disabled>업데이트 확인</button>
+          <button type="button" class="btn" id="applyPwaUpdate" disabled>저장 후 새 버전 적용</button>
+        </div>
+        <p class="note">다른 창·엔딩·백업 입력을 마친 뒤 적용하세요. 미수령 창을 닫아도 보상은 유지됩니다. 저장 실패 시 적용하지 않습니다.</p>
+      </div>
+
       <div class="card" style="margin:10px 0; align-items:center;">
         <div class="info" style="flex:1;">
           <h4 style="margin:0;">🔊 사운드</h4>
@@ -275,7 +288,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       <div class="row">
         <button class="btn" id="closeSettings">닫기</button>
       </div>
-      <div class="note">※ 과금/로그인 없이 로컬 저장(LocalStorage)만 사용합니다.</div>
+      <div class="note">※ 과금/로그인 없이 로컬 저장(LocalStorage)만 사용합니다. 쿠폰과 혜택 내역은 기기 기록이며 서버 검증/매장 승인이 없습니다.</div>
     </div>
   </div>
 
@@ -292,7 +305,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
         <div class="row">
           <button class="btn alt" id="useDrinkCoupon">음료쿠폰 사용</button>
         </div>
-        <div class="note">※ 사용 시 PIN CODE 입력이 필요합니다.</div>
+        <div class="note">※ 기기 내부 사용 기록입니다. 공개 PIN은 서버 검증·실제 매장 승인이 아닙니다.</div>
       </div>
 
       <div class="card" style="flex-direction:column; align-items:stretch;">
@@ -303,7 +316,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
         <div class="row">
           <button class="btn alt" id="useVegCoupon">무/양배추쿠폰 사용</button>
         </div>
-        <div class="note">※ 사용 시 PIN CODE 입력이 필요합니다.</div>
+        <div class="note">※ 기기 내부 사용 기록입니다. 공개 PIN은 서버 검증·실제 매장 승인이 아닙니다.</div>
       </div>
 
       <div class="card" style="flex-direction:column; align-items:stretch;">
@@ -352,36 +365,37 @@ document.addEventListener('DOMContentLoaded', ()=>{
   <div class="dim" id="modalPin">
     <div class="modal" style="text-align:left;">
       <h3 style="text-align:center;">🔒 PIN 입력</h3>
-      <p style="text-align:center;">확인을 위해 PIN을 입력하세요.</p>
+      <p style="text-align:center;">기기 내부 기록을 위한 PIN입니다. 서버 검증이나 매장 승인이 아닙니다.</p>
       <input id="pinInput" type="password" placeholder="0000" inputmode="numeric" maxlength="4" />
       <div class="row">
         <button class="btn gray" id="pinCancel">취소</button>
         <button class="btn" id="pinOk">확인</button>
       </div>
-      <div class="note">PIN 기본값: 0000</div>
+      <div class="note">공개 로컬 PIN: 0000 · 서버 인증 없음</div>
     </div>
   </div>
 
 </div>
 
-<script src="./js/core/money.js"></script>
-<script src="./js/core/utils.js"></script>
-<script src="./js/core/audio.js"></script>
-<script src="./js/core/config.js"></script>
-<script src="./js/core/content.js"></script>
-<script src="./js/core/state.js"></script>
-<script src="./js/core/persistence.js"></script>
-<script src="./js/core/growth.js"></script>
-<script src="./js/core/research.js"></script>
-<script src="./js/core/offline.js"></script>
-<script src="./js/core/missions.js"></script>
-<script src="./js/core/economy.js"></script>
-<script src="./js/core/ending.js"></script>
-<script src="./js/core/branches.js"></script>
-<script src="./js/core/services.js"></script>
-<script src="./js/main.js"></script>
-<script src="./js/core/ui.js"></script>
-<script src="./js/core/boot.js"></script>
+<script src="./js/core/money.js" integrity="sha256-8l6tHA96EN28kfa3khY1So19NYExVZRDoAA1t8zuAOw=" crossorigin="anonymous"></script>
+<script src="./js/core/utils.js" integrity="sha256-rMb8jDUvlaPmk9VhbNRBrAuP4uAL90TbDOj4Yj9JlcU=" crossorigin="anonymous"></script>
+<script src="./js/core/audio.js" integrity="sha256-sHFMyhuEgs2lhttc2pyqwwqcgZ9XW0Xozmq7W5xIW24=" crossorigin="anonymous"></script>
+<script src="./js/core/config.js" integrity="sha256-GtNblC5JNH2S7qbqSNmcu8/YiF3X6oAGYrrRqn+DUjY=" crossorigin="anonymous"></script>
+<script src="./js/core/content.js" integrity="sha256-MfudOWurkJW738plxnpKXgxrgK/jbin831+I2OqGRF4=" crossorigin="anonymous"></script>
+<script src="./js/core/state.js" integrity="sha256-dI6vDnYpwnDahyHX2+V7yXFAf+h1SRMgeFdEUpXp7UM=" crossorigin="anonymous"></script>
+<script src="./js/core/persistence.js" integrity="sha256-I0pBfVGbr1oZGQQQ3R2jhdDVZuFUoitnuUYDCSpFFag=" crossorigin="anonymous"></script>
+<script src="./js/core/growth.js" integrity="sha256-uX7qGRv2M8uZvlzZTOtgEc+vGgw2LXZD4NGFWzxdfsc=" crossorigin="anonymous"></script>
+<script src="./js/core/research.js" integrity="sha256-hZm8YgGc0JcOgwAOYzWkYwxYhJRlGTmMxYkf0KINf80=" crossorigin="anonymous"></script>
+<script src="./js/core/offline.js" integrity="sha256-gAUJs+CydR2GLrGK9uqRwu4GFzrw5vepZAhfvs4/XoY=" crossorigin="anonymous"></script>
+<script src="./js/core/missions.js" integrity="sha256-aZgKfGHBT7P8m57/1s+8kYLu4Lrc6YmhNJvKaqE2NTs=" crossorigin="anonymous"></script>
+<script src="./js/core/economy.js" integrity="sha256-/QvErvGLIXTTfkyz6sb0/IP9kBUbVrsv4JhVnzoD/z0=" crossorigin="anonymous"></script>
+<script src="./js/core/ending.js" integrity="sha256-exUCiQIvs7ILAvdL4pd4xRC+TY0q8Q4LS7U26Wx6WrA=" crossorigin="anonymous"></script>
+<script src="./js/core/branches.js" integrity="sha256-nM2AuIjrDvjm5VO+o7cSU46xHNlzq4KW5FaWtJEEc7U=" crossorigin="anonymous"></script>
+<script src="./js/core/services.js" integrity="sha256-4hi1+QT0m1FG4gVZK6eKGbFb/EiEl3g6MejJKIV1lnk=" crossorigin="anonymous"></script>
+<script src="./js/main.js" integrity="sha256-i0OmGArxWgZz5VtCV2HGDyL59Lec6OLBY5XNGEhaCqo=" crossorigin="anonymous"></script>
+<script src="./js/core/ui.js" integrity="sha256-2Dlbn32Y8nfRZoLTCTkNVWvLMBSq4HnTEqzJC2PL56I=" crossorigin="anonymous"></script>
+<script src="./js/core/pwa.js" integrity="sha256-Im4l+o0IxBa+8IUa3y+3vwUJRMGHk11NG0woPKyS0j0=" crossorigin="anonymous"></script>
+<script src="./js/core/boot.js" integrity="sha256-E/zOSlov28U1RynWJsY67ZnXJOQLn39PBE1xfauwfBk=" crossorigin="anonymous"></script>
 
 <!-- [NEW] Management Report Modal -->
 <div class="dim" id="modalStats">
@@ -466,9 +480,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
 
 
-<script>
-  // service worker disabled in this build (file:// compatible)
-</script>
 
 
   <!-- =========================
