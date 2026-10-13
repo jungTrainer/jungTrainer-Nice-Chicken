@@ -323,6 +323,10 @@ function initDOMRefs() {
     document.getElementById("showStaffCoupon").focus();
   });
 
+  document.getElementById("openGameGuide")?.addEventListener("click", () => {
+    document.getElementById("modalGameGuide").classList.add("on");
+  });
+
   for (const mode of Object.keys(CAMPAIGN_MODES))
     document.getElementById("chooseMode-" + mode)?.addEventListener("click", () => Campaign.choose(mode));
   document.getElementById("campaignRegions")?.addEventListener("click", event => {
@@ -3975,15 +3979,9 @@ function renderMapUI() {
   const btnUn = document.getElementById("mapUnlock");
   if (!wrap) return;
 
-  state.regionUnlocked = state.regionUnlocked || { changnyeong: true };
-  if (!state.regionUnlocked.changnyeong)
-    state.regionUnlocked.changnyeong = true;
-  if (!state.regionId) state.regionId = "changnyeong";
-  if (!state.mapSelected) state.mapSelected = state.regionId;
-
   wrap.innerHTML = "";
   const curId = state.regionId;
-  const selId = state.mapSelected;
+  const selId = state.mapSelected || curId;
 
   REGIONS.forEach((r, idx) => {
     const unlocked = !!state.regionUnlocked[r.id];
@@ -4017,12 +4015,21 @@ function renderMapUI() {
     }
 
     node.appendChild(left);
+    const summary = Campaign.regionSummary(r.id);
+    const details = document.createElement("div");
+    details.className = "map-details";
+    details.title = `기록 매출 ${moneyExactText(Campaign.sales(r.id))}원${summary.goal ? ` / 목표 ${moneyExactText(summary.goal)}원` : ""} · 해금 비용 ${moneyExactText(getRegionUnlockCost(r.id))}원`;
+    details.textContent = `${summary.progress}\n${summary.ending}\n${summary.unlock}`;
+    const progress = document.createElement("progress");
+    progress.max = 1; progress.value = summary.ratio;
+    progress.setAttribute("aria-label", `${r.name} 지역 매출 목표`);
+    progress.hidden = !summary.goal;
     node.appendChild(right);
+    node.append(details, progress);
     wrap.appendChild(node);
   });
 
   // Buttons state
-  const curIdx = getRegionIndex(curId);
   const next = getNextRegion();
   const nextLocked = !state.regionUnlocked[next.id];
 
@@ -4040,9 +4047,9 @@ function renderMapUI() {
 
   if (hint) {
     if (curId === REGIONS[REGIONS.length - 1].id) {
-      hint.textContent = "최종 지역에 도달했습니다. 🚀";
+      hint.textContent = "최종 지역에 도달했습니다. 🚀\n" + Campaign.familySummary();
     } else {
-      hint.textContent = `다음 해금: ${next.name} (비용 ${fmtCompact(getRegionUnlockCost(next.id))})`;
+      hint.textContent = `현재 영업 지역의 다음 해금: ${next.name}\n${Campaign.regionSummary(next.id).unlock}\n${Campaign.familySummary()}\n미수령 수익은 수령 전 매출에 포함하지 않습니다. 지역 이야기는 설정에서 읽습니다.`;
     }
   }
 }
