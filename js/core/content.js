@@ -642,7 +642,7 @@ const Campaign = {
     if (PwaRuntime.applying || endingPhase !== "idle" || endingEls().popup.style.display === "flex" ||
         pinResolver || document.querySelector(".dim.on:not(#modalSettings),.panel.on")) return false;
     this.activeStory = { id, token: SessionOwner.token() };
-    const region = REGION_MAP[id], story = REGION_STORIES[id];
+    const region = REGION_MAP[id], story = REGION_CONTENT[id];
     document.getElementById("regionEndingTitle").textContent = `${region.name} · 지역 엔딩`;
     document.getElementById("regionEndingText").textContent = `${story.arrival}\n\n${story.growth}\n\n${REGION_ENDINGS[id]}`;
     document.getElementById("regionEndingReward").textContent = state.campaign.regions[id].badgeAwarded

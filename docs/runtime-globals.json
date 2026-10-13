@@ -1,5 +1,5 @@
 {
-  "source": "IMP-15; classic script load order in index.html; top-level declarations only",
+  "source": "IMP-16; classic script load order in index.html; top-level declarations only",
   "modules": [
     {
       "file": "js/core/money.js",
@@ -86,7 +86,9 @@
         "SIGN_IMAGE_CANDIDATES",
         "SIGN_IMAGES",
         "VEHICLES",
-        "EVENTS"
+        "EVENTS",
+        "CAMPAIGN_MODES",
+        "REGION_ENDINGS"
       ]
     },
     {
@@ -109,7 +111,8 @@
         "STAFF_ROLES",
         "REGION_CONTENT",
         "managementRenderOwner",
-        "managementRenderKey"
+        "managementRenderKey",
+        "Campaign"
       ]
     },
     {
@@ -296,7 +299,8 @@
         "normalizeServiceTimers",
         "bindBranchServiceTimers",
         "ensureBranchServiceOwner",
-        "captureBranchServiceTimers"
+        "captureBranchServiceTimers",
+        "getRegionUnlockCost"
       ],
       "bindings": [
         "BranchManager",

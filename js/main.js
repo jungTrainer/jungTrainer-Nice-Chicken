@@ -4031,7 +4031,10 @@ function renderMapUI() {
     btnGo.style.opacity = btnGo.disabled ? 0.6 : 1;
   }
   if (btnUn) {
-    btnUn.disabled = !nextLocked || curId === next.id;
+    const cost = getRegionUnlockCost(next.id);
+    btnUn.disabled = !nextLocked || curId === next.id || !Campaign.canUnlockRegion(next.id) || moneyCompare(state.money, cost) < 0;
+    btnUn.textContent = curId === next.id ? "마지막 지역" : `${fmtWon(cost)} 해금`;
+    btnUn.title = moneyExactText(cost);
     btnUn.style.opacity = btnUn.disabled ? 0.6 : 1;
   }
 

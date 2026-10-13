@@ -1,6 +1,6 @@
 # 개발·검사·CI 실행 안내
 
-기준: IMP-09/10/11/12/13/14, 2026-10-13. 게임은 정적 HTML/CSS/JS이며 일반 실행에는 npm 설치·빌드·백엔드가 필요 없다. 브라우저 검사에는 Node와 Playwright/Chromium을 설치한다. [데이터 규칙](data-ownership.md)과 [실행 계약](runtime-architecture.md)을 함께 따른다.
+기준: IMP-09/10/11/12/13/14/15/16, 2026-10-13. 게임은 정적 HTML/CSS/JS이며 일반 실행에는 npm 설치·빌드·백엔드가 필요 없다. 브라우저 검사에는 Node와 Playwright/Chromium을 설치한다. [데이터 규칙](data-ownership.md)과 [실행 계약](runtime-architecture.md)을 함께 따른다.
 
 ## 설치와 브라우저 선택
 
@@ -47,7 +47,7 @@ PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright" \
 npm run test:ci
 ```
 
-현재 앱 JS 22개와 도구/검사 helper CJS 16개, 총 **38개 문법 검사**, **254개 회귀 검사**를 실행한다. 기존 197개 assertion을 유지하고 손상/복구 26개를 추가했다. 이전 자동 backup 복구 시나리오는 명시적 후보 선택을 거쳐 같은 보존 assertion을 확인한다. 범위별 재현은 `node --test tests/branches.test.cjs`, `node --test tests/refactor.test.cjs`, `node --test tests/money.test.cjs`, `node --test tests/content.test.cjs` 등을 사용한다. 범위별 통과가 전체 통과를 대신하지 않는다.
+현재 앱 JS 22개와 도구/검사 helper CJS 17개, 총 **39개 문법 검사**, **280개 회귀 검사**를 실행한다. 기존 254개 assertion을 유지하고 모드/지역 엔딩 26개를 추가했다. 이전 자동 backup 복구 시나리오는 명시적 후보 선택을 거쳐 같은 보존 assertion을 확인한다. 범위별 재현은 `node --test tests/branches.test.cjs`, `node --test tests/refactor.test.cjs`, `node --test tests/money.test.cjs`, `node --test tests/content.test.cjs` 등을 사용한다. 범위별 통과가 전체 통과를 대신하지 않는다.
 
 검사 helper는 각 검사 파일의 HTTP 서버를 임의 포트에 열고 브라우저/context를 정리한다. 자동 검사를 위해 아래 수동 서버를 따로 실행할 필요는 없다. 날짜 fixture·Asia/Seoul·기본 rAF 정지와 필요한 live 검사를 유지한다. Google Fonts 요청은 자동 검사에서 차단하고 기본 폰트를 사용한다.
 
@@ -198,3 +198,20 @@ PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright" node --test tests/repeat-mi
 measure는 별도 localhost 합성 상태에서 실제 v1/v2 목표·메뉴 후보·최대 성장 자동 입력 기회·주문 공급 시간 추정·큰 금액 교환·사용 저장 실패를 출력한다. 원/자동속도/가격 모델은 변경하지 않는다. 출력의 20초는 초반 15주문/분에서 5주문의 공급 추정으로 사람의 플레이 시간 측정이 아니다.
 
 기존 223 회귀 fixture의 현재 미션 기간은 명시적인 v1 snapshot으로 유지하며 원래 assertion은 삭제하지 않았다. 신규 31개는 다음 v2 기간·최대 자동 성장·paid/재시도/복구·실제 터치와 직원 전후 화면·기기 방문·지점/인계·SW 오프라인/대기/실패/설치 창을 검사한다. 실제 매장 혜택/운영 데이터는 사용하지 않는다. 재로딩 검사는 새 문서 DOMContentLoaded 후에 결과를 읽는다. 새 스크린샷/trace는 기존 결과 경로에 남기고 완료 보고서의 공개 자료는 합성 fixture만 복사한다.
+
+## 지역 엔딩·모드 재측정 (IMP-16)
+
+```bash
+# 앞의 환경 준비/PLAYWRIGHT_BROWSERS_PATH를 그대로 사용
+node scripts/measure-campaign.cjs . legacy auto
+node scripts/measure-campaign.cjs . easy active
+node scripts/measure-campaign.cjs . normal active
+# mode: legacy/easy/normal, channel: active/auto/offline
+node --test tests/campaign.test.cjs tests/campaign-pwa.test.cjs
+npm run pwa:build
+npm run test:ci
+```
+
+측정은 자체 합성 context와 HTTP 서버를 사용한다. actual runtime의 CAMPAIGN_MODES/API에서 정책을 읽고 분 단위 탐욕적 구매/연구·8시간 복귀 schedule로 비교한다. 서버에 저장/사용/쿠폰을 보내지 않는다. Number 시간 적분은 계획용이고 실제 정산은 원 API다. [모드 정책](campaign-policy.md)의 가정/정확한 목표/9채널 비교와 `verification/IMP-16-*.json`을 같이 읽는다. 기존 운영100해 경로와 opt-in 이지/노말을 혼동하지 않는다. 브라우저 실행 파일이 없으면 앞의 고정 Chromium 설치/PLAYWRIGHT_BROWSERS_PATH를 확인하고, 빈 JSON/launch 실패를 측정 통과로 세지 않는다.
+
+기존254+모드/지역23+실제SW/설치3=280개를 실행한다. 신규 검사는 native 모드 확인·quota rollback·원1차이/지도 비용·6지역/가족 once·기간·실제터치/포커스·동일 origin 다중창/인계·복구·오프라인/새/실패 update·설치standalone을 포함한다. 실제90/312분 사람 완주는 자동280개가 검증하는 범위가 아니다. 미검증 실기기/Firefox/WebKit 전체는 완료로 표기하지 않는다. 성공 PNG는 합성 데이터만 완료 보고서에 복사한다.
