@@ -5,6 +5,9 @@ const { harness, NOW } = require('./helpers/game.cjs');
 const { game, fixture } = harness();
 const campaign = (mode, regions = {}) => ({version:1, mode, selectedAt:NOW, regions});
 async function unchanged(p, view) {
+  // The real 700ms boot spawn runs even with RAF frozen. Finish it before
+  // comparing full state so an unrelated timer cannot masquerade as a view write.
+  await p.waitForFunction(()=>state.customers.length>0,null,{polling:100});
   const snapshot = () => p.evaluate(() => ({state:JSON.stringify(state), raw:localStorage.getItem(SAVE_KEY), backup:localStorage.getItem(SAVE_BACKUP_KEY), dirty:_saveDirty}));
   const before = await snapshot();
   await view();
@@ -128,14 +131,14 @@ for(const [name,viewport] of [['360-portrait',{width:360,height:640}],['360-land
  test(`${name} map scroll and locked region keyboard selection show readable conditions`,async()=>game(fixture({campaign:campaign('normal')}),async p=>{
   await p.locator('#openMap').tap();
   const wrap=p.locator('#mapWrap');
-  assert.ok(await wrap.evaluate(e=>e.scrollHeight>e.clientHeight));
+  assert.ok(await wrap.evaluate(e=>e.scrollWidth>e.clientWidth));
   await p.locator('[data-region-id="mars"]').scrollIntoViewIfNeeded();
   await p.locator('[data-region-id="mars"]').focus();await p.keyboard.press('Enter');
   assert.equal(await p.evaluate(()=>state.mapSelected),'mars');
   assert.equal(await p.evaluate(()=>document.activeElement.dataset.regionId),'mars');
   assert.equal(await p.locator('#mapGo').isDisabled(),true);
   assert.match(await p.locator('[data-region-id="mars"] .map-details').innerText(),/미국 뉴욕 지점 오픈.*지역 이야기 해금/);
-  assert.ok(await wrap.evaluate(e=>e.scrollWidth<=e.clientWidth+1));
+  assert.ok(await p.locator('[data-region-id="mars"]').evaluate(e=>e.scrollWidth<=e.clientWidth+1));
   await p.screenshot({path:path.join(__dirname,`../test-results/screenshots/imp17-${name}-map.png`)});
   await p.keyboard.press('Escape');assert.equal(await p.evaluate(()=>document.activeElement.id),'openMap');
  },{viewport}));

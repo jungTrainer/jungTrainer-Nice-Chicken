@@ -738,8 +738,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .game-guide ul{padding-left:22px;}
 #campaignRegions .card{flex-wrap:wrap;}
 #campaignRegions p,.map-details,#mapHint{white-space:pre-line;overflow-wrap:anywhere;}
-#mapWrap{display:block !important;overflow-y:auto !important;overflow-x:hidden !important;padding:12px !important;scroll-snap-type:none !important;}
-.map-node{min-height:0;margin-bottom:12px;padding:12px;}
+#mapWrap{overflow-x:auto !important;overflow-y:hidden !important;padding:12px !important;align-items:stretch !important;}
+.map-node{min-height:0;max-height:100%;overflow-y:auto;overscroll-behavior-y:contain;padding:12px;}
 .map-details{font-size:.9rem;line-height:1.5;margin-top:8px;}
 .map-node progress{display:block;width:100%;height:12px;margin-top:8px;}
 .map-node progress[hidden]{display:none;}
