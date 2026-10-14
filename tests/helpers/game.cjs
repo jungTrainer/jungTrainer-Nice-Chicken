@@ -50,6 +50,11 @@ function harness() {
         state.missions.dailyList = missionList(false, { legacy: true });
         state.missions.weeklyList = missionList(true, { legacy: true });
         state.missions.dailyPolicy = state.missions.weeklyPolicy = 1;
+        // Existing regression fixtures explicitly represent the IMP-17 v10 save.
+        // Their current rewards stay legacy; later periods exercise IMP-18.
+        state.version = 10;
+        delete state.couponLedger;
+        state.missions.dailyRewardPolicy = state.missions.weeklyRewardPolicy = 1;
         state.soundOn = false;
         state.profile.name = "검증";
         return JSON.parse(JSON.stringify(state));
@@ -72,7 +77,7 @@ function harness() {
     const context = await browser.newContext({
       viewport: options.viewport || { width: 390, height: 844 },
       hasTouch: true,
-      timezoneId: "Asia/Seoul",
+      timezoneId: options.timezoneId || "Asia/Seoul",
     });
     await context.tracing.start({
       screenshots: true,

@@ -308,10 +308,11 @@ function logBenefit({ type, qty = 1, source = "", note = "", ...details }) {
 
 async function useCoupon(type, { certificate = false } = {}) {
   if (!SessionOwner.canMutate() || BenefitService.pending) return false;
-  if (!["drink", "veg"].includes(type) || state.coupons[type] <= 0) {
+  if (!["drink", "veg"].includes(type) || CouponPolicy.available(type) <= 0) {
     showToast("보유 쿠폰이 없어요."); return false;
   }
-  if (certificate && (!state.cert.issuedThisWeek || state.cert.usedAt)) return false;
+  if (certificate && (!state.cert.issuedThisWeek || state.cert.usedAt || (state.cert.validUntil && Date.now() >= state.cert.validUntil))) return false;
+  if (type === "drink" && !CouponPolicy.canUse(type)) { showToast("오늘 사용함: 같은 기기 하루 음료 한 장입니다."); return false; }
   if (type === "drink" && !state.serviceVisit) {
     showToast("쿠폰함에서 테이블과 새 방문을 먼저 기록해 주세요."); return false;
   }
@@ -325,15 +326,15 @@ async function useCoupon(type, { certificate = false } = {}) {
     const ok = await askPIN();
     if (!SessionOwner.matches(ownership) || state.serviceVisit?.id !== visitId) return false;
     if (!ok) { showToast("취소 또는 PIN 불일치. 쿠폰은 그대로입니다."); return false; }
-    if (state.coupons[type] <= 0 || (type === "drink" && state.serviceVisit.drinkConfirmedAt)) return false;
+    if (certificate && (!state.cert.issuedThisWeek || state.cert.usedAt || (state.cert.validUntil && Date.now() >= state.cert.validUntil))) return false;
+    if (!CouponPolicy.canUse(type) || (type === "drink" && state.serviceVisit.drinkConfirmedAt)) return false;
     const committed = BenefitService.commit(() => {
-      const before = state.coupons[type];
-      state.coupons[type]--;
+      const consumption = CouponPolicy.consume(type);
       if (state.serviceVisit) {
         if (type === "drink") state.serviceVisit.drinkConfirmedAt = Date.now();
         else state.serviceVisit.vegConfirmed = (state.serviceVisit.vegConfirmed || 0) + 1;
       }
-      logBenefit({ type, source: certificate ? "cert_use" : "coupon_use", note: "직원 제공 확인 후 로컬 기록 (서버 승인 없음)", before, after: state.coupons[type], visitId: visitId || "", table: state.serviceVisit?.table || "기존 방식: 테이블 미기록" });
+      logBenefit({ type, source: certificate ? "cert_use" : "coupon_use", note: "직원 제공 확인 후 로컬 기록 (서버 승인 없음)", ...consumption, visitId: visitId || "", table: state.serviceVisit?.table || "기존 방식: 테이블 미기록" });
       if (certificate) { state.cert.usedAt = Date.now(); startNewWeek(); }
     });
     showToast(committed ? "로컬 사용 기록 저장 완료. 실제 테이블 제공은 직원이 확인합니다." : "저장 실패. 쿠폰 차감/사용 기록을 취소했습니다. 저장 재시도 후 다시 확인하세요.");
@@ -352,32 +353,44 @@ const BenefitService = {
   pending: false,
   commit(change) {
     if (!SessionOwner.canMutate()) return false;
-    const fields = ["money", "coupons", "benefitsLog", "cert", "missions", "serviceVisit", "lastSeenAt"];
+    const fields = ["money", "profile", "coupons", "couponLedger", "benefitsLog", "cert", "missions", "serviceVisit", "lastSeenAt"];
     const previous = Object.fromEntries(fields.map(k => [k, structuredClone(state[k])]));
     const dirty = _saveDirty;
-    change(); markStateChanged("benefit-commit");
-    if (save(true)) return true;
+    try {
+      change(); markStateChanged("benefit-commit");
+      if (save(true)) return true;
+    } catch (error) { console.error("[benefit] commit failed", error); }
     Object.assign(state, previous); BranchManager.saveCurrent(); _saveDirty = dirty;
     return false;
   },
-  startVisit() {
+  async startVisit() {
     if (!SessionOwner.canMutate() || this.pending) return false;
     const input = document.getElementById("serviceTable"), table = (input?.value || "").trim();
     if (!table || table.length > 20) { showToast("테이블 표시를 1~20자로 입력해 주세요."); input?.focus(); return false; }
     if (!confirm("다음 손님/새 식사의 방문 기록을 시작할까요?\n같은 테이블의 현재 식사라면 새 방문을 만들지 마세요.\n다른 기기와 제공 횟수는 공유되지 않으며 직원 확인이 필요합니다.")) return false;
-    const committed = this.commit(() => {
-      state.serviceVisit = { id: crypto.randomUUID(), table, startedAt: Date.now(), drinkConfirmedAt: 0, vegConfirmed: 0 };
-    });
-    showToast(committed ? "새 방문 기록 저장. 화면 확인은 쿠폰 사용이 아닙니다." : "저장 실패. 이전 방문 기록을 보존합니다.");
-    this.render(); return committed;
+    const ownership = SessionOwner.token(), visitId = state.serviceVisit?.id;
+    const modern = CouponPolicy.period() === 2;
+    this.pending = true;
+    try {
+      if (modern && !await askPIN()) { showToast("취소 또는 PIN 불일치. 방문/스탬프를 유지합니다."); return false; }
+      if (!SessionOwner.matches(ownership) || state.serviceVisit?.id !== visitId) return false;
+      const committed = this.commit(() => {
+        state.serviceVisit = { id: crypto.randomUUID(), table, startedAt: Date.now(), drinkConfirmedAt: 0, vegConfirmed: 0 };
+        if (modern && CouponPolicy.claim("visit",CouponPolicy.day(),COUPON_POLICY.visitDailyLimit))
+          CouponPolicy.addStamps(COUPON_POLICY.visitStamps,"staff_visit");
+      });
+      showToast(committed ? "새 방문 기록 저장. 화면 확인은 쿠폰 사용이 아닙니다." : "저장 실패. 이전 방문 기록을 보존합니다.");
+      this.render(); return committed;
+    } finally { this.pending = false; }
   },
   render() {
     const host = document.getElementById("staffCouponStatus");
     if (!host) return;
     const v = state.serviceVisit;
-    const text = `${v ? `테이블 ${v.table} · 방문 ${v.id}\n시작 ${new Date(v.startedAt).toLocaleString("ko-KR")}\n음료 ${v.drinkConfirmedAt ? `제공 후: ${new Date(v.drinkConfirmedAt).toLocaleString("ko-KR")}` : "제공 전(직원 확인 필요)"} · 이 방문 무/양배추 기록 ${v.vegConfirmed}회` : "새 방문/테이블 미기록. 음료 사용 전 방문을 기록하세요."}\n보유 음료 ${state.coupons.drink}장 · 무/양배추 ${state.coupons.veg}장\n음료는 테이블 방문당 한 병. 이 화면은 기기 내부 기록이며 다른 기기 횟수를 공유하지 않습니다. 공개 PIN은 서버 인증이 아닙니다.\n무/양배추 제공량·추가 횟수는 직원에게 확인하세요. 새 한도는 적용하지 않았습니다.`;
+    const text = `${v ? `테이블 ${v.table} · 방문 ${v.id}\n시작 ${new Date(v.startedAt).toLocaleString("ko-KR")}\n음료 ${v.drinkConfirmedAt ? `제공 후: ${new Date(v.drinkConfirmedAt).toLocaleString("ko-KR")}` : "제공 전(직원 확인 필요)"} · 이 방문 무/양배추 기록 ${v.vegConfirmed}회` : "새 방문/테이블 미기록. 음료 사용 전 방문을 기록하세요."}\n사용 가능 음료 ${CouponPolicy.available("drink")}장 · 무/양배추 ${CouponPolicy.available("veg")}장\n${CouponPolicy.usedToday() >= COUPON_POLICY.dailyDrinkUseLimit ? "오늘 사용함" : "오늘 음료 미사용"} (기기 전체 하루 ${COUPON_POLICY.dailyDrinkUseLimit}장)\n음료는 테이블 방문당 한 병. 이 화면은 기기 내부 기록이며 다른 기기 횟수를 공유하지 않습니다. 공개 PIN은 서버 인증이 아닙니다.\n무/양배추 제공량·추가 횟수는 직원에게 확인하세요. 새 한도는 적용하지 않았습니다.`;
     if (host.textContent !== text) host.textContent = text;
     const summary = document.getElementById("serviceVisitSummary");
+    CouponPolicy.render();
     if (summary) summary.textContent = v ? `현재 테이블 ${v.table} · 음료 ${v.drinkConfirmedAt ? "제공 기록 완료" : "제공 전"}` : "현재 방문 미기록";
   },
 };

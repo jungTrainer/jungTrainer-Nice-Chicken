@@ -162,7 +162,7 @@ function importSaveData(raw) {
 
   if (
     !confirm(
-      "현재 저장 데이터를 가져온 백업으로 덮어쓸까요?\n기존 진행 상황이 바뀔 수 있습니다.",
+      "게임 진행을 백업으로 교체할까요?\n이 기기의 새 쿠폰·스탬프·월 발급/사용 한도는 현재 원장을 유지하며 가져온 백업에서 추가하지 않습니다. 기존 무기한 쿠폰은 백업 규칙을 따릅니다.",
     )
   ) {
     return false;
@@ -171,7 +171,7 @@ function importSaveData(raw) {
   if (
     !replaceGameState({
       ...defaultState(),
-      ...imported,
+      ...CouponPolicy.protectImported(imported),
       moneyEncoding: imported.moneyEncoding,
     })
   ) {
@@ -338,6 +338,7 @@ function sanitizeState() {
     state.missions = JSON.parse(JSON.stringify(d.missions));
   if (!Array.isArray(state.missions.dailyList)) state.missions.dailyList = [];
   if (!Array.isArray(state.missions.weeklyList)) state.missions.weeklyList = [];
+  CouponPolicy.migrate();
   migrateMoneyState();
   ensureMissionReset();
 
@@ -401,7 +402,10 @@ function resetGame() {
     SaveRecovery.note("초기화 준비 실패. 진행을 유지합니다. " + error.message);
     return false;
   }
-  if (!replaceGameState(defaultState())) {
+  const resetState = defaultState();
+  resetState.couponLedger = structuredClone(state.couponLedger);
+  resetState.couponLedger.welcomeEligible = false;
+  if (!replaceGameState(resetState)) {
     showToast("저장 실패. 초기화하지 않았습니다.");
     return false;
   }

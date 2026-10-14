@@ -10,11 +10,11 @@
    - 배경: 매장 느낌(카운터/테이블/문)
    - 보스/알바 겹침 해결: 보스 상단, 알바 하단(Y 분리), 크기 소폭 축소
    - 유저 이름(최초 입력): 한글만, 10글자, 빈값 허용 / 헤더&인증서에 그대로 표시
-   - 일간 올클 -> 무/양배추 쿠폰(veg) 지급
-   - 주간 올클 -> 인증서 발급 가능 / 발급 시 음료 쿠폰(drink) 1장 지급
+   - 현재 기간 보상 v1 보존; 새 기간의 공용 스탬프/날짜형 혜택은 CouponPolicy 소유
+   - 새 주간 올클 스탬프/veg와 인증서 중복 지급 방지
    - 인증서/쿠폰 사용 -> PIN(0000) + 로그 기록
    - 주간 인증서 "사용 처리" -> PIN 성공 시 주간 초기화 + 로그
-   - 5,000만원당 음료쿠폰 1장 교환(상점)
+   - 이행 전 주간은 기존 교환, 이후 정확한 자동 수익 기반 스탬프 구매
 ========================================================= */
 
 /* Step 3-2A: SOUND/WebAudio moved to js/core/audio.js */
@@ -244,6 +244,7 @@ function initDOMRefs() {
   if (forceSaveBtn) {
     forceSaveBtn.addEventListener("click", () => {
       const ok = save(true);
+      if (ok) CouponPolicy.maybeSettle(true);
       showToast(
         ok ? "저장 완료" : "저장 실패! 브라우저 저장 공간을 확인하세요.",
       );
@@ -251,7 +252,7 @@ function initDOMRefs() {
   }
   if (resetAllBtn) {
     resetAllBtn.addEventListener("click", () => {
-      if (confirm("정말 초기화할까요? (저장 데이터 삭제)")) {
+      if (confirm("게임 진행과 기존 무기한 쿠폰을 초기화할까요? 새 정책의 날짜형 쿠폰·스탬프·발급/사용 한도는 보존합니다.")) {
         resetGame();
       }
     });
@@ -372,11 +373,12 @@ function initDOMRefs() {
         sfxWrong();
         return;
       }
-      state.profile = state.profile || {};
-      state.profile.name = v;
+      const committed = BenefitService.commit(() => {
+        state.profile.name = v;
+        CouponPolicy.completeWelcome();
+      });
+      if (!committed) { showToast("저장 실패. 안내와 웰컴 지급 상태를 유지합니다. 다시 시도해 주세요."); return; }
       if (modalProfile) modalProfile.classList.remove("on");
-      markStateChanged("profile-name");
-      save(true);
       updateUI();
       showToast("이름 저장 완료");
       sfxConfirm();
@@ -423,22 +425,7 @@ function initDOMRefs() {
     doExchangeBtn.addEventListener("click", () => {
       unlockAudioOnce();
       startBGM();
-      const cnt = moneyQuotient(state.money, CONFIG.exchangeUnit);
-      if (cnt <= 0) {
-        showToast("교환할 돈이 부족해요.");
-        sfxWrong();
-        return;
-      }
-      const committed = BenefitService.commit(() => {
-        state.money = moneySub(state.money, CONFIG.exchangeUnit);
-        const before = state.coupons.drink;
-        state.coupons.drink++;
-        logBenefit({ type: "drink", source: "exchange", note: "5,000만원 교환", before, after: state.coupons.drink });
-      });
-      showToast(committed ? "교환 완료! 음료 쿠폰 +1" : "저장 실패. 돈과 쿠폰은 그대로입니다.");
-      updateUI();
-      renderExchange();
-      renderCoupons();
+      CouponPolicy.exchange(doExchangeBtn.dataset.cost);
     });
   }
 
@@ -1691,7 +1678,7 @@ function certStatusText() {
     }
     return {
       okIssue: false,
-      okUse: state.coupons.drink > 0,
+      okUse: CouponPolicy.canUse("drink"),
       msg: `인증서 발급 완료 ✅ (유효 ${Math.max(0, leftDays)}일)`,
     };
   }
@@ -1720,8 +1707,8 @@ function roundRect2(ctx2, x, y, w, h, r) {
 // Step 2-9: useVegCouponBtn handled once in initDOMRefs().
 
 function renderCoupons() {
-  uiDrinkCoupons2.textContent = state.coupons.drink;
-  uiVegCoupons2.textContent = state.coupons.veg;
+  uiDrinkCoupons2.textContent = CouponPolicy.available("drink");
+  uiVegCoupons2.textContent = CouponPolicy.available("veg");
 
   BenefitService.render();
   benefitLogList.textContent = "";
@@ -1731,7 +1718,7 @@ function renderCoupons() {
     return;
   }
   const lines = logs.slice(0, 30).map((l) => {
-    const label = l.type === "drink" ? "음료" : "무/양배추";
+    const label = l.type === "stamp" ? "음료 스탬프" : l.type === "drink" ? "음료" : "무/양배추";
     return `• [${l.at}] ${label} x${l.qty} (${l.source}) ${l.note || ""}${l.before !== undefined ? ` · 잔량 ${l.before} → ${l.after}` : " · 기존 기록(전후 수량 없음)"}${l.table ? ` · 테이블 ${l.table} · 방문 ${l.visitId || "미기록"}` : ""}`;
   });
   benefitLogList.textContent = lines.join("\n");
@@ -1739,9 +1726,17 @@ function renderCoupons() {
 
 function renderExchange() {
   uiMoney2.textContent = fmtWon(state.money);
-  const cnt = moneyQuotient(state.money, CONFIG.exchangeUnit);
-  uiExchangeCnt.textContent = cnt;
-  doExchangeBtn.disabled = cnt <= 0;
+  const quote = CouponPolicy.quote();
+  uiExchangeCnt.textContent = quote.remaining;
+  doExchangeBtn.disabled = !quote.allowed;
+  doExchangeBtn.dataset.cost = quote.price === null ? "" : String(quote.price);
+  doExchangeBtn.textContent = quote.modern ? `스탬프 +${COUPON_POLICY.exchangeStamps} 구매` : "기존 기간 교환하기";
+  const cost = document.getElementById("exchangePrice");
+  cost.textContent = quote.price === null ? "금액 표현 한계: 구매 중단" : fmtWon(quote.price);
+  cost.title = quote.price === null ? "" : moneyExactText(quote.price) + "원";
+  document.getElementById("exchangePolicyInfo").textContent = quote.modern
+    ? `기기 전체 이번 주 ${quote.remaining}/${COUPON_POLICY.exchangeWeeklyLimit}회 가능 · 스탬프 +${COUPON_POLICY.exchangeStamps}. 현재 자동 추정 분당 수익 ${quote.minute === null ? "계산 한계" : fmtWon(quote.minute)} × ${COUPON_POLICY.exchangeMinutes}분과 ${fmtWon(COUPON_POLICY.exchangeMinWon)} 중 큰 금액입니다. 수동 서빙·랜덤 변동과 실제 수익은 다를 수 있습니다.`
+    : `현재 진행 중인 주간 기간은 기존 ${fmtWon(CONFIG.exchangeUnit)} → 음료 1장을 보존합니다. ${CouponPolicy.dateText(state.couponLedger.weeklyFrom)}부터 주 1회 스탬프 구매로 전환합니다.`;
 }
 
 // Step 2-9: doExchangeBtn handled once in initDOMRefs().
@@ -3770,6 +3765,8 @@ function renderPanel(key) {
   // --- [3] 미션 패널 (mis) ---
   else if (key === "mis") {
     RepeatMissions.render();
+    if (document.querySelector("#panel-mis.on,#panel-shr.on,#modalCoupons.on")) CouponPolicy.render();
+    if (modalExchange?.classList.contains("on")) renderExchange();
     misGuide.innerHTML = `
       <b>📌 스탬프 받는 방법</b><br>
       1) <b>일간 미션 ${state.missions.dailyList.length}개</b>를 모두 완료하면 <b>주간 스탬프 +1</b> (하루 1회)<br>
@@ -3795,7 +3792,7 @@ function renderPanel(key) {
     makeCardBtn.disabled = !st.okIssue && !state.cert.issuedThisWeek;
     useCertDrinkBtn.disabled = !(
       state.cert.issuedThisWeek &&
-      state.coupons.drink > 0 &&
+      CouponPolicy.canUse("drink") &&
       !state.cert.usedAt
     );
   }
@@ -3820,7 +3817,6 @@ function missionRow(m) {
     <div class="info">
       <h4>${m.title}</h4>
       <p>${missionProgressLine(m)}</p>
-      <div class="cost">올클 보상: 무/양배추 쿠폰 1장 (하루 1번)</div>
     </div>
     <button class="btn" disabled>${m.done ? "완료" : "진행중"}</button>
   `;
@@ -4087,8 +4083,8 @@ function updateUI() {
     const uname = (state.profile?.name || "").trim();
     setText(elUserName, uname ? `👤 ${uname}` : "");
 
-    setText(uiVegCoupons, state.coupons?.veg ?? 0);
-    setText(uiDrinkCoupons, state.coupons?.drink ?? 0);
+    setText(uiVegCoupons, CouponPolicy.available("veg"));
+    setText(uiDrinkCoupons, CouponPolicy.available("drink"));
 
     if (toggleSoundBtn)
       if (toggleSoundBtn)
@@ -4126,7 +4122,7 @@ function updateUI() {
       if (useCertDrinkBtn)
         useCertDrinkBtn.disabled = !(
           state.cert?.issuedThisWeek &&
-          (state.coupons?.drink ?? 0) > 0 &&
+          CouponPolicy.canUse("drink") &&
           !state.cert?.usedAt
         );
     }
@@ -4138,8 +4134,8 @@ function updateUI() {
     if (modalCoupons?.classList.contains("on")) BenefitService.render();
 
     // coupons modal quick sync
-    setText(uiDrinkCoupons2, state.coupons?.drink ?? 0);
-    setText(uiVegCoupons2, state.coupons?.veg ?? 0);
+    setText(uiDrinkCoupons2, CouponPolicy.available("drink"));
+    setText(uiVegCoupons2, CouponPolicy.available("veg"));
   } catch (e) {
     console.error("updateUI error", e);
   } finally {
@@ -4210,6 +4206,7 @@ function tick(dt) {
     if (state.play && typeof state.play.onlineSecTotal === "number")
       state.play.onlineSecTotal += dt;
     ensureMissionReset();
+    CouponPolicy.maybeSettle();
     RepeatMissions.tick(dt);
     processPayroll();
     ensureResearchSlots();

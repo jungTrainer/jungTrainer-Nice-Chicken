@@ -1,5 +1,5 @@
 {
-  "source": "IMP-16; classic script load order in index.html; top-level declarations only",
+  "source": "IMP-18; classic script load order in index.html; top-level declarations only",
   "modules": [
     {
       "file": "js/core/money.js",
@@ -72,6 +72,7 @@
       "file": "js/core/config.js",
       "functions": [],
       "bindings": [
+        "COUPON_POLICY",
         "CONFIG",
         "REGIONS",
         "REGION_MAP",
@@ -89,6 +90,13 @@
         "EVENTS",
         "CAMPAIGN_MODES",
         "REGION_ENDINGS"
+      ]
+    },
+    {
+      "file": "js/core/coupons.js",
+      "functions": [],
+      "bindings": [
+        "CouponPolicy"
       ]
     },
     {

@@ -1,8 +1,33 @@
 // Step 3-4: extracted static config/data declarations from js/main.js.
 // Classic script globals; no ES module export/import.
 
+// IMP-18: all adjustable physical-benefit quantities and limits live here.
+const COUPON_POLICY = {
+  version: 1,
+  kstOffsetMinutes: 540,
+  welcomeDrink: 1,
+  welcomeCountsTowardMonthlyLimit: true,
+  drinkValidDays: 30,
+  vegValidDays: 14,
+  cardSize: 30,
+  stampCapacity: 30,
+  monthlyDrinkLimit: 1,
+  dailyDrinkUseLimit: 1,
+  dailyStamps: 1,
+  weeklyStamps: 2,
+  exchangeStamps: 2,
+  visitStamps: 5,
+  dailyAwardLimit: 1,
+  weeklyAwardLimit: 1,
+  exchangeWeeklyLimit: 1,
+  visitDailyLimit: 1,
+  weeklyVegCoupons: 1,
+  exchangeMinWon: 50000000,
+  exchangeMinutes: 120,
+};
+
 const CONFIG = {
-  version: 10,
+  version: 11,
 
   baseOrdersPerMin: 10 * 1.5,
   baseAutoServesPerMin: 0.8,
@@ -33,7 +58,7 @@ const CONFIG = {
   walkSpeedMin: 55,
   walkSpeedMax: 90,
 
-  exchangeUnit: 50000000, // 5,000만원
+  exchangeUnit: COUPON_POLICY.exchangeMinWon, // 5,000만원
   pin: "0000",
 };
 

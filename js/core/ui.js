@@ -5,6 +5,9 @@ document.addEventListener(
     document.querySelectorAll("[data-game-guide]").forEach(container => {
       container.append(document.getElementById("gameGuideTemplate").content.cloneNode(true));
     });
+    document.querySelectorAll("[data-coupon-value]").forEach(node => {
+      node.textContent = String(COUPON_POLICY[node.dataset.couponValue]);
+    });
     const app = document.getElementById("app"),
       nav = app.querySelector("nav");
     const surfaces = [
@@ -99,13 +102,13 @@ document.addEventListener(
         const restore =
           previous && !visible(previous) ? returnFocus.get(previous) : null;
         if (
-          restore?.isConnected &&
+          restore?.isConnected && !restore.disabled &&
           !restore.closest("[inert]") &&
           owned(restore)
         ) {
           restore.focus({ preventScroll: true });
         } else if (top) {
-          const focus = top.querySelector("input") || controls(top)[0] || top;
+          const focus = top.querySelector("[data-initial-focus]") || top.querySelector("input") || controls(top)[0] || top;
           focus.focus({ preventScroll: true });
         }
       }

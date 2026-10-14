@@ -4,7 +4,7 @@ const { harness, NOW } = require('./helpers/game.cjs');
 const { game, fixture } = harness();
 const accept = p => p.on('dialog',d=>d.accept());
 async function coupons(p) { await p.locator('#openSettings').tap(); await p.locator('#openCoupons').tap(); }
-async function visit(p, table='3번') { await p.locator('#serviceTable').fill(table); await p.locator('#startServiceVisit').tap(); }
+async function visit(p, table='3번') { await p.locator('#serviceTable').fill(table); await p.locator('#startServiceVisit').tap(); if(await p.locator('#modalPin').evaluate(e=>e.classList.contains('on'))) await pin(p); }
 async function pin(p) { await p.locator('#pinInput').fill('0000'); await p.locator('#pinOk').tap(); await p.waitForFunction(()=>!BenefitService.pending,null,{polling:50}); }
 async function snapshot(p) { return p.evaluate(()=>({ money:state.money,coupons:state.coupons,cert:state.cert,visit:state.serviceVisit,log:state.benefitsLog,pending:state.offlineReward,dirty:_saveDirty })); }
 async function correct(p, actor='player', menu='fried') {
@@ -40,17 +40,17 @@ test('max-growth/ending v2 daily and week goals finish with serving/active play 
     for(const u of UPGRADES) state.upgrades[u.id]=u.maxLevel;
     for(const s of STAFF_POOL) state.staffStats[s.key].auto=state.staffStats[s.key].tip=10;
     state.endingSeen=state.endingUnlocked=state.robotGrandson=true;
-    window.testNow=state.missions.weekEndAt; ensureMissionReset();
+    window.testNow=state.missions.weekEndAt; sessionStorage.setItem("testNow",testNow); ensureMissionReset();
     state.missions.weeklyStamps=6;
     state.missions._dayActiveSec=60; state.missions._weekActiveSec=300;
     for(let i=0;i<60;i++) {
       state.customers=[{id:'c',menuId:'fried',state:'waiting',x:10,y:10,patience:99}];state.selectedCustomerId='c';serveByMenu('fried','neighbor');
     }
     updateMissionsOnlineOnly(); generateWeeklyCertificate(); generateWeeklyCertificate();
-    return {daily:state.missions.dailyList.map(g=>g.done),week:state.missions.weeklyList.map(g=>g.done),coupons:state.coupons,ending:state.endingSeen};
+    return {daily:state.missions.dailyList.map(g=>g.done),week:state.missions.weeklyList.map(g=>g.done),coupons:state.coupons,stamps:state.couponLedger.stamps,dated:state.couponLedger.lots.map(c=>c.type),ending:state.endingSeen};
   });
-  assert.deepEqual(r.daily,Array(8).fill(true)); assert.deepEqual(r.week,Array(8).fill(true)); assert.deepEqual(r.coupons,{drink:1,veg:1});assert.equal(r.ending,true);
-  await p.reload(); assert.deepEqual(await p.evaluate(()=>state.coupons),{drink:1,veg:1});
+  assert.deepEqual(r.daily,Array(8).fill(true)); assert.deepEqual(r.week,Array(8).fill(true)); assert.deepEqual(r.coupons,{drink:0,veg:0});assert.equal(r.stamps,3);assert.deepEqual(r.dated,["veg"]);assert.equal(r.ending,true);
+  await p.reload(); assert.deepEqual(await p.evaluate(()=>state.coupons),{drink:0,veg:0});assert.equal(await p.evaluate(()=>state.couponLedger.stamps),3);assert.equal(await p.evaluate(()=>CouponPolicy.available('veg')),1);
 }));
 
 test('v2 any-menu progress follows actual signature sales without requiring locked menu or channel',async()=>game(fixture(),async p=>{
@@ -88,7 +88,7 @@ test('challenge restart storage failure preserves previous completion and unsave
 test('new daily all-clear retries after failed commit and reopening never pays twice',async()=>game(fixture(),async p=>{
   await nextPeriod(p);await p.evaluate(()=>{state.missions.dailyList.forEach(g=>g.done=true);window.originalSet=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k===SAVE_KEY)throw Error('quota');return originalSet.call(this,k,v);};updateMissionsOnlineOnly();});
   assert.equal(await p.evaluate(()=>state.coupons.veg),0);assert.equal(await p.evaluate(()=>state.missions.dailyCompletedToday),false);
-  await p.evaluate(()=>{Storage.prototype.setItem=originalSet;updateMissionsOnlineOnly();updateMissionsOnlineOnly();});await p.reload();assert.equal(await p.evaluate(()=>state.coupons.veg),1);
+  await p.evaluate(()=>{Storage.prototype.setItem=originalSet;updateMissionsOnlineOnly();updateMissionsOnlineOnly();});await p.reload();assert.equal(await p.evaluate(()=>state.coupons.veg),0);assert.equal(await p.evaluate(()=>state.couponLedger.stamps),1);
 }));
 
 test('same-period next visit challenge does not reset paid day/week or certificate',async()=>game(fixture(),async p=>{
@@ -109,8 +109,9 @@ for(const type of ['veg','drink']) test(`${type} provision primary failure rolls
 
 test('drink requires visit and same local visit cannot redeem twice; explicit next meal preserves logs',async()=>game(fixture({coupons:{drink:3,veg:0}}),async p=>{
   accept(p);await coupons(p);await p.locator('#useDrinkCoupon').tap();assert.equal(await p.locator('#modalPin').evaluate(e=>e.classList.contains('on')),false);
-  await visit(p);await p.locator('#useDrinkCoupon').tap();await pin(p);await p.locator('#useDrinkCoupon').tap();assert.equal(await p.locator('#modalPin').evaluate(e=>e.classList.contains('on')),false);assert.equal(await p.evaluate(()=>state.coupons.drink),2);
-  await visit(p);await p.locator('#useDrinkCoupon').tap();await pin(p);assert.equal(await p.evaluate(()=>state.coupons.drink),1);assert.equal(await p.evaluate(()=>state.benefitsLog.length),2);
+  await visit(p);await p.locator('#useDrinkCoupon').tap();await pin(p);assert.equal(await p.locator('#useDrinkCoupon').isDisabled(),true);assert.equal(await p.locator('#modalPin').evaluate(e=>e.classList.contains('on')),false);assert.equal(await p.evaluate(()=>state.coupons.drink),2);
+  await visit(p);assert.equal(await p.locator('#useDrinkCoupon').isDisabled(),true);assert.equal(await p.evaluate(()=>state.coupons.drink),2);
+  await nextPeriod(p);await visit(p);await p.locator('#useDrinkCoupon').tap();await pin(p);assert.equal(await p.evaluate(()=>state.coupons.drink),1);assert.equal(await p.evaluate(()=>state.benefitsLog.filter(l=>l.source==='coupon_use').length),2);
 }));
 
 test('exchange failure preserves exact huge cash, coupons and existing logs then retries once',async()=>game(fixture({money:'10000000000000000000001',endingPrompted:true,coupons:{drink:3,veg:7}}),async p=>{
@@ -129,7 +130,7 @@ test('certificate provision commit failure preserves issued/used/week and visit 
 test('log clearing save failure preserves history; successful clearing keeps current drink-use guard',async()=>game(fixture({coupons:{drink:3,veg:7}}),async p=>{
   accept(p);await coupons(p);await visit(p);await p.locator('#useDrinkCoupon').tap();await pin(p);const before=await snapshot(p);
   await p.evaluate(()=>{window.originalSet=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k===SAVE_KEY)throw Error('quota');return originalSet.call(this,k,v);};});await p.locator('#clearLog').tap();assert.deepEqual(await snapshot(p),before);
-  await p.evaluate(()=>{Storage.prototype.setItem=originalSet;});await p.locator('#clearLog').tap();assert.equal(await p.evaluate(()=>state.benefitsLog.length),0);assert.ok(await p.evaluate(()=>state.serviceVisit.drinkConfirmedAt));await p.locator('#useDrinkCoupon').tap();assert.equal(await p.locator('#modalPin').evaluate(e=>e.classList.contains('on')),false);
+  await p.evaluate(()=>{Storage.prototype.setItem=originalSet;});await p.locator('#clearLog').tap();assert.equal(await p.evaluate(()=>state.benefitsLog.length),0);assert.ok(await p.evaluate(()=>state.serviceVisit.drinkConfirmedAt));assert.equal(await p.locator('#useDrinkCoupon').isDisabled(),true);assert.equal(await p.locator('#modalPin').evaluate(e=>e.classList.contains('on')),false);
 }));
 
 test('staff preview/close/PIN cancellation never uses coupon; unsafe text stays text',async()=>game(fixture({coupons:{drink:3,veg:7},benefitsLog:[{at:'old',type:'veg',qty:1,source:'old',note:'<img src=x onerror="window.injected=true">'}]}),async p=>{
