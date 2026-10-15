@@ -3770,7 +3770,7 @@ function renderPanel(key) {
     misGuide.innerHTML = `
       <b>📌 스탬프 받는 방법</b><br>
       1) <b>일간 미션 ${state.missions.dailyList.length}개</b>를 모두 완료하면 <b>주간 스탬프 +1</b> (하루 1회)<br>
-      2) <b>주간 스탬프 7/7</b> + <b>주간 미션 올클</b> 시 인증서 발급 가능<br>
+      2) <b>주간 스탬프 <span data-weekly-stamp-target>${RepeatMissions.weeklyStampTarget()}</span>/<span data-weekly-stamp-target>${RepeatMissions.weeklyStampTarget()}</span></b> + <b>주간 미션 올클</b> 시 인증서 발급 가능<br>
       <span style="color:#666;">※ 미션 진행은 접속 중(온라인 플레이)에서만 반영됩니다.</span>
     `;
     dailyList.innerHTML = "";
@@ -4091,6 +4091,7 @@ function updateUI() {
         toggleSoundBtn.textContent = state.soundOn ? "ON" : "OFF";
 
     setText(stampCountText, state.stamps ?? 0);
+    setText(uiWeeklyStampText, state.missions.weeklyStamps ?? 0);
     renderStampRow(
       stampRow,
       3,
@@ -4107,7 +4108,7 @@ function updateUI() {
     );
     renderStampRow(
       weeklyStampRow,
-      7,
+      RepeatMissions.weeklyStampTarget(),
       state.missions.weeklyStamps ?? 0,
       "🐔",
       "rgba(255,159,28,.95)",

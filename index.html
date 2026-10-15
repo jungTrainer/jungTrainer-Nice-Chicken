@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>나이스치킨 타이쿤 (방치+서빙)</title>
-  <meta name="app-version" content="imp12-946640ad086f197eb1f6" />
+  <meta name="app-version" content="imp12-d54ffc62b78af3bfb51a" />
   <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#FF9F1C">
   <link rel="apple-touch-icon" href="./icon-192.png">
@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     <div class="note" style="margin:10px 12px 0 12px; line-height:1.35;">
       <b>반복 미션은 “온라인 플레이 중”에만 진행</b>돼요. 최대 성장 뒤에도 기간이 바뀌면 가능한 서빙 목표로 이어집니다. 현재 기간의 기존 목표·지급 상태는 유지해요.<br>
       • <b>일간 미션</b>: 8종 모두 완료하면 보상 + 주간스탬프 1개 획득<br>
-      • <b>주간 미션</b>: 일간 올클 7번을 포함한 8종 모두 완료하면 인증서 발급 가능<br>
+      • <b>주간 미션</b>: 일간 올클 <span data-weekly-stamp-target></span>번을 포함한 8종 모두 완료하면 인증서 발급 가능 (진행 중인 목표 유지)<br>
       각 미션 카드의 <b>조건</b>을 만족하면 자동 체크됩니다. 아래 스탬프 칸은 미션 완료 현황이며, 30개짜리 음료 스탬프 카드는 쿠폰함에서 따로 확인해요.
     </div>
     <div class="scroll">
@@ -172,7 +172,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
         <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
           <div style="color:#555;">주간 스탬프</div>
-          <div><b id="uiWeeklyStampText">0</b>/7</div>
+          <div><b id="uiWeeklyStampText">0</b>/<span data-weekly-stamp-target></span></div>
         </div>
         <div id="weeklyStampRow" style="display:grid; grid-template-columns:repeat(7, 1fr); gap:8px; margin-top:8px;"></div>
 
@@ -458,8 +458,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
 <script src="./js/core/money.js" integrity="sha256-8l6tHA96EN28kfa3khY1So19NYExVZRDoAA1t8zuAOw=" crossorigin="anonymous"></script>
 <script src="./js/core/utils.js" integrity="sha256-rMb8jDUvlaPmk9VhbNRBrAuP4uAL90TbDOj4Yj9JlcU=" crossorigin="anonymous"></script>
 <script src="./js/core/audio.js" integrity="sha256-sHFMyhuEgs2lhttc2pyqwwqcgZ9XW0Xozmq7W5xIW24=" crossorigin="anonymous"></script>
-<script src="./js/core/config.js" integrity="sha256-6ToJu02Tf2vp8kK6EUYehbHhl76iDNZ02hqrcEqm2Ys=" crossorigin="anonymous"></script>
-<script src="./js/core/coupons.js" integrity="sha256-yIO0mkhWamElbPmh9mIBjZ4QvPVKRLlA+0nAuGA0VBg=" crossorigin="anonymous"></script>
+<script src="./js/core/config.js" integrity="sha256-/03MXGjFQ06+UIDdx6Eo+7aw+EgNYzKauvGwm/3L2sU=" crossorigin="anonymous"></script>
+<script src="./js/core/coupons.js" integrity="sha256-7GSaV9xbH8oAxsEX0QyXM5K3GwIBFZ6ehIvaDITZ2S8=" crossorigin="anonymous"></script>
 <script src="./js/core/content.js" integrity="sha256-1vj93AFB2ZG4DwIMRvqCYORHWUw0PiblSKOT3u8J8hY=" crossorigin="anonymous"></script>
 <script src="./js/core/state.js" integrity="sha256-ijgZeI/+2ZLbUfHKCdGGFCMeOJ7Mv8SN+6Cavp6Cg8w=" crossorigin="anonymous"></script>
 <script src="./js/core/recovery.js" integrity="sha256-H+p2Cbw+MEVzeOXu9cb6sLi6nucKkhB0yjMtcZNmMGw=" crossorigin="anonymous"></script>
@@ -468,12 +468,12 @@ document.addEventListener('DOMContentLoaded', ()=>{
 <script src="./js/core/growth.js" integrity="sha256-dXstgJOKZAc0UWZBubduFeF7oTmTP0HnP7fWUX7sG9E=" crossorigin="anonymous"></script>
 <script src="./js/core/research.js" integrity="sha256-hZm8YgGc0JcOgwAOYzWkYwxYhJRlGTmMxYkf0KINf80=" crossorigin="anonymous"></script>
 <script src="./js/core/offline.js" integrity="sha256-1UXckpVuU/s8Zbg1dWLlGRw43iRxmFXHVW8BFDwI4bA=" crossorigin="anonymous"></script>
-<script src="./js/core/missions.js" integrity="sha256-bIM73z8Dv505BI4XX9MbJ1k9EZnepdgrqqzkreCs178=" crossorigin="anonymous"></script>
+<script src="./js/core/missions.js" integrity="sha256-rPxd5evqu5uQ+NoFl0tUHC2g0R7f8zVHDK9SSixdoek=" crossorigin="anonymous"></script>
 <script src="./js/core/economy.js" integrity="sha256-6zE/uw4z1OgHOsUc1zoiCbHiI0Z8yYwEVWrVnXArsOo=" crossorigin="anonymous"></script>
 <script src="./js/core/ending.js" integrity="sha256-eK16di03+jUqGcYTsBAJkFfaeCFAGHCG6IGtge9tEtA=" crossorigin="anonymous"></script>
 <script src="./js/core/branches.js" integrity="sha256-m2PWDQRv4d2ec4DaAbgeekKh6XWsSpIQe2/IV1Lpa3Y=" crossorigin="anonymous"></script>
 <script src="./js/core/services.js" integrity="sha256-MQJhvf7umieaRc2IBiAIhzCfgq9HG3qJc5Y5uADiNkw=" crossorigin="anonymous"></script>
-<script src="./js/main.js" integrity="sha256-xN65U46X4rUV7qkuXVswJzmf7nlVs9SewA7hkY+ObXk=" crossorigin="anonymous"></script>
+<script src="./js/main.js" integrity="sha256-RiNkg2sUxF/8if5kX4vLrhei3JoKkp3qQBoARu2K79w=" crossorigin="anonymous"></script>
 <script src="./js/core/ui.js" integrity="sha256-zuR5ODHNrEeLoM6grd6dJMpydTY7IcrzTE+l7xdbJNc=" crossorigin="anonymous"></script>
 <script src="./js/core/pwa.js" integrity="sha256-V9kIrz8dBh/RilvFaqD3slfNp0vxcEHZ4Hyb3EsvSgc=" crossorigin="anonymous"></script>
 <script src="./js/core/boot.js" integrity="sha256-NCsAj6CTCn3NoiFmfvAy6/ebhSrtHea6qZ5N3/0YI5U=" crossorigin="anonymous"></script>

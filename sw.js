@@ -1,11 +1,11 @@
 /* IMP-12: generated release block; update with npm run pwa:build. */
 // BEGIN PWA RELEASE
 const RELEASE = {
-  "version": "imp12-946640ad086f197eb1f6",
+  "version": "imp12-d54ffc62b78af3bfb51a",
   "required": [
     {
       "path": "index.html",
-      "hash": "581a97f22db43154fc662e32ec5a73a78497dee7a3398ac2120d9e2f30dbd1b5",
+      "hash": "6278c667c0370622efeb9342d9b92f6237fb67837bf1cbbd1be29d5cdb0cd314",
       "mime": "text/html"
     },
     {
@@ -25,12 +25,12 @@ const RELEASE = {
     },
     {
       "path": "js/core/config.js",
-      "hash": "e93a09bb4d937f6be9f242ba11461e85b1e197bea20cd674da1aab704aa6d98b",
+      "hash": "ff4dcc5c68c5434ebe5080ddc7a128fbb6b0f8480d63329abaf1b09bfdcbdac5",
       "mime": "javascript"
     },
     {
       "path": "js/core/coupons.js",
-      "hash": "c883b49a48566a61256cf9a1f662018d9e10bcf54a44b940fb49c0b860345418",
+      "hash": "ec649a57dc5b1fca00c6c117d10c973392b71b0201159e9e848bda0c84d9d92f",
       "mime": "javascript"
     },
     {
@@ -75,7 +75,7 @@ const RELEASE = {
     },
     {
       "path": "js/core/missions.js",
-      "hash": "6c833bdf3f03bf9d39048e175fd31b27593d1199dea5d82baaace4ade0acd7bf",
+      "hash": "acfc5de5ebeabb9b90f8da05974b541c2da0d11edff335470caf524a2c5da1e9",
       "mime": "javascript"
     },
     {
@@ -100,7 +100,7 @@ const RELEASE = {
     },
     {
       "path": "js/main.js",
-      "hash": "c4deb9538e97e2b515eea92e5d5b3027399fee7955b3d49ec00ee1918f8e6d79",
+      "hash": "462364836b14c45ffc89fe645f8bcbae17a2dc9a0a929dea401a0046ed8aefdc",
       "mime": "javascript"
     },
     {

@@ -6,7 +6,7 @@ const COUPON_POLICY = {
   version: 1,
   kstOffsetMinutes: 540,
   welcomeDrink: 1,
-  welcomeCountsTowardMonthlyLimit: true,
+  welcomeCountsTowardMonthlyLimit: false,
   drinkValidDays: 30,
   vegValidDays: 14,
   cardSize: 30,
@@ -28,6 +28,7 @@ const COUPON_POLICY = {
 
 const CONFIG = {
   version: 11,
+  weeklyRepeatDailyClears: 5, // New v2 week snapshots only; existing goals keep their target.
 
   baseOrdersPerMin: 10 * 1.5,
   baseAutoServesPerMin: 0.8,

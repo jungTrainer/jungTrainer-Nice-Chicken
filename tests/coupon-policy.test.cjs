@@ -90,10 +90,20 @@ test('card conversion preserves surplus; a full already-issued card caps at 30 a
  assert.equal(await p.evaluate(()=>CouponPolicy.maybeSettle(true)),false);await p.reload();assert.equal(await p.evaluate(()=>state.couponLedger.lots.length),2);
 }));
 
-test('welcome consumes the monthly slot; its reserved card waits and carries max 30 until next month',async()=>game(null,async p=>{
- await p.evaluate(()=>BenefitService.commit(()=>CouponPolicy.addStamps(30,'test')));assert.equal(await p.evaluate(()=>state.couponLedger.lots.length),0);
- await welcome(p);await p.evaluate(()=>BenefitService.commit(()=>CouponPolicy.addStamps(5,'test')));assert.equal(await p.evaluate(()=>state.couponLedger.lots.length),1);assert.equal(await p.evaluate(()=>state.couponLedger.stamps),30);
- await at(p,Date.UTC(2026,9,31,15));assert.equal(await p.evaluate(()=>CouponPolicy.maybeSettle(true)),true);assert.equal(await p.evaluate(()=>state.couponLedger.lots.length),2);
+test('unfinished welcome reserves no monthly slot; welcome remains separate after the first card',async()=>game(null,async p=>{
+ assert.equal(await p.evaluate(()=>COUPON_POLICY.welcomeCountsTowardMonthlyLimit),false);
+ await p.evaluate(()=>BenefitService.commit(()=>CouponPolicy.addStamps(30,'test')));assert.equal(await p.evaluate(()=>state.couponLedger.lots.length),1);
+ await welcome(p);assert.deepEqual(await p.evaluate(()=>state.couponLedger.lots.map(c=>c.source)),['stamp_card','welcome']);assert.equal(await p.evaluate(()=>state.couponLedger.issuedMonths['2026-10']),1);
+ await p.evaluate(()=>BenefitService.commit(()=>CouponPolicy.addStamps(35,'test')));assert.equal(await p.evaluate(()=>state.couponLedger.lots.length),2);assert.equal(await p.evaluate(()=>state.couponLedger.stamps),30);
+ await at(p,Date.UTC(2026,9,31,15));assert.equal(await p.evaluate(()=>CouponPolicy.maybeSettle(true)),true);assert.equal(await p.evaluate(()=>state.couponLedger.lots.length),3);assert.equal(await p.evaluate(()=>state.couponLedger.issuedMonths['2026-11']),1);
+}));
+
+test('welcome before the card leaves this month free, reload cannot repeat either issuance',async()=>game(null,async p=>{
+ await welcome(p);assert.deepEqual(await p.evaluate(()=>state.couponLedger.issuedMonths),{});
+ await open(p);assert.match(await p.locator('#couponPolicyStatus').innerText(),/0\/1장.*웰컴 별도/);await p.keyboard.press('Escape');
+ await p.evaluate(()=>BenefitService.commit(()=>CouponPolicy.addStamps(30,'test')));
+ const before=await p.evaluate(()=>structuredClone(state.couponLedger));assert.deepEqual(before.lots.map(c=>c.source),['welcome','stamp_card']);assert.equal(before.issuedMonths['2026-10'],1);
+ await p.reload();assert.deepEqual(await p.evaluate(()=>state.couponLedger),before);assert.equal(await p.evaluate(()=>CouponPolicy.completeWelcome()),false);assert.equal(await p.evaluate(()=>CouponPolicy.maybeSettle(true)),false);
 }));
 
 test('monthly deferred issue storage failure retains complete card and quota; explicit retry issues once',async()=>game(fixture(),async p=>{

@@ -222,7 +222,7 @@ function updateMissionsOnlineOnly() {
         state.coupons.veg++;
         logBenefit({ type: "veg", source: "daily", note: "이행 전 일간 올클" });
       }
-      m.weeklyStamps = Math.min(7, (m.weeklyStamps || 0) + 1);
+      m.weeklyStamps = Math.min(RepeatMissions.weeklyStampTarget(), (m.weeklyStamps || 0) + 1);
     });
     if (!committed) return;
   }
@@ -345,11 +345,15 @@ function renderWeeklyCertificate() {
 
 // v2 goals start at the next period; v1 snapshots remain untouched.
 const RepeatMissions = {
+  weeklyStampTarget() {
+    // Stored period goals own the target, including earlier seven-clear v2 weeks.
+    return state.missions.weeklyList.find(goal => goal.type === "stamp")?.target || 7;
+  },
   list(weekly) {
     const types = weekly
       ? ["stamp", "sales", "rep", "tip", "menu", "service", "orders", "active"]
       : ["serve", "earn", "rep", "tip", "menu", "service", "orders", "active"];
-    const targets = weekly ? [7, 900000, 1, 20, 30, 60, 60, 300] : [6, 40000, 1, 3, 2, 12, 6, 60];
+    const targets = weekly ? [CONFIG.weeklyRepeatDailyClears, 900000, 1, 20, 30, 60, 60, 300] : [6, 40000, 1, 3, 2, 12, 6, 60];
     const labels = {
       stamp: "일간 올클", sales: "주간 매출", serve: "정확 서빙", earn: "오늘 매출",
       rep: weekly ? "평점 4.4 이상" : "평점 4.2 이상", tip: "팁 받기", menu: "현재 운영 메뉴 판매",
@@ -388,6 +392,12 @@ const RepeatMissions = {
   render() {
     const host = document.getElementById("missionExtraStatus");
     if (!host || !document.getElementById("panel-mis")?.classList.contains("on")) return;
+    const weeklyTarget = this.weeklyStampTarget();
+    for (const node of document.querySelectorAll("[data-weekly-stamp-target]"))
+      if (node.textContent !== String(weeklyTarget)) node.textContent = weeklyTarget;
+    const stampRow = document.getElementById("weeklyStampRow");
+    const columns = `repeat(${weeklyTarget}, 1fr)`;
+    if (stampRow.style.gridTemplateColumns !== columns) stampRow.style.gridTemplateColumns = columns;
     for (const [id, goals] of [["dailyList", state.missions.dailyList], ["weeklyList", state.missions.weeklyList]]) {
       const rows = document.getElementById(id).children;
       goals.forEach((goal, index) => {
