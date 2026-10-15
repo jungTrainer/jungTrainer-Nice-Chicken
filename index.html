@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>나이스치킨 타이쿤 (방치+서빙)</title>
-  <meta name="app-version" content="imp12-9d486574e2fa5c6e79ec" />
+  <meta name="app-version" content="imp12-d54ffc62b78af3bfb51a" />
   <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#FF9F1C">
   <link rel="apple-touch-icon" href="./icon-192.png">
@@ -137,8 +137,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
     <div class="note" style="margin:10px 12px 0 12px; line-height:1.35;">
       <b>반복 미션은 “온라인 플레이 중”에만 진행</b>돼요. 최대 성장 뒤에도 기간이 바뀌면 가능한 서빙 목표로 이어집니다. 현재 기간의 기존 목표·지급 상태는 유지해요.<br>
       • <b>일간 미션</b>: 8종 모두 완료하면 보상 + 주간스탬프 1개 획득<br>
-      • <b>주간 미션</b>: 일간 올클 7번을 포함한 8종 모두 완료하면 인증서 발급 가능<br>
-      각 미션 카드의 <b>조건</b>을 만족하면 자동 체크됩니다.
+      • <b>주간 미션</b>: 일간 올클 <span data-weekly-stamp-target></span>번을 포함한 8종 모두 완료하면 인증서 발급 가능 (진행 중인 목표 유지)<br>
+      각 미션 카드의 <b>조건</b>을 만족하면 자동 체크됩니다. 아래 스탬프 칸은 미션 완료 현황이며, 30개짜리 음료 스탬프 카드는 쿠폰함에서 따로 확인해요.
     </div>
     <div class="scroll">
       <div class="card" style="flex-direction:column;align-items:stretch;">
@@ -149,9 +149,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
       </div>
       <div class="card" style="flex-direction:column; align-items:stretch;">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <h4 style="margin:0;">🗓️ 일간 미션 (올클 보상: 무/양배추 쿠폰)</h4>
+          <h4 style="margin:0;">🗓️ 일간 미션</h4>
           <div style="color:#555; font-size:.9rem;">보유: <b id="uiVegCoupons">0</b>개</div>
         </div>
+        <p class="note" id="dailyRewardInfo"></p>
         <div id="dailyList" style="margin-top:10px;"></div>
 
         <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
@@ -166,11 +167,12 @@ document.addEventListener('DOMContentLoaded', ()=>{
           <h4 style="margin:0;">📆 주간 미션 (올클: 인증서 발급 가능)</h4>
           <div style="color:#555; font-size:.9rem;">음료쿠폰: <b id="uiDrinkCoupons">0</b>개</div>
         </div>
+        <p class="note" id="weeklyRewardInfo"></p>
         <div id="weeklyList" style="margin-top:10px;"></div>
 
         <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
           <div style="color:#555;">주간 스탬프</div>
-          <div><b id="uiWeeklyStampText">0</b>/7</div>
+          <div><b id="uiWeeklyStampText">0</b>/<span data-weekly-stamp-target></span></div>
         </div>
         <div id="weeklyStampRow" style="display:grid; grid-template-columns:repeat(7, 1fr); gap:8px; margin-top:8px;"></div>
 
@@ -205,7 +207,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
           <h4 style="margin:0;">✅ 상태</h4>
           <p id="certStatus" style="margin-top:10px; color:#333; font-weight:700;">상태 확인 중...</p>
           <p class="note" style="margin-top:10px;">
-            - 인증서 발급 시 <b>음료 쿠폰 1장</b>이 지급됩니다.<br>
+            - 새 주간 올클은 <b>스탬프 +<span data-coupon-value="weeklyStamps">2</span> · 무/양배추 <span data-coupon-value="weeklyVegCoupons">1</span>장(<span data-coupon-value="vegValidDays">14</span>일)</b>입니다. 인증서와 중복 지급하지 않습니다. 진행 중인 기존 주간은 음료 1장 규칙을 보존합니다.<br>
             - 음료 서비스 사용 처리는 <b>로컬 PIN 확인이 </b>필요합니다. 서버/매장 인증은 아닙니다.
           </p>
         </div>
@@ -254,7 +256,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
         • 빈값 가능(표시 안 함)
       </div>
       <div class="row">
-        <button class="btn" id="saveName">이름 저장 · 게임 시작</button>
+        <button class="btn" id="saveName">이름 저장 · 첫 안내 완료</button>
+        <p class="note">저장이 전혀 없는 첫 실행에서만 완료 시 웰컴 음료 <span data-coupon-value="welcomeDrink">1</span>장(발급 후 <span data-coupon-value="drinkValidDays">30</span>일)을 저장합니다. 한국 시간 내일부터 사용 가능해요. 기존 저장·안내 재열기·닫기·초기화로 추가 지급하지 않습니다.</p>
       </div>
       <div class="note">※ 이름은 기기(LocalStorage)에만 저장됩니다. 안내는 설정에서 다시 볼 수 있어요.</div>
       <div data-game-guide></div>
@@ -279,7 +282,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       <p>이지/노말 가족 엔딩은 지역 이야기 6곳 해금과 보유금 목표가 필요해요. 기존 운영은 100해 보유금 목표입니다. 지역 기념은 한 번 기록되고, 다시 읽어도 돈·쿠폰을 주지 않아요.</p>
       <h4>4. 게임 목표와 실물 혜택은 달라요</h4>
       <p><b>성장 업적·방문 도전</b>은 게임 기록입니다. <b>일간/주간 반복 미션</b>은 기간별 목표이며 기존 완료 보상·인증서 규칙을 유지해요. <b>쿠폰함</b>은 실물 혜택 수량과 사용 기록입니다.</p>
-      <p>음료는 테이블의 한 방문에 한 병입니다. 다른 기기의 횟수는 공유되지 않으며 직원 확인이 필요해요. 보여주기·안내 닫기는 사용이나 지급이 아닙니다. 게임머니 5,000만원당 음료 쿠폰 1장 교환은 그대로예요. 로컬 PIN은 서버 인증이 아닙니다.</p>
+      <p>음료는 테이블의 한 방문에 한 병, 같은 기기 하루 한 장입니다. 다른 기기의 횟수는 공유되지 않으며 직원 확인이 필요해요. 보여주기·안내 닫기는 사용이나 지급이 아닙니다. 새 기간에는 스탬프 <span data-coupon-value="cardSize">30</span>개로 달력 월 음료 <span data-coupon-value="monthlyDrinkLimit">1</span>장(<span data-coupon-value="drinkValidDays">30</span>일)을 발급해요. 기존 게임머니 5,000만원 교환은 진행 중인 주간까지만 유지하며 이후 주 1회 스탬프 구매로 바뀝니다. 로컬 PIN은 서버 인증이 아닙니다.</p>
     </div>
   </template>
   <div class="dim" id="modalGameGuide">
@@ -358,10 +361,15 @@ document.addEventListener('DOMContentLoaded', ()=>{
       <h3 style="text-align:center;">🎟️ 쿠폰함 / 혜택 내역</h3>
       <p class="note">실물 혜택: 보유 쿠폰과 제공 전후의 기기 기록입니다. 게임 업적과 구분되며 열기·닫기·직원에게 보여주기로 지급하거나 사용하지 않습니다. 음료는 테이블 한 방문에 한 병이며 기기 간 횟수는 공유되지 않습니다.</p>
       <div class="card" style="flex-direction:column;align-items:stretch;">
+        <h4>음료 스탬프 · 날짜형 쿠폰</h4>
+        <p id="couponPolicyStatus" tabindex="-1" data-initial-focus style="white-space:pre-line;overflow-wrap:anywhere;"></p>
+        <div id="datedCouponList" class="note" tabindex="0" aria-label="날짜형 쿠폰 발급·사용·만료 기록" style="max-height:240px;overflow:auto;white-space:pre-line;overflow-wrap:anywhere;"></div>
+      </div>
+      <div class="card" style="flex-direction:column;align-items:stretch;">
         <label for="serviceTable">테이블 표시 (새 손님/식사 때 새 방문)</label>
         <input id="serviceTable" maxlength="20" autocomplete="off" placeholder="예: 3번" style="min-height:44px;max-width:100%;box-sizing:border-box;">
         <p id="serviceVisitSummary"></p>
-        <div class="row"><button class="btn alt" id="startServiceVisit">새 방문 기록</button><button class="btn" id="showStaffCoupon">직원에게 보여주기</button></div>
+        <div class="row"><button class="btn alt" id="startServiceVisit">새 방문 기록 / 직원 확인</button><button class="btn" id="showStaffCoupon">직원에게 보여주기</button></div>
         <div id="staffCouponView" hidden tabindex="-1" aria-label="직원 제공 확인 정보">
           <p id="staffCouponStatus" style="white-space:pre-line;overflow-wrap:anywhere;"></p>
           <button class="btn gray" id="hideStaffCoupon">직원 화면 닫기</button>
@@ -410,11 +418,9 @@ document.addEventListener('DOMContentLoaded', ()=>{
     <div class="modal" style="text-align:left;">
       <h3 style="text-align:center;">🏪 교환상점</h3>
       <div class="card" style="flex-direction:column; align-items:stretch;">
-        <div><b>게임머니 → 음료쿠폰</b></div>
-        <div class="note" style="margin-top:8px;">
-          • 5,000만원(50,000,000) 당 음료쿠폰 1장<br>
-          • 교환 시 즉시 쿠폰함에 지급됩니다.
-        </div>
+        <div><b>게임머니 → 음료 스탬프</b></div>
+        <p class="note" id="exchangePolicyInfo"></p>
+        <div>현재 구매 가격: <b id="exchangePrice"></b></div>
         <div style="margin-top:10px; display:flex; justify-content:space-between;">
           <div>현재 보유금</div>
           <div><b id="uiMoney2">0</b></div>
@@ -452,24 +458,25 @@ document.addEventListener('DOMContentLoaded', ()=>{
 <script src="./js/core/money.js" integrity="sha256-8l6tHA96EN28kfa3khY1So19NYExVZRDoAA1t8zuAOw=" crossorigin="anonymous"></script>
 <script src="./js/core/utils.js" integrity="sha256-rMb8jDUvlaPmk9VhbNRBrAuP4uAL90TbDOj4Yj9JlcU=" crossorigin="anonymous"></script>
 <script src="./js/core/audio.js" integrity="sha256-sHFMyhuEgs2lhttc2pyqwwqcgZ9XW0Xozmq7W5xIW24=" crossorigin="anonymous"></script>
-<script src="./js/core/config.js" integrity="sha256-UVY/flZ+z0DGfWsMtuDS1+pFzGF4pyEqWTHPPzg1pbM=" crossorigin="anonymous"></script>
+<script src="./js/core/config.js" integrity="sha256-/03MXGjFQ06+UIDdx6Eo+7aw+EgNYzKauvGwm/3L2sU=" crossorigin="anonymous"></script>
+<script src="./js/core/coupons.js" integrity="sha256-7GSaV9xbH8oAxsEX0QyXM5K3GwIBFZ6ehIvaDITZ2S8=" crossorigin="anonymous"></script>
 <script src="./js/core/content.js" integrity="sha256-1vj93AFB2ZG4DwIMRvqCYORHWUw0PiblSKOT3u8J8hY=" crossorigin="anonymous"></script>
-<script src="./js/core/state.js" integrity="sha256-mbTApSXW9CoJNr40TY8LqrFw5WplPNIC0gOGiMkEwxc=" crossorigin="anonymous"></script>
-<script src="./js/core/recovery.js" integrity="sha256-Usyqf2GKYVKIA7r1FlVbIUaUQ+FqJlyXc4MPzkeNrTI=" crossorigin="anonymous"></script>
+<script src="./js/core/state.js" integrity="sha256-ijgZeI/+2ZLbUfHKCdGGFCMeOJ7Mv8SN+6Cavp6Cg8w=" crossorigin="anonymous"></script>
+<script src="./js/core/recovery.js" integrity="sha256-H+p2Cbw+MEVzeOXu9cb6sLi6nucKkhB0yjMtcZNmMGw=" crossorigin="anonymous"></script>
 <script src="./js/core/session.js" integrity="sha256-7JJOAPnHMzRAVT/BtEtnQzGMM/qAglWj5UXwMuIyE5c=" crossorigin="anonymous"></script>
-<script src="./js/core/persistence.js" integrity="sha256-I5RZmW1sfplKW9SQwOIcgPrjMK7qOFriLwRwLxF8XfI=" crossorigin="anonymous"></script>
+<script src="./js/core/persistence.js" integrity="sha256-qsEd72a0TdRyR/S7/7s7xw89oxp2MWWZ8p0ZjoOw9sw=" crossorigin="anonymous"></script>
 <script src="./js/core/growth.js" integrity="sha256-dXstgJOKZAc0UWZBubduFeF7oTmTP0HnP7fWUX7sG9E=" crossorigin="anonymous"></script>
 <script src="./js/core/research.js" integrity="sha256-hZm8YgGc0JcOgwAOYzWkYwxYhJRlGTmMxYkf0KINf80=" crossorigin="anonymous"></script>
 <script src="./js/core/offline.js" integrity="sha256-1UXckpVuU/s8Zbg1dWLlGRw43iRxmFXHVW8BFDwI4bA=" crossorigin="anonymous"></script>
-<script src="./js/core/missions.js" integrity="sha256-fWDXFtwOLLpFVF/OKwCLt+f3b7/pldue78Ekb5y/s7o=" crossorigin="anonymous"></script>
-<script src="./js/core/economy.js" integrity="sha256-vfKgSdhC97njkD0+KXkdbJEK2CqvD0TmNl/2pQz1PzU=" crossorigin="anonymous"></script>
+<script src="./js/core/missions.js" integrity="sha256-rPxd5evqu5uQ+NoFl0tUHC2g0R7f8zVHDK9SSixdoek=" crossorigin="anonymous"></script>
+<script src="./js/core/economy.js" integrity="sha256-6zE/uw4z1OgHOsUc1zoiCbHiI0Z8yYwEVWrVnXArsOo=" crossorigin="anonymous"></script>
 <script src="./js/core/ending.js" integrity="sha256-eK16di03+jUqGcYTsBAJkFfaeCFAGHCG6IGtge9tEtA=" crossorigin="anonymous"></script>
 <script src="./js/core/branches.js" integrity="sha256-m2PWDQRv4d2ec4DaAbgeekKh6XWsSpIQe2/IV1Lpa3Y=" crossorigin="anonymous"></script>
-<script src="./js/core/services.js" integrity="sha256-sRqkDRQQ26XEep04VSahqeeM5sQAPMRIxHZRME3MgTM=" crossorigin="anonymous"></script>
-<script src="./js/main.js" integrity="sha256-EmqefdINs69847PjfLZxyzL90R6OwNBjGZ5ANFKRSt0=" crossorigin="anonymous"></script>
-<script src="./js/core/ui.js" integrity="sha256-codjz/j1whhZnNDu2eEkc2AbRTv09tx1iLrH6LbS0SA=" crossorigin="anonymous"></script>
+<script src="./js/core/services.js" integrity="sha256-MQJhvf7umieaRc2IBiAIhzCfgq9HG3qJc5Y5uADiNkw=" crossorigin="anonymous"></script>
+<script src="./js/main.js" integrity="sha256-RiNkg2sUxF/8if5kX4vLrhei3JoKkp3qQBoARu2K79w=" crossorigin="anonymous"></script>
+<script src="./js/core/ui.js" integrity="sha256-zuR5ODHNrEeLoM6grd6dJMpydTY7IcrzTE+l7xdbJNc=" crossorigin="anonymous"></script>
 <script src="./js/core/pwa.js" integrity="sha256-V9kIrz8dBh/RilvFaqD3slfNp0vxcEHZ4Hyb3EsvSgc=" crossorigin="anonymous"></script>
-<script src="./js/core/boot.js" integrity="sha256-5ETYxzLPER4Z0KjwkPFzFqfWQM7VPGqjWXTXcc+bjgM=" crossorigin="anonymous"></script>
+<script src="./js/core/boot.js" integrity="sha256-NCsAj6CTCn3NoiFmfvAy6/ebhSrtHea6qZ5N3/0YI5U=" crossorigin="anonymous"></script>
 
 <!-- [NEW] Management Report Modal -->
 <div class="dim" id="modalStats">

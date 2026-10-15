@@ -17,7 +17,7 @@ function pickStaffKey() {
   markStateChanged("staff-rotation", false);
   return s?.key || "player";
 }
-function computeDeliveryIntervalMs(vehicle) {
+function computeDeliveryIntervalMs(vehicle, random = Math.random(), restRoll = Math.random()) {
   const info = state.delivery;
   const riders = Math.max(1, info.riders | 0);
 
@@ -36,10 +36,10 @@ function computeDeliveryIntervalMs(vehicle) {
   if (Date.now() < state.buffEndTime) interval /= 2;
 
   // 불규칙성: 배달마다 간격 랜덤화 (0.65~1.35)
-  interval *= 0.65 + Math.random() * 0.7;
+  interval *= 0.65 + random * 0.7;
 
   // 가끔은 쉬는 템포 (12% 확률)
-  if (Math.random() < 0.12) interval *= 1.6;
+  if (restRoll < 0.12) interval *= 1.6;
 
   // 너무 빠르면 렉, 너무 느리면 답답 → 하한/상한
   interval = clamp(interval, 600, 60000); // 0.6초 ~ 60초

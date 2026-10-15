@@ -102,6 +102,8 @@ function startNewWeek({ resetCertificate = true } = {}) {
   m.weeklyCompletedAt = 0;
   m.weeklyList = missionList(true);
   m.weeklyPolicy = 2;
+  m.weeklyRewardPolicy = CouponPolicy.period(true);
+  m.weeklyRewardPaid = false;
   missionBaselines(true);
   // Passive branch/week initialization must not revoke an HQ certificate.
   if (
@@ -126,10 +128,12 @@ function ensureMissionReset() {
     : m.weekEndAt;
   if (!m.weekStartAt || (end && Date.now() >= end))
     startNewWeek({ resetCertificate: false });
-  if (m.dailyKey !== dayKey()) {
-    m.dailyKey = dayKey();
+  const dailyKey = CouponPolicy.period() === 2 ? CouponPolicy.day() : dayKey();
+  if (m.dailyKey !== dailyKey) {
+    m.dailyKey = dailyKey;
     m.dailyList = missionList(false);
     m.dailyPolicy = 2;
+    m.dailyRewardPolicy = CouponPolicy.period();
     m.dailyCompletedToday = false;
     m.dailyStamps = 0;
     missionBaselines(false);
@@ -211,31 +215,30 @@ function updateMissionsOnlineOnly() {
     m.dailyList.every((g) => g.done) &&
     !m.dailyCompletedToday
   ) {
-    const previous = {
-      missions: structuredClone(m),
-      coupons: { ...state.coupons },
-      benefitsLog: structuredClone(state.benefitsLog),
-    };
-    m.dailyCompletedToday = true;
-    state.coupons.veg++;
-    m.weeklyStamps = Math.min(7, (m.weeklyStamps || 0) + 1);
-    logBenefit({ type: "veg", source: "daily", note: "일간 올클" });
-    markStateChanged("missions");
-    if (!save(true)) {
-      Object.assign(state, previous);
-      BranchManager.saveCurrent();
-      return;
-    }
+    const committed = BenefitService.commit(() => {
+      m.dailyCompletedToday = true;
+      if (m.dailyRewardPolicy === 2) CouponPolicy.dailyReward();
+      else {
+        state.coupons.veg++;
+        logBenefit({ type: "veg", source: "daily", note: "이행 전 일간 올클" });
+      }
+      m.weeklyStamps = Math.min(RepeatMissions.weeklyStampTarget(), (m.weeklyStamps || 0) + 1);
+    });
+    if (!committed) return;
   }
   update(true);
   if (
     m.weeklyList.length &&
     m.weeklyList.every((g) => g.done) &&
-    !m.weeklyCompletedAt
+    (!m.weeklyCompletedAt || (m.weeklyRewardPolicy === 2 && !m.weeklyRewardPaid))
   ) {
-    m.weeklyCompletedAt = Date.now();
-    markStateChanged("missions");
-    save(true);
+    BenefitService.commit(() => {
+      m.weeklyCompletedAt ||= Date.now();
+      if (m.weeklyRewardPolicy === 2) {
+        CouponPolicy.weeklyReward(m.weeklyCompletedAt);
+        m.weeklyRewardPaid = true;
+      }
+    });
   }
 }
 
@@ -244,25 +247,17 @@ function generateWeeklyCertificate() {
   ensureMissionReset();
   if (state.cert.issuedThisWeek) return renderWeeklyCertificate();
   if (!certStatusText().okIssue) return;
-  const previous = {
-    cert: { ...state.cert },
-    coupons: { ...state.coupons },
-    benefitsLog: structuredClone(state.benefitsLog),
-  };
-  Object.assign(state.cert, {
-    issuedThisWeek: true,
-    issuedAt: Date.now(),
-    validUntil: Date.now() + 7 * 86400000,
+  const committed = BenefitService.commit(() => {
+    Object.assign(state.cert, {
+      issuedThisWeek: true, issuedAt: Date.now(), validUntil: Date.now() + 7 * 86400000,
+      rewardPolicy: state.missions.weeklyRewardPolicy || 1,
+    });
+    if (state.cert.rewardPolicy === 1) {
+      state.coupons.drink++;
+      logBenefit({ type: "drink", source: "weekly_cert", note: "이행 전 주간 인증서" });
+    }
   });
-  state.coupons.drink++;
-  logBenefit({ type: "drink", source: "weekly_cert", note: "주간 인증서" });
-  markStateChanged("missions");
-  if (!save(true)) {
-    Object.assign(state, previous);
-    BranchManager.saveCurrent();
-    showToast("저장 실패. 다시 발급해 주세요.");
-    return;
-  }
+  if (!committed) { showToast("저장 실패. 다시 발급해 주세요."); return; }
   return renderWeeklyCertificate();
 }
 
@@ -350,11 +345,15 @@ function renderWeeklyCertificate() {
 
 // v2 goals start at the next period; v1 snapshots remain untouched.
 const RepeatMissions = {
+  weeklyStampTarget() {
+    // Stored period goals own the target, including earlier seven-clear v2 weeks.
+    return state.missions.weeklyList.find(goal => goal.type === "stamp")?.target || 7;
+  },
   list(weekly) {
     const types = weekly
       ? ["stamp", "sales", "rep", "tip", "menu", "service", "orders", "active"]
       : ["serve", "earn", "rep", "tip", "menu", "service", "orders", "active"];
-    const targets = weekly ? [7, 900000, 1, 20, 30, 60, 60, 300] : [6, 40000, 1, 3, 2, 12, 6, 60];
+    const targets = weekly ? [CONFIG.weeklyRepeatDailyClears, 900000, 1, 20, 30, 60, 60, 300] : [6, 40000, 1, 3, 2, 12, 6, 60];
     const labels = {
       stamp: "일간 올클", sales: "주간 매출", serve: "정확 서빙", earn: "오늘 매출",
       rep: weekly ? "평점 4.4 이상" : "평점 4.2 이상", tip: "팁 받기", menu: "현재 운영 메뉴 판매",
@@ -393,6 +392,12 @@ const RepeatMissions = {
   render() {
     const host = document.getElementById("missionExtraStatus");
     if (!host || !document.getElementById("panel-mis")?.classList.contains("on")) return;
+    const weeklyTarget = this.weeklyStampTarget();
+    for (const node of document.querySelectorAll("[data-weekly-stamp-target]"))
+      if (node.textContent !== String(weeklyTarget)) node.textContent = weeklyTarget;
+    const stampRow = document.getElementById("weeklyStampRow");
+    const columns = `repeat(${weeklyTarget}, 1fr)`;
+    if (stampRow.style.gridTemplateColumns !== columns) stampRow.style.gridTemplateColumns = columns;
     for (const [id, goals] of [["dailyList", state.missions.dailyList], ["weeklyList", state.missions.weeklyList]]) {
       const rows = document.getElementById(id).children;
       goals.forEach((goal, index) => {

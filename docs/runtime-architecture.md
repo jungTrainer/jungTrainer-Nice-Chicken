@@ -118,3 +118,8 @@ config의 CAMPAIGN_MODES/REGION_ENDINGS와 content의 Campaign 정의는 기존 
 getRegionUnlockCost 하나가 정확한 모드 비용을 반환한다. main unlockBranch/BranchManager.unlockNext는 BranchManager.unlock 단일 commit에 위임하며 표시/활성 조건도 같은 비용/이전 지역 조건을 사용한다. 실패는 보유금/오픈/지점/mapSelected/시각/dirty를 복구하고 재차 차감하지 않는다. Campaign.choose/complete도 영향을 준 필드만 보관하고 save 성공 뒤 적용을 알린다. 틱/연구/배달 캐시/정산 호출을 감싸거나 새 타이머를 설치하지 않았다.
 
 지역 dim은 기존 ui 입력 owner 아래이며 완료는 root/region/epoch token을 검사한다. show/닫기/재생은 보상/seen을 변경하지 않고 첫 성공 완료만 기념을 기록한다. 열린 지역 이야기는 PWA/인계/가족 자동 팝업보다 우선한다. 성공 import/reset/새 작성자 init에서는 view를 닫는다. 기존 가족 endingUnlocked/endingSeen/robotGrandson은 지우지 않고 새 후보만 모드 금액+6지역 조건으로 비교한다. 현재 scripts21/셸26/앱22와247개 함수, CJS17/문법39·회귀280이다. 구 셸로 새 campaign 백업을 내려서 운영하지 않는다.
+
+
+## IMP-18 쿠폰 정책 소유권
+
+`coupons.js`의 `CouponPolicy`는 config 다음에 정의하고 모든 메서드는 boot 이후 state/원 API/성장·서비스 함수를 참조한다. 설정 수치는 `COUPON_POLICY`, 공용 저장은 couponLedger, 영속 확정과 rollback은 기존 `BenefitService.commit`이 소유한다. 조회/render/quote는 보상을 지급하지 않는다. 월 이월 지급은 작성자의 boot/기존 tick에서만 시도하며 저장 실패 재시도는 기존 autosave 간격과 명시적 저장 버튼을 사용한다. 새 루프·감시 저장 래퍼는 없다. 배달 견적은 실제 간격 함수에 고정 표본을 전달해 난수·타이머·연구 캐시를 소비하지 않는다. 신규 자산을 포함해 스크립트 22/필수 셸 27/앱 JS 23·문법 40개다. 정책과 저장 이행은 missions-service-policy.md 및 save-recovery-policy.md를 따른다.

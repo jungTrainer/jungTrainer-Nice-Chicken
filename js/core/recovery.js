@@ -92,6 +92,19 @@ const SaveRecovery = (() => {
           (!Number.isSafeInteger(data.coupons[n]) || data.coupons[n] < 0)
         )
           return "쿠폰 수량이 올바르지 않습니다.";
+    if (root && data.version >= 11 && !data.couponLedger)
+      return "새 저장의 쿠폰 원장이 없습니다.";
+    if (data.couponLedger !== undefined && data.couponLedger !== null) {
+      const reason = CouponPolicy.validate(data.couponLedger);
+      if (reason) return reason;
+    }
+    for (const key of ["dailyRewardPolicy", "weeklyRewardPolicy"])
+      if (data.missions?.[key] !== undefined && ![1,2].includes(data.missions[key]))
+        return "지원하지 않는 미션 보상 정책입니다.";
+    if (data.missions?.weeklyRewardPaid !== undefined && typeof data.missions.weeklyRewardPaid !== "boolean")
+      return "주간 보상 지급 상태가 올바르지 않습니다.";
+    if (data.cert?.rewardPolicy !== undefined && ![1,2].includes(data.cert.rewardPolicy))
+      return "인증서 보상 정책이 올바르지 않습니다.";
     if (data.cert) {
       for (const n of ["issuedAt", "validUntil", "usedAt"])
         if (
@@ -513,7 +526,7 @@ const SaveRecovery = (() => {
       if (!SessionOwner.recoveryAccess(current.primary.raw)) return false;
       authorised = current;
       blocked = false;
-      if (!load({ data: structuredClone(selected.data) }))
+      if (!load({ data: state.couponLedger ? CouponPolicy.protectImported(selected.data) : structuredClone(selected.data) }))
         throw Error("선택 후보를 정규화하지 못했습니다.");
       state.lastSeenAt = Date.now();
       if (!save(true)) throw Error("본 저장 commit 실패");

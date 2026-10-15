@@ -104,7 +104,7 @@ function initAfterLoad(fromReset = false, { readOnly = false } = {}) {
   }
   // "최초 실행 후 접속하면" 요구: name이 한번도 세팅된 적이 없을 때만 띄우는 대신,
   // 현재는 "저장된 데이터가 없거나 reset 직후"에만 띄우도록 처리
-  if (!readOnly && (!localStorage.getItem(SAVE_KEY) || fromReset)) {
+  if (!readOnly && (!localStorage.getItem(SAVE_KEY) || fromReset || state.couponLedger?.welcomeEligible)) {
     modalProfile.classList.add("on");
     nameInput.value = state.profile.name || "";
   }
@@ -134,12 +134,14 @@ function initAfterLoad(fromReset = false, { readOnly = false } = {}) {
 function init() {
   deferRecoveryWrites = true;
   try {
-    load();
+    const loaded = load();
+    if (!loaded && SaveRecovery.inspect().fresh) CouponPolicy.migrate(true);
     initAfterLoad(false, { readOnly: SaveRecovery.blocked });
   } finally {
     deferRecoveryWrites = false;
   }
   if (_saveDirty) save(true);
+  CouponPolicy.maybeSettle(true);
 }
 
 // Boot after DOM is ready (prevents null refs)

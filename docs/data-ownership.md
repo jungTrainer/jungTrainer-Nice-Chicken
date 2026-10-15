@@ -108,3 +108,12 @@ manifest·콘텐츠 버전·셸/선택 미디어 캐시는 저장 데이터 밖�
 `campaign={version:1,mode,selectedAt,regions}`는 본사 공용이다. 구 저장의 누락은 `legacy` 기본값이며 이지/노말은 확인과 primary 저장 성공으로만 선택한다. `regions[id]`의 unlockedAt/seenAt/badgeAwarded와 modeAtUnlock/goalAtUnlock은 당시 해금과 첫 완료의 기록이다. 이미 해금/완료한 기록은 상위 모드 전환이나 달력/지점 이동으로 취소·재지급하지 않는다. 기념 칭호는 표시 효과이며 돈/실물 쿠폰/새 수익 배율이 없다.
 
 해금 조건은 해당 지점의 totalSales+offlineSalesTotal이다. 활성 지점은 state, 비활성 지점은 보관 data를 읽으며 root 보유금/다른 지점 수익/확정 미수령을 지역 매출에 더하지 않는다. 이미 열린 지점·paid/가족 1회 효과·서비스 방문과 로그를 보존한다. mode 선택은 미래 지점 오픈 비용과 목표만 바꾸며 기존 receipt의 금액/메뉴/기간을 재계산하지 않는다. 지역 이야기 view/token/uiRows는 저장 밖이다. 성공 import/reset만 view를 취소하고 새 writer는 최신 저장의 archive를 상속한다. 실패는 원래 모드/기록/dirty를 유지한다. 지역/모드 extension은 원문대로 유지하며 알려지지 않은 버전·잘못된 완료 기록은 복구 검사에서 중단한다. [정책/측정](campaign-policy.md)을 따른다.
+
+
+## IMP-18 새 쿠폰 원장과 보상 이행
+
+`couponLedger`는 HQ 공용이다. version/installedAt/dailyFrom/weeklyFrom, 신규 저장의 welcomeEligible/welcomeCompletedAt, 음료 카드 stamps, 날짜형 lots, daily/weekly/exchange/visit claims, issuedMonths/usedDays를 보관한다. `coupons.drink/veg`는 기존 무기한 수량이며 변환·소급 만료하지 않는다. 지점 snapshot이나 서비스 캐시에 새 원장을 복사하지 않는다. 발급/소비/스탬프/기간 한도·방문은 같은 primary commit으로 확정하며 실패는 해당 필드만 복원한다.
+
+지점별 `missions.dailyRewardPolicy/weeklyRewardPolicy`는 진행 중 보상 v1과 새 기간 v2의 표식이며 기존 목표 v1/v2와 별개다. `weeklyRewardPaid`는 해당 주간 올클 정산 완료 표식이다. 기기 전체 지급 중복은 HQ의 한국 날짜·달력 주 claim으로 차단한다. 인증서의 선택적 rewardPolicy는 발급 당시 보상 방식이며 재열기는 지급이 아니다.
+
+가져오기·복구는 알려진 현재 새 원장을 유지하고 후보의 새 혜택을 합산하지 않는다. 게임 초기화도 새 날짜형 혜택·한도는 유지하고 웰컴 자격은 새로 만들지 않는다. 기존 무기한 쿠폰의 명시적 초기화 동작은 그대로다. 시계 조작/전체 저장 삭제·소실된 최신 원장 뒤 실제 사용은 서버 없이 보증할 수 없다. [확정 정책](missions-service-policy.md)을 따른다.
