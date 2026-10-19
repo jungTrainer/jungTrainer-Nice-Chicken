@@ -4,14 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>나이스치킨 타이쿤 (방치+서빙)</title>
-  <meta name="app-version" content="imp12-d54ffc62b78af3bfb51a" />
+  <meta name="app-version" content="imp12-8bf2cc87589249a4ad55" />
   <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#FF9F1C">
   <link rel="apple-touch-icon" href="./icon-192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./css/style.css" integrity="sha256-oL4D0+OJULPR9vDLIq31NP1jcShBNLVdOAyrcrplsXs=" crossorigin="anonymous">
+  <link rel="stylesheet" href="./css/style.css" integrity="sha256-4fXgwpJiPTgsDpBMXOcFewfSgE3mjt6U/ebtTyyPJps=" crossorigin="anonymous">
 
 
 </head>
@@ -134,17 +134,13 @@ document.addEventListener('DOMContentLoaded', ()=>{
       <h3>📅 반복 미션 · 성장 업적</h3>
       <button class="closeBtn" data-close>✕</button>
     </div>
-    <div class="note" style="margin:10px 12px 0 12px; line-height:1.35;">
-      <b>반복 미션은 “온라인 플레이 중”에만 진행</b>돼요. 최대 성장 뒤에도 기간이 바뀌면 가능한 서빙 목표로 이어집니다. 현재 기간의 기존 목표·지급 상태는 유지해요.<br>
-      • <b>일간 미션</b>: 8종 모두 완료하면 보상 + 주간스탬프 1개 획득<br>
-      • <b>주간 미션</b>: 일간 올클 <span data-weekly-stamp-target></span>번을 포함한 8종 모두 완료하면 인증서 발급 가능 (진행 중인 목표 유지)<br>
-      각 미션 카드의 <b>조건</b>을 만족하면 자동 체크됩니다. 아래 스탬프 칸은 미션 완료 현황이며, 30개짜리 음료 스탬프 카드는 쿠폰함에서 따로 확인해요.
-    </div>
+    <div class="note ux-lead" style="margin:10px 12px 0 12px;">미션을 모두 채우고 보상을 받아요.</div>
     <div class="scroll">
-      <div class="card" style="flex-direction:column;align-items:stretch;">
+      <div class="card" id="missionIntro" style="flex-direction:column;align-items:stretch;">
         <h4>🎮 성장 업적 · 짧은 방문 도전</h4>
-        <p class="note">게임 목표: 성장 기록과 방문 도전 기념입니다. 확인·재도전으로 돈이나 실물 쿠폰을 지급하지 않습니다.</p>
+        <p class="note">게임 목표: 서빙하며 성장 기록을 모아요.</p>
         <p id="missionExtraStatus" style="white-space:pre-line;overflow-wrap:anywhere;"></p>
+        <p id="growthAchievements" class="note"></p><details class="ux-details"><summary>자세히 · 게임 도전 안내</summary><p>방문 도전은 게임 기념이에요. 음료 스탬프는 일간·주간 미션에서 모을 수 있어요.</p></details>
         <button class="btn alt" id="startVisitChallenge">게임 도전 시작 / 다시 도전</button>
       </div>
       <div class="card" style="flex-direction:column; align-items:stretch;">
@@ -156,7 +152,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
         <div id="dailyList" style="margin-top:10px;"></div>
 
         <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
-          <div style="color:#555;">일간 스탬프</div>
+          <div style="color:#555;">오늘 완료한 미션</div>
           <div><b id="uiDailyStampText">0</b>/8</div>
         </div>
         <div id="dailyStampRow" style="display:grid; grid-template-columns:repeat(8, 1fr); gap:4px; margin-top:8px;"></div>
@@ -171,7 +167,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
         <div id="weeklyList" style="margin-top:10px;"></div>
 
         <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
-          <div style="color:#555;">주간 스탬프</div>
+          <div style="color:#555;">📅 출석 도장</div>
           <div><b id="uiWeeklyStampText">0</b>/<span data-weekly-stamp-target></span></div>
         </div>
         <div id="weeklyStampRow" style="display:grid; grid-template-columns:repeat(7, 1fr); gap:8px; margin-top:8px;"></div>
@@ -206,10 +202,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
         <div class="info" style="flex:1;">
           <h4 style="margin:0;">✅ 상태</h4>
           <p id="certStatus" style="margin-top:10px; color:#333; font-weight:700;">상태 확인 중...</p>
-          <p class="note" style="margin-top:10px;">
-            - 새 주간 올클은 <b>스탬프 +<span data-coupon-value="weeklyStamps">2</span> · 무/양배추 <span data-coupon-value="weeklyVegCoupons">1</span>장(<span data-coupon-value="vegValidDays">14</span>일)</b>입니다. 인증서와 중복 지급하지 않습니다. 진행 중인 기존 주간은 음료 1장 규칙을 보존합니다.<br>
-            - 음료 서비스 사용 처리는 <b>로컬 PIN 확인이 </b>필요합니다. 서버/매장 인증은 아닙니다.
-          </p>
+          <details class="ux-details"><summary>자세히 · 인증서와 보상</summary>
+            <p>주간 미션 보상은 미션을 모두 채울 때 받아요. 인증서는 달성 기념으로 간직할 수 있어요.</p>
+            <p id="certificateRewardInfo"></p>
+          </details>
         </div>
       </div>
 
@@ -218,7 +214,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       <button class="btn" style="width:100%; padding:14px; font-size:1.05rem;" id="makeCard">인증서 발급하기</button>
 
       <div class="row" style="margin-top:10px;">
-        <button class="btn alt" id="useCertDrink" style="flex:1;">음료 서비스 사용 처리</button>
+        <button class="btn alt" id="useCertDrink" style="flex:1;">직원과 함께 음료 쿠폰 사용</button>
       </div>
 
       <div style="margin-top:10px;">
@@ -237,7 +233,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       <div class="row">
         <button class="btn" id="claimOffline">수익 받기</button>
       </div>
-      <div class="note">※ 오프라인 수익은 “미션 진행(일간/주간)” 및 “온라인 매출(today/total)”에 반영되지 않습니다.</div>
+      <details class="ux-details"><summary>자세히 · 받은 수익</summary><p>가족이 모은 수익을 보유금과 매출에 더해요. 미션은 앱에서 플레이하며 채울 수 있어요.</p></details>
     </div>
   </div>
 
@@ -245,44 +241,43 @@ document.addEventListener('DOMContentLoaded', ()=>{
   <div class="dim" id="modalProfile">
     <div class="modal" style="text-align:left;">
       <h3 style="text-align:center;">🐔 처음 오셨나요?</h3>
-      <p>손님을 누르고 주문과 같은 메뉴를 눌러 서빙해요. 첫 손님은 자동 선택됩니다. 업그레이드·직원 고용으로 성장해요.</p>
-      <p>기본 모드는 <b>기존 운영</b>입니다. 이지/노말은 설정에서 직접 선택해요. 아래 안내를 스크롤해서 읽고, 언제든 설정에서 다시 볼 수 있어요.</p>
-      <p style="text-align:center; margin-bottom:10px;">이름은 처음 1회만 입력해요. (빈값 가능)</p>
+      <div class="ux-intro">
+        <p>손님을 누르고 같은 메뉴를 눌러 서빙해요.</p>
+        <p>업그레이드와 직원 고용으로 가게를 키워요.</p>
+        <p>지역 이야기를 열고 가족의 꿈을 이뤄요.</p>
+      </div>
+      <p class="ux-welcome" id="profileWelcomeNotice">🎁 웰컴 음료 <span data-coupon-value="welcomeDrink">1</span>장 · 내일부터 써요</p>
       <label for="nameInput">게임에서 사용할 이름 (선택)</label>
       <input id="nameInput" type="text" placeholder="한글 최대 10글자" inputmode="text" autocomplete="off" />
-      <div class="mini">
-        • 한글만 입력 가능<br>
-        • 최대 10글자<br>
-        • 빈값 가능(표시 안 함)
-      </div>
-      <div class="row">
-        <button class="btn" id="saveName">이름 저장 · 첫 안내 완료</button>
-        <p class="note">저장이 전혀 없는 첫 실행에서만 완료 시 웰컴 음료 <span data-coupon-value="welcomeDrink">1</span>장(발급 후 <span data-coupon-value="drinkValidDays">30</span>일)을 저장합니다. 한국 시간 내일부터 사용 가능해요. 기존 저장·안내 재열기·닫기·초기화로 추가 지급하지 않습니다.</p>
-      </div>
-      <div class="note">※ 이름은 기기(LocalStorage)에만 저장됩니다. 안내는 설정에서 다시 볼 수 있어요.</div>
-      <div data-game-guide></div>
+      <div class="row"><button class="btn" id="saveName">시작하기</button></div>
+      <details class="ux-details"><summary>자세히 · 게임과 이름 안내</summary>
+        <p>이름은 한글 10글자까지 입력하거나 비워둘 수 있어요. 이 기기에 저장해요.</p>
+        <p>처음 시작할 때 웰컴 음료 1장을 받아요. 발급 후 <span data-coupon-value="drinkValidDays">30</span>일 안에 쓸 수 있어요.</p>
+        <div data-game-guide></div>
+      </details>
     </div>
   </div>
 
   <template id="gameGuideTemplate">
     <div class="game-guide">
       <h4>1. 주문에 맞춰 서빙해요</h4>
-      <p>손님을 누르고 주문과 같은 메뉴 버튼을 눌러요. 첫 손님은 자동 선택됩니다. 수익으로 업그레이드하고 직원을 고용하면 자동 서빙을 도와줘요. 미수령 수익은 확인 후 직접 수령해요.</p>
-      <h4>2. 모드는 설정 → 운영 모드</h4>
-      <p><b>처음에는 기존 운영</b>입니다. 안내를 읽거나 닫아도 모드는 바뀌지 않아요.</p>
+      <p>손님을 누르고 주문과 같은 메뉴를 눌러요. 첫 손님은 자동으로 선택돼요.</p>
+      <p>직원을 고용하면 자동 서빙을 도와줘요. 가족이 모은 수익은 설정에서 받을 수 있어요.</p>
+      <h4>2. 설정 → 게임 난이도에서 골라요</h4>
+      <p><b>처음에는 기존 운영</b>으로 시작해요. 난이도는 설정에서 직접 선택할 수 있어요.</p>
       <ul>
-        <li><b>기존 운영</b>: 기존 지점 비용과 100해 가족 목표를 유지해요.</li>
-        <li><b>이지</b>: 지점 해금 비용과 지역·가족 목표를 낮춘 짧은 성장 경로예요.</li>
-        <li><b>노말</b>: 이지보다 높은 목표로 더 길게 운영해요.</li>
+        <li><b>기존 운영</b>: 오래 키우는 가게 · 가족 목표 100해</li>
+        <li><b>이지</b>: 낮은 지점 비용과 이야기 목표로 가볍게 시작해요.</li>
+        <li><b>노말</b>: 이지보다 높은 목표로 더 길게 즐겨요.</li>
       </ul>
-      <p>이지 첫 지역 5~10분/전체 1~2시간, 노말 첫 지역 15~25분/전체 5~8시간은 능동 운영 모델의 설계 목표예요. 자동 운영·앱을 닫은 시간과 실제 플레이 시간은 다릅니다.</p>
-      <p>설정에서 모드를 직접 선택하고 확인해야 적용돼요. 현재 진행·기존 해금·미수령·지급 기록은 유지하며, 이후 지점 비용과 이야기 목표만 바뀝니다. 일반 서빙 가격·속도와 쿠폰 규칙은 같아요.</p>
-      <h4>3. 지도에서 지역과 가족 목표를 확인해요</h4>
-      <p>지도는 지점별 기록 매출과 다음 해금 비용·조건을 보여줘요. 이지/노말은 해당 지점의 기록 매출 목표로 지역 이야기가 열리고, 이전 지역 이야기 해금과 보유금이 다음 지점을 열어요. 지역 이야기는 설정에서 읽습니다.</p>
-      <p>이지/노말 가족 엔딩은 지역 이야기 6곳 해금과 보유금 목표가 필요해요. 기존 운영은 100해 보유금 목표입니다. 지역 기념은 한 번 기록되고, 다시 읽어도 돈·쿠폰을 주지 않아요.</p>
-      <h4>4. 게임 목표와 실물 혜택은 달라요</h4>
-      <p><b>성장 업적·방문 도전</b>은 게임 기록입니다. <b>일간/주간 반복 미션</b>은 기간별 목표이며 기존 완료 보상·인증서 규칙을 유지해요. <b>쿠폰함</b>은 실물 혜택 수량과 사용 기록입니다.</p>
-      <p>음료는 테이블의 한 방문에 한 병, 같은 기기 하루 한 장입니다. 다른 기기의 횟수는 공유되지 않으며 직원 확인이 필요해요. 보여주기·안내 닫기는 사용이나 지급이 아닙니다. 새 기간에는 스탬프 <span data-coupon-value="cardSize">30</span>개로 달력 월 음료 <span data-coupon-value="monthlyDrinkLimit">1</span>장(<span data-coupon-value="drinkValidDays">30</span>일)을 발급해요. 기존 게임머니 5,000만원 교환은 진행 중인 주간까지만 유지하며 이후 주 1회 스탬프 구매로 바뀝니다. 로컬 PIN은 서버 인증이 아닙니다.</p>
+      <p>이지는 첫 지역 5~10분·전체 1~2시간, 노말은 첫 지역 15~25분·전체 5~8시간을 목표로 설계했어요. 실제 플레이 시간은 운영 방법에 따라 달라져요.</p>
+      <p>난이도를 바꿔도 지금까지의 진행과 쿠폰은 이어가요. 앞으로의 지점 비용과 이야기 목표가 달라져요.</p>
+      <h4>3. 지역 이야기와 가족의 꿈을 이뤄요</h4>
+      <p>지도에서 다음 지점의 비용과 조건을 확인해요. 이지·노말에서는 지점 매출을 채워 지역 이야기를 열어요.</p>
+      <p>이지·노말의 가족 목표는 지역 이야기 6곳과 목표 보유금이에요. 이야기는 설정에서 다시 읽을 수 있어요.</p>
+      <h4>4. 미션과 쿠폰을 모아요</h4>
+      <p>성장 업적과 방문 도전은 게임 기록이에요. 일간·주간 미션을 채우면 음료 스탬프와 쿠폰을 모을 수 있어요.</p>
+      <p>쿠폰함에서 음료 스탬프 <span data-coupon-value="cardSize">30</span>개를 모아 음료 쿠폰을 받아요. 쿠폰은 매장에서 직원에게 보여주세요.</p>
     </div>
   </template>
   <div class="dim" id="modalGameGuide">
@@ -298,10 +293,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
       <h3 style="text-align:center;">⚙️ 설정</h3>
       <button class="btn alt" id="openGameGuide" type="button">게임 방법 · 첫 방문 안내</button>
       <div class="card" style="flex-direction:column;align-items:stretch;">
-        <h4>운영 모드 · 지역 이야기</h4>
+        <h4>게임 난이도 · 지역 이야기</h4>
         <p id="campaignStatus" role="status" tabindex="-1" style="white-space:pre-line;overflow-wrap:anywhere;"></p>
         <div class="row"><button class="btn gray" id="chooseMode-legacy">기존 운영</button><button class="btn alt" id="chooseMode-easy">이지</button><button class="btn alt" id="chooseMode-normal">노말</button></div>
-        <p class="note">능동 운영 모델 목표: 이지 첫5~10분/전체1~2시간, 노말 첫15~25분/전체5~8시간. 실제 사람/자동/앱 부재 시간은 다릅니다. 선택은 진행 초기화/보상 수령이 아닙니다. 지역 기념은 실물 쿠폰 미발급입니다.</p>
+        <details class="ux-details"><summary>자세히 · 난이도와 가족 목표</summary><p id="campaignGoalDetails"></p><p>이지는 첫 지역 5~10분·전체 1~2시간, 노말은 첫 지역 15~25분·전체 5~8시간을 목표로 설계했어요. 실제 시간은 운영 방법에 따라 달라져요.</p><p>진행과 쿠폰을 이어가며 난이도를 고를 수 있어요. 지역 이야기는 게임 기념으로 간직해요.</p></details>
         <div id="campaignRegions"></div>
       </div>
 
@@ -317,9 +312,9 @@ document.addEventListener('DOMContentLoaded', ()=>{
           <button type="button" class="btn alt" id="installPwa" disabled>앱 설치</button>
           <button type="button" class="btn alt" id="checkPwaUpdate" disabled>업데이트 확인</button>
           <button type="button" class="btn" id="applyPwaUpdate" disabled>저장 후 새 버전 적용</button>
-          <button type="button" class="btn alt" id="prunePwaCaches">미사용 셸 정리</button>
+          <button type="button" class="btn alt" id="prunePwaCaches">이전 앱 파일 정리</button>
         </div>
-        <p class="note">다른 창·엔딩·백업 입력을 마친 뒤 적용하세요. 미수령 창을 닫아도 보상은 유지됩니다. 저장 실패 시 적용하지 않습니다.</p>
+        <details class="ux-details"><summary>자세히 · 안전하게 업데이트해요</summary><p>다른 창·이야기·백업 작업을 마치면 새 버전을 적용할 수 있어요. 받을 수익은 창을 닫아도 남아 있어요.</p></details>
       </div>
 
       <div class="card" style="margin:10px 0; align-items:center;">
@@ -331,18 +326,18 @@ document.addEventListener('DOMContentLoaded', ()=>{
       </div>
 
       <div class="row">
-        <button class="btn alt" id="openCoupons">쿠폰함/혜택내역</button>
+        <button class="btn alt" id="openCoupons">쿠폰함</button>
         <button class="btn alt" id="openExchange">교환상점</button>
       </div>
 
       <div class="row">
-        <button class="btn gray" id="forceSave">강제 저장</button>
+        <button class="btn gray" id="forceSave">지금 저장</button>
         <button class="btn danger" id="resetAll">초기화</button>
       </div>
       <div class="row">
         <button class="btn" id="closeSettings">닫기</button>
       </div>
-      <div class="note">※ 과금/로그인 없이 로컬 저장(LocalStorage)만 사용합니다. 쿠폰과 혜택 내역은 기기 기록이며 서버 검증/매장 승인이 없습니다.</div>
+      <details class="ux-details"><summary>자세히 · 저장 안내</summary><p>이 기기에 진행을 저장해요. 백업을 만들어 따로 보관할 수 있어요.</p></details>
     </div>
   </div>
 
@@ -359,22 +354,24 @@ document.addEventListener('DOMContentLoaded', ()=>{
   <div class="dim" id="modalCoupons">
     <div class="modal" style="text-align:left;">
       <h3 style="text-align:center;">🎟️ 쿠폰함 / 혜택 내역</h3>
-      <p class="note">실물 혜택: 보유 쿠폰과 제공 전후의 기기 기록입니다. 게임 업적과 구분되며 열기·닫기·직원에게 보여주기로 지급하거나 사용하지 않습니다. 음료는 테이블 한 방문에 한 병이며 기기 간 횟수는 공유되지 않습니다.</p>
+      <p class="note ux-lead">실물 혜택: 모은 쿠폰을 매장에서 직원에게 보여주세요.</p>
       <div class="card" style="flex-direction:column;align-items:stretch;">
-        <h4>음료 스탬프 · 날짜형 쿠폰</h4>
+        <h4>🥤 음료 스탬프 · 쿠폰</h4>
         <p id="couponPolicyStatus" tabindex="-1" data-initial-focus style="white-space:pre-line;overflow-wrap:anywhere;"></p>
-        <div id="datedCouponList" class="note" tabindex="0" aria-label="날짜형 쿠폰 발급·사용·만료 기록" style="max-height:240px;overflow:auto;white-space:pre-line;overflow-wrap:anywhere;"></div>
+        <details class="ux-details"><summary>자세히 · 적립과 발급</summary><p id="couponPolicyDetails" style="white-space:pre-line;"></p></details>
+        <div id="datedCouponList" class="note" tabindex="0" aria-label="쿠폰 발급·사용·만료 기록" style="max-height:240px;overflow:auto;white-space:pre-line;overflow-wrap:anywhere;"></div>
       </div>
       <div class="card" style="flex-direction:column;align-items:stretch;">
-        <label for="serviceTable">테이블 표시 (새 손님/식사 때 새 방문)</label>
+        <label for="serviceTable">방문 번호 · 직원과 함께 입력해요</label>
         <input id="serviceTable" maxlength="20" autocomplete="off" placeholder="예: 3번" style="min-height:44px;max-width:100%;box-sizing:border-box;">
         <p id="serviceVisitSummary"></p>
-        <div class="row"><button class="btn alt" id="startServiceVisit">새 방문 기록 / 직원 확인</button><button class="btn" id="showStaffCoupon">직원에게 보여주기</button></div>
-        <div id="staffCouponView" hidden tabindex="-1" aria-label="직원 제공 확인 정보">
+        <div class="row"><button class="btn alt" id="startServiceVisit">새 방문 시작</button><button class="btn" id="showStaffCoupon">직원에게 보여주기</button></div>
+        <div id="staffCouponView" data-staff-only hidden tabindex="-1" aria-label="직원 제공 확인 정보">
+          <p class="note">직원 확인: 음료는 테이블 방문당 한 병, 같은 기기 하루 한 장입니다. 공개 PIN 0000은 기기 내부 기록용이며 서버 인증이 아닙니다. 다른 기기 기록은 공유되지 않아 직원 확인이 필요합니다.</p>
           <p id="staffCouponStatus" style="white-space:pre-line;overflow-wrap:anywhere;"></p>
           <button class="btn gray" id="hideStaffCoupon">직원 화면 닫기</button>
         </div>
-        <p class="note">보여주기/닫기는 사용이 아닙니다. 아래 제공 확인 → 로컬 PIN → 저장 성공 뒤 사용 기록을 남깁니다. 다른 기기의 테이블 횟수는 직원이 확인합니다.</p>
+        <details class="ux-details"><summary>자세히 · 쿠폰 사용</summary><p>직원과 함께 쿠폰을 확인하고 사용할 수 있어요. 사용을 마치면 날짜와 남은 수량을 기록해요.</p></details>
       </div>
 
       <div class="card" style="flex-direction:column; align-items:stretch;">
@@ -383,9 +380,9 @@ document.addEventListener('DOMContentLoaded', ()=>{
           <div><b id="uiDrinkCoupons2">0</b>개</div>
         </div>
         <div class="row">
-          <button class="btn alt" id="useDrinkCoupon">음료 제공 확인 / 로컬 기록</button>
+          <button class="btn alt" id="useDrinkCoupon">직원과 함께 음료 쿠폰 사용</button>
         </div>
-        <div class="note">※ 기기 내부 사용 기록입니다. 공개 PIN은 서버 검증·실제 매장 승인이 아닙니다.</div>
+
       </div>
 
       <div class="card" style="flex-direction:column; align-items:stretch;">
@@ -394,9 +391,9 @@ document.addEventListener('DOMContentLoaded', ()=>{
           <div><b id="uiVegCoupons2">0</b>개</div>
         </div>
         <div class="row">
-          <button class="btn alt" id="useVegCoupon">무/양배추 제공 확인 / 로컬 기록</button>
+          <button class="btn alt" id="useVegCoupon">직원과 함께 무/양배추 쿠폰 사용</button>
         </div>
-        <div class="note">※ 기기 내부 사용 기록입니다. 공개 PIN은 서버 검증·실제 매장 승인이 아닙니다.</div>
+
       </div>
 
       <div class="card" style="flex-direction:column; align-items:stretch;">
@@ -420,6 +417,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       <div class="card" style="flex-direction:column; align-items:stretch;">
         <div><b>게임머니 → 음료 스탬프</b></div>
         <p class="note" id="exchangePolicyInfo"></p>
+        <details class="ux-details"><summary>자세히 · 가격과 적립</summary><p id="exchangePricingDetails"></p></details>
         <div>현재 구매 가격: <b id="exchangePrice"></b></div>
         <div style="margin-top:10px; display:flex; justify-content:space-between;">
           <div>현재 보유금</div>
@@ -440,7 +438,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   </div>
 
   <!-- PIN modal -->
-  <div class="dim" id="modalPin">
+  <div class="dim" id="modalPin" data-staff-only>
     <div class="modal" style="text-align:left;">
       <h3 style="text-align:center;">🔒 PIN 입력</h3>
       <p style="text-align:center;">기기 내부 기록을 위한 PIN입니다. 서버 검증이나 매장 승인이 아닙니다.</p>
@@ -459,23 +457,23 @@ document.addEventListener('DOMContentLoaded', ()=>{
 <script src="./js/core/utils.js" integrity="sha256-rMb8jDUvlaPmk9VhbNRBrAuP4uAL90TbDOj4Yj9JlcU=" crossorigin="anonymous"></script>
 <script src="./js/core/audio.js" integrity="sha256-sHFMyhuEgs2lhttc2pyqwwqcgZ9XW0Xozmq7W5xIW24=" crossorigin="anonymous"></script>
 <script src="./js/core/config.js" integrity="sha256-/03MXGjFQ06+UIDdx6Eo+7aw+EgNYzKauvGwm/3L2sU=" crossorigin="anonymous"></script>
-<script src="./js/core/coupons.js" integrity="sha256-7GSaV9xbH8oAxsEX0QyXM5K3GwIBFZ6ehIvaDITZ2S8=" crossorigin="anonymous"></script>
-<script src="./js/core/content.js" integrity="sha256-1vj93AFB2ZG4DwIMRvqCYORHWUw0PiblSKOT3u8J8hY=" crossorigin="anonymous"></script>
+<script src="./js/core/coupons.js" integrity="sha256-n+xuLlo41I5fsuFZAmsnA7BNjjh/2flUSDKGE1KEZE4=" crossorigin="anonymous"></script>
+<script src="./js/core/content.js" integrity="sha256-RtOuMEMPXH7GM0EwNzSvMsQxUt01nug0tm4Hn9GDN04=" crossorigin="anonymous"></script>
 <script src="./js/core/state.js" integrity="sha256-ijgZeI/+2ZLbUfHKCdGGFCMeOJ7Mv8SN+6Cavp6Cg8w=" crossorigin="anonymous"></script>
-<script src="./js/core/recovery.js" integrity="sha256-H+p2Cbw+MEVzeOXu9cb6sLi6nucKkhB0yjMtcZNmMGw=" crossorigin="anonymous"></script>
-<script src="./js/core/session.js" integrity="sha256-7JJOAPnHMzRAVT/BtEtnQzGMM/qAglWj5UXwMuIyE5c=" crossorigin="anonymous"></script>
+<script src="./js/core/recovery.js" integrity="sha256-XokRlEXgEKE999TyybFK9LovTpmdjhlZ9XSLF6MB6+c=" crossorigin="anonymous"></script>
+<script src="./js/core/session.js" integrity="sha256-hH0O/RUOvRMnCOFV/+EKsj2BwsQbrdTpdcxkZjmL3Q4=" crossorigin="anonymous"></script>
 <script src="./js/core/persistence.js" integrity="sha256-qsEd72a0TdRyR/S7/7s7xw89oxp2MWWZ8p0ZjoOw9sw=" crossorigin="anonymous"></script>
 <script src="./js/core/growth.js" integrity="sha256-dXstgJOKZAc0UWZBubduFeF7oTmTP0HnP7fWUX7sG9E=" crossorigin="anonymous"></script>
 <script src="./js/core/research.js" integrity="sha256-hZm8YgGc0JcOgwAOYzWkYwxYhJRlGTmMxYkf0KINf80=" crossorigin="anonymous"></script>
 <script src="./js/core/offline.js" integrity="sha256-1UXckpVuU/s8Zbg1dWLlGRw43iRxmFXHVW8BFDwI4bA=" crossorigin="anonymous"></script>
-<script src="./js/core/missions.js" integrity="sha256-rPxd5evqu5uQ+NoFl0tUHC2g0R7f8zVHDK9SSixdoek=" crossorigin="anonymous"></script>
-<script src="./js/core/economy.js" integrity="sha256-6zE/uw4z1OgHOsUc1zoiCbHiI0Z8yYwEVWrVnXArsOo=" crossorigin="anonymous"></script>
+<script src="./js/core/missions.js" integrity="sha256-tfbgVqZHzgI6stw5g2G1XRtkfLEQFou2Wl3C2vhyb74=" crossorigin="anonymous"></script>
+<script src="./js/core/economy.js" integrity="sha256-krl8migCTB0PdlBIZEyNqEj9KkoH+pXY5dPGNIguYXg=" crossorigin="anonymous"></script>
 <script src="./js/core/ending.js" integrity="sha256-eK16di03+jUqGcYTsBAJkFfaeCFAGHCG6IGtge9tEtA=" crossorigin="anonymous"></script>
 <script src="./js/core/branches.js" integrity="sha256-m2PWDQRv4d2ec4DaAbgeekKh6XWsSpIQe2/IV1Lpa3Y=" crossorigin="anonymous"></script>
 <script src="./js/core/services.js" integrity="sha256-MQJhvf7umieaRc2IBiAIhzCfgq9HG3qJc5Y5uADiNkw=" crossorigin="anonymous"></script>
-<script src="./js/main.js" integrity="sha256-RiNkg2sUxF/8if5kX4vLrhei3JoKkp3qQBoARu2K79w=" crossorigin="anonymous"></script>
-<script src="./js/core/ui.js" integrity="sha256-zuR5ODHNrEeLoM6grd6dJMpydTY7IcrzTE+l7xdbJNc=" crossorigin="anonymous"></script>
-<script src="./js/core/pwa.js" integrity="sha256-V9kIrz8dBh/RilvFaqD3slfNp0vxcEHZ4Hyb3EsvSgc=" crossorigin="anonymous"></script>
+<script src="./js/main.js" integrity="sha256-3e16C4jyZ1zUptCEyhQo7N87FwqFpzqtBH1A6BHd0VM=" crossorigin="anonymous"></script>
+<script src="./js/core/ui.js" integrity="sha256-9iVTEymhxpaZPZCrRIYRHUsbH5v+tLjEE7rw14XCpow=" crossorigin="anonymous"></script>
+<script src="./js/core/pwa.js" integrity="sha256-qKu8kykvV3d2nyo3721MSRssjuM8vjxupb15cn4Lsac=" crossorigin="anonymous"></script>
 <script src="./js/core/boot.js" integrity="sha256-NCsAj6CTCn3NoiFmfvAy6/ebhSrtHea6qZ5N3/0YI5U=" crossorigin="anonymous"></script>
 
 <!-- [NEW] Management Report Modal -->
@@ -554,7 +552,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
         <button class="btn alt" id="mapGo" type="button">선택 지역으로 이동 🚀</button>
         <button class="btn" id="mapUnlock" type="button">다음 지역 오픈 🔓</button>
       </div>
-      <p class="note" id="mapHint" style="margin:0;">좌우로 스크롤하여 지역을 확인하세요.<br>새 지역 오픈 시 자금이 차감됩니다.</p>
+      <p class="note ux-lead" id="mapHint" style="margin:0;">다음 지점의 조건을 확인해요.</p>
+      <details class="ux-details"><summary>자세히 · 지도와 가족 목표</summary><p id="mapPolicyDetails"></p><p>지역 이야기는 설정에서 읽을 수 있어요. 가족이 모은 수익은 받은 뒤 매출에 더해요.</p></details>
     </div>
   </div>
 </div>

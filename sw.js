@@ -1,11 +1,11 @@
 /* IMP-12: generated release block; update with npm run pwa:build. */
 // BEGIN PWA RELEASE
 const RELEASE = {
-  "version": "imp12-d54ffc62b78af3bfb51a",
+  "version": "imp12-8bf2cc87589249a4ad55",
   "required": [
     {
       "path": "index.html",
-      "hash": "6278c667c0370622efeb9342d9b92f6237fb67837bf1cbbd1be29d5cdb0cd314",
+      "hash": "238267591279eeaa03e50ac0c1b4e0ef94fea181f046f94995f0259277776c8b",
       "mime": "text/html"
     },
     {
@@ -30,12 +30,12 @@ const RELEASE = {
     },
     {
       "path": "js/core/coupons.js",
-      "hash": "ec649a57dc5b1fca00c6c117d10c973392b71b0201159e9e848bda0c84d9d92f",
+      "hash": "9fec6e2e5a38d48e5fb2e159026b2703b04d8e387fd9f954483286135284644e",
       "mime": "javascript"
     },
     {
       "path": "js/core/content.js",
-      "hash": "d6f8fddc0141d991b80f020c46fa8260e447594c343e26e548a393deef09f216",
+      "hash": "46d3ae30430f5c7ec63341303734af32c43152dd359ee834b66e079fd183374e",
       "mime": "javascript"
     },
     {
@@ -45,12 +45,12 @@ const RELEASE = {
     },
     {
       "path": "js/core/recovery.js",
-      "hash": "1fea7609bc3e30457378e5eef5c6fab0b8ba9ee70a921074ca332d719366306c",
+      "hash": "5e89119445e010a13df7d4f2c9b14af4ba2f4e999d8e1959f5748b17a301ebe7",
       "mime": "javascript"
     },
     {
       "path": "js/core/session.js",
-      "hash": "ec924e00f9c7333440553fc1b44b6743318c33fa808255a3e545f032e2321397",
+      "hash": "847d0efd150ebd132708e155ffe10ab23d81c2c41badd4e975cc6466398bdd0e",
       "mime": "javascript"
     },
     {
@@ -75,12 +75,12 @@ const RELEASE = {
     },
     {
       "path": "js/core/missions.js",
-      "hash": "acfc5de5ebeabb9b90f8da05974b541c2da0d11edff335470caf524a2c5da1e9",
+      "hash": "b5f6e056a647ce023ab2dc398361b55d1b647cb110168bb65a5dc2daf8726fbe",
       "mime": "javascript"
     },
     {
       "path": "js/core/economy.js",
-      "hash": "eb313fbb0e33d4e8073ac51cd73a2209b1e223467cc98c04556ad59d702bb0ea",
+      "hash": "92b97c9a28024c1d0f765048644c8da848fd2a4a07fa95d8e5d3c634882e6178",
       "mime": "javascript"
     },
     {
@@ -100,17 +100,17 @@ const RELEASE = {
     },
     {
       "path": "js/main.js",
-      "hash": "462364836b14c45ffc89fe645f8bcbae17a2dc9a0a929dea401a0046ed8aefdc",
+      "hash": "dded7a0b88f2675cd4a6d084ca1428ecdf3b170a85a73aad047d40e811ddd153",
       "mime": "javascript"
     },
     {
       "path": "js/core/ui.js",
-      "hash": "cee4793831cdac478ba0cea0adde9d24ca7275363b21caf34c4fa5ef175b24d7",
+      "hash": "f625531329a1c696993d90ab4486111d4b1b1f9bfeb4b8c413baf0d785c2a68c",
       "mime": "javascript"
     },
     {
       "path": "js/core/pwa.js",
-      "hash": "57d908af3f1d061fd18a5bc56aa0f7b257cda74bf17041d9e07c9bdc4b2f4a07",
+      "hash": "a8abbc93292f5777769f2a37ef6d4c491b2c8ee33cbe3c6ea5bd79727e0bb1a7",
       "mime": "javascript"
     },
     {
@@ -120,7 +120,7 @@ const RELEASE = {
     },
     {
       "path": "css/style.css",
-      "hash": "a0be03d3e38950b3d1f6f0cb22adf534fd6371284134b55d380cab72ba65b17b",
+      "hash": "e1f5e0c292623d382c0e904c5ce7057b07d2804de68ede94fde6ed4f2c8f269b",
       "mime": "text/css"
     },
     {

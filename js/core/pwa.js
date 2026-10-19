@@ -33,10 +33,10 @@ const PwaRuntime = (() => {
   function render() {
     if (!el("pwaStatus")) return;
     el("pwaStatus").textContent =
-      `앱 ${version} · ${navigator.onLine ? "온라인" : "오프라인"} · ` +
+      `${navigator.onLine ? "온라인" : "오프라인"} · ` +
       (navigator.serviceWorker?.controller
-        ? "오프라인 셸 준비"
-        : "온라인 설치 필요") +
+        ? "오프라인 플레이 준비됨"
+        : "연결 후 앱을 준비해요") +
       (waiting ? " · 새 버전 대기" : "") +
       (failure ? ` · ${failure}` : "");
     el("applyPwaUpdate").disabled = applying || !waiting;
@@ -48,7 +48,7 @@ const PwaRuntime = (() => {
       ? "설치된 앱으로 실행 중입니다."
       : installPrompt
         ? "설치 버튼으로 앱을 추가할 수 있습니다."
-        : "브라우저 메뉴의 앱 설치/홈 화면 추가를 사용하세요. HTTPS 또는 localhost가 필요합니다.";
+        : "브라우저 메뉴에서 앱 설치 또는 홈 화면 추가를 선택해요.";
   }
   function safeReason() {
     if (SaveRecovery.busy) return "저장 진단/복구 작업을 마친 뒤 적용하세요.";
@@ -68,7 +68,7 @@ const PwaRuntime = (() => {
         (surface) => surface.id !== "modalSettings",
       )
     )
-      return "미수령·입력·패널 창을 닫은 뒤 설정에서 적용하세요. 닫아도 보상은 유지됩니다.";
+      return "수익·입력·패널 창을 닫은 뒤 설정에서 적용하세요. 닫아도 보상은 유지됩니다.";
     if (!el("modalSettings").classList.contains("on"))
       return "설정에서 새 버전을 적용하세요.";
     if (el("saveTransferText")?.value.trim())
@@ -148,7 +148,7 @@ const PwaRuntime = (() => {
       waiting = registration?.waiting || null;
       if (worker.state === "redundant")
         failure =
-          "새 셸 설치 실패. 기존 버전을 유지합니다. 온라인에서 다시 확인하세요.";
+          "새 버전 설치 실패. 지금 버전으로 즐기며 연결 후 다시 확인해요.";
       render();
     });
   }

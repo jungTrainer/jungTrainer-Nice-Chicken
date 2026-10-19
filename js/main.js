@@ -1573,9 +1573,9 @@ function ensureSaveTransferUI() {
   card.innerHTML = `
     <div class="info" style="width:100%;">
       <h4 style="margin:0;">💾 수동 백업 / 불러오기</h4>
-      <p style="margin-top:5px;">저장 데이터를 복사해 보관하거나, 백업 JSON을 붙여넣어 복구합니다.</p>
+      <p style="margin-top:5px;">진행을 따로 보관하고 필요할 때 다시 불러올 수 있어요.</p>
     </div>
-    <textarea id="saveTransferText" rows="5" placeholder="백업 JSON이 여기에 표시되거나, 불러올 JSON을 붙여넣으세요." style="width:100%; box-sizing:border-box; resize:vertical; font-size:12px;"></textarea>
+    <textarea id="saveTransferText" rows="5" placeholder="백업 내용을 복사하거나 붙여넣으세요." style="width:100%; box-sizing:border-box; resize:vertical; font-size:12px;"></textarea>
     <div class="row">
       <button class="btn alt" id="exportSaveBtn">백업 만들기</button>
       <button class="btn gray" id="copySaveBtn">복사</button>
@@ -1655,14 +1655,14 @@ function certStatusText() {
     return {
       okIssue: false,
       okUse: false,
-      msg: "주간 미션을 아직 올클하지 않았어요.",
+      msg: "주간 미션을 모두 채우면 인증서를 받을 수 있어요.",
     };
   }
   if (state.cert.usedAt) {
     return {
       okIssue: false,
       okUse: false,
-      msg: "이 인증서는 이미 사용 처리되었습니다. (주간이 초기화되어야 새로 발급 가능)",
+      msg: "이번 인증서 사용을 마쳤어요. 다음 주에 새 인증서를 모아보세요.",
     };
   }
   if (state.cert.issuedThisWeek) {
@@ -1673,7 +1673,7 @@ function certStatusText() {
       return {
         okIssue: false,
         okUse: false,
-        msg: "인증서 유효기간이 만료됐어요. (새 주간을 진행해 주세요)",
+        msg: "새 주간 미션에 도전하고 인증서를 모아보세요.",
       };
     }
     return {
@@ -1682,7 +1682,7 @@ function certStatusText() {
       msg: `인증서 발급 완료 ✅ (유효 ${Math.max(0, leftDays)}일)`,
     };
   }
-  return { okIssue: true, okUse: false, msg: "주간 올클! 인증서 발급 가능 ✅" };
+  return { okIssue: true, okUse: false, msg: "주간 미션 완료! 인증서를 받을 수 있어요 ✅" };
 }
 
 // Step 2-9: makeCardBtn handled once in initDOMRefs().
@@ -1719,7 +1719,7 @@ function renderCoupons() {
   }
   const lines = logs.slice(0, 30).map((l) => {
     const label = l.type === "stamp" ? "음료 스탬프" : l.type === "drink" ? "음료" : "무/양배추";
-    return `• [${l.at}] ${label} x${l.qty} (${l.source}) ${l.note || ""}${l.before !== undefined ? ` · 잔량 ${l.before} → ${l.after}` : " · 기존 기록(전후 수량 없음)"}${l.table ? ` · 테이블 ${l.table} · 방문 ${l.visitId || "미기록"}` : ""}`;
+    return `• [${l.at}] ${label} x${l.qty} (${l.source}) ${(l.note || "").replace(/로컬 PIN/g, "직원 확인").replace(/서버 인증|서버 승인/g, "제공 확인").replace(/로컬/g, "기기").replace(/미수령/g, "받을 수익")}${l.before !== undefined ? ` · 잔량 ${l.before} → ${l.after}` : " · 기존 기록(전후 수량 없음)"}${l.table ? ` · 방문 번호 ${l.table} · 기록 ${l.visitId || "미기록"}` : ""}`;
   });
   benefitLogList.textContent = lines.join("\n");
 }
@@ -1730,13 +1730,16 @@ function renderExchange() {
   uiExchangeCnt.textContent = quote.remaining;
   doExchangeBtn.disabled = !quote.allowed;
   doExchangeBtn.dataset.cost = quote.price === null ? "" : String(quote.price);
-  doExchangeBtn.textContent = quote.modern ? `스탬프 +${COUPON_POLICY.exchangeStamps} 구매` : "기존 기간 교환하기";
+  doExchangeBtn.textContent = quote.modern ? `음료 스탬프 +${COUPON_POLICY.exchangeStamps} 구매` : "음료 쿠폰 교환하기";
   const cost = document.getElementById("exchangePrice");
   cost.textContent = quote.price === null ? "금액 표현 한계: 구매 중단" : fmtWon(quote.price);
   cost.title = quote.price === null ? "" : moneyExactText(quote.price) + "원";
   document.getElementById("exchangePolicyInfo").textContent = quote.modern
-    ? `기기 전체 이번 주 ${quote.remaining}/${COUPON_POLICY.exchangeWeeklyLimit}회 가능 · 스탬프 +${COUPON_POLICY.exchangeStamps}. 현재 자동 추정 분당 수익 ${quote.minute === null ? "계산 한계" : fmtWon(quote.minute)} × ${COUPON_POLICY.exchangeMinutes}분과 ${fmtWon(COUPON_POLICY.exchangeMinWon)} 중 큰 금액입니다. 수동 서빙·랜덤 변동과 실제 수익은 다를 수 있습니다.`
-    : `현재 진행 중인 주간 기간은 기존 ${fmtWon(CONFIG.exchangeUnit)} → 음료 1장을 보존합니다. ${CouponPolicy.dateText(state.couponLedger.weeklyFrom)}부터 주 1회 스탬프 구매로 전환합니다.`;
+    ? `이번 주 ${quote.remaining}/${COUPON_POLICY.exchangeWeeklyLimit}회 · 음료 스탬프 +${COUPON_POLICY.exchangeStamps}`
+    : "이번 주에는 게임머니로 음료 쿠폰을 교환해요.";
+  document.getElementById("exchangePricingDetails").textContent = quote.modern
+    ? `이번 주 ${quote.remaining}/${COUPON_POLICY.exchangeWeeklyLimit}회 · 음료 스탬프 +${COUPON_POLICY.exchangeStamps}. 현재 자동 추정 분당 수익 ${quote.minute === null ? "계산 한계" : fmtWon(quote.minute)} × ${COUPON_POLICY.exchangeMinutes}분과 ${fmtWon(COUPON_POLICY.exchangeMinWon)} 중 큰 금액입니다. 수동 서빙·랜덤 변동과 실제 수익은 다를 수 있습니다.`
+    : `이번 주에는 ${fmtWon(CONFIG.exchangeUnit)}으로 음료 1장을 교환해요. ${CouponPolicy.dateText(state.couponLedger.weeklyFrom)}부터 음료 스탬프를 구매할 수 있어요.`;
 }
 
 // Step 2-9: doExchangeBtn handled once in initDOMRefs().
@@ -3767,12 +3770,7 @@ function renderPanel(key) {
     RepeatMissions.render();
     if (document.querySelector("#panel-mis.on,#panel-shr.on,#modalCoupons.on")) CouponPolicy.render();
     if (modalExchange?.classList.contains("on")) renderExchange();
-    misGuide.innerHTML = `
-      <b>📌 스탬프 받는 방법</b><br>
-      1) <b>일간 미션 ${state.missions.dailyList.length}개</b>를 모두 완료하면 <b>주간 스탬프 +1</b> (하루 1회)<br>
-      2) <b>주간 스탬프 <span data-weekly-stamp-target>${RepeatMissions.weeklyStampTarget()}</span>/<span data-weekly-stamp-target>${RepeatMissions.weeklyStampTarget()}</span></b> + <b>주간 미션 올클</b> 시 인증서 발급 가능<br>
-      <span style="color:#666;">※ 미션 진행은 접속 중(온라인 플레이)에서만 반영됩니다.</span>
-    `;
+    misGuide.innerHTML = `일간 미션을 채워 출석 도장을 모아요. 이번 주 목표는 <span data-weekly-stamp-target>${RepeatMissions.weeklyStampTarget()}</span>개예요.`;
     dailyList.innerHTML = "";
     for (const m of state.missions.dailyList)
       dailyList.appendChild(missionRow(m));
@@ -3782,7 +3780,7 @@ function renderPanel(key) {
       weeklyList.appendChild(weeklyRow(m));
 
     const st = certStatusText();
-    weeklyNote.innerHTML = `주간 올클 시 인증서 발급이 가능해요.<br><span style="color:#555;">현재: ${st.msg}</span>`;
+    weeklyNote.innerHTML = `주간 미션을 모두 채우면 인증서를 받아요.<br><span style="color:#555;">${st.msg}</span>`;
   }
 
   // --- [4] 인증서 패널 (shr) ---
@@ -3793,7 +3791,8 @@ function renderPanel(key) {
     useCertDrinkBtn.disabled = !(
       state.cert.issuedThisWeek &&
       CouponPolicy.canUse("drink") &&
-      !state.cert.usedAt
+      !state.cert.usedAt &&
+      (!state.cert.validUntil || Date.now() < state.cert.validUntil)
     );
   }
 } // 👈 여기서 모든 로직이 안전하게 종료됨!
@@ -3828,9 +3827,9 @@ function weeklyRow(m) {
   wrap.className = "card";
   wrap.innerHTML = `
     <div class="info">
-      <h4>${m.title}</h4>
+      <h4>${m.type === "stamp" ? `출석 도장 ${m.target}` : m.title}</h4>
       <p>${missionProgressLine(m)}</p>
-      <div class="cost">올클 시: 인증서 발급 가능</div>
+      <div class="cost">모두 채우면 인증서를 받아요</div>
     </div>
     <button class="btn" disabled>${m.done ? "완료" : "진행중"}</button>
   `;
@@ -4041,11 +4040,13 @@ function renderMapUI() {
     btnUn.style.opacity = btnUn.disabled ? 0.6 : 1;
   }
 
+  const mapDetails = document.getElementById("mapPolicyDetails");
+  if (mapDetails) mapDetails.textContent = Campaign.familySummary();
   if (hint) {
     if (curId === REGIONS[REGIONS.length - 1].id) {
       hint.textContent = "최종 지역에 도달했습니다. 🚀\n" + Campaign.familySummary();
     } else {
-      hint.textContent = `현재 영업 지역의 다음 해금: ${next.name}\n${Campaign.regionSummary(next.id).unlock}\n${Campaign.familySummary()}\n미수령 수익은 수령 전 매출에 포함하지 않습니다. 지역 이야기는 설정에서 읽습니다.`;
+      hint.textContent = `다음 지점: ${next.name} · 카드에서 오픈 조건을 확인해요.\n가족 목표: ${fmtWon(Campaign.rules().ending)}`;
     }
   }
 }
@@ -4056,6 +4057,8 @@ function updateUI() {
   try {
     const setText = setTextIfChanged;
 
+    const welcomeNotice = document.getElementById("profileWelcomeNotice");
+    if (welcomeNotice) welcomeNotice.hidden = !state.couponLedger?.welcomeEligible;
     setText(elMoney, fmtCompact(state.money));
     if (elMoney) elMoney.title = moneyExactText(state.money) + "원";
     setText(elRep, state.rep.toFixed(1));
@@ -4124,7 +4127,8 @@ function updateUI() {
         useCertDrinkBtn.disabled = !(
           state.cert?.issuedThisWeek &&
           CouponPolicy.canUse("drink") &&
-          !state.cert?.usedAt
+          !state.cert?.usedAt &&
+          (!state.cert?.validUntil || Date.now() < state.cert.validUntil)
         );
     }
 

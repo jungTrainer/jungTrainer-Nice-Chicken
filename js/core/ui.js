@@ -42,7 +42,7 @@ document.addEventListener(
       return roots
         .flatMap((root) => [
           ...root.querySelectorAll(
-            'button:not(:disabled),input:not(:disabled),textarea:not(:disabled),a[href],[tabindex="0"]',
+            'button:not(:disabled),input:not(:disabled),textarea:not(:disabled),a[href],summary,[tabindex="0"]',
           ),
         ])
         .filter(
@@ -169,10 +169,10 @@ document.addEventListener(
     pendingButton.id = "openOfflineReward";
     pendingButton.className = "btn alt";
     pendingButton.type = "button";
-    pendingButton.textContent = "미수령 수익 보기";
+    pendingButton.textContent = "받을 수익 보기";
     pendingButton.addEventListener("click", () => {
       if (state.offlineReward.amount > 0) renderOfflineReward();
-      else showToast("미수령 수익이 없습니다.");
+      else showToast("받을 수익을 모두 받았어요.");
     });
     const pendingRow = document.createElement("div");
     pendingRow.className = "row";
