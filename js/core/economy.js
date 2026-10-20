@@ -356,9 +356,10 @@ const BenefitService = {
     const fields = ["money", "profile", "coupons", "couponLedger", "benefitsLog", "cert", "missions", "serviceVisit", "lastSeenAt"];
     const previous = Object.fromEntries(fields.map(k => [k, structuredClone(state[k])]));
     const dirty = _saveDirty;
+    const displayBefore = CouponPolicy.presentation.capture();
     try {
       change(); markStateChanged("benefit-commit");
-      if (save(true)) return true;
+      if (save(true)) { CouponPolicy.presentation.committed(displayBefore); return true; }
     } catch (error) { console.error("[benefit] commit failed", error); }
     Object.assign(state, previous); BranchManager.saveCurrent(); _saveDirty = dirty;
     return false;

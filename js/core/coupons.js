@@ -201,6 +201,164 @@ const CouponPolicy = {
     }
     return "";
   },
+  // Display preferences are deliberately outside state/SAVE_KEY and exports.
+  presentation: {
+    key: "niceChicken_couponPresentation_v1",
+    seen: new Set(),
+    pending: [],
+    toastTimer: null,
+    preferenceCache: null,
+    install() {
+      const open = () => { if (!panels.shr.classList.contains("on")) openPanel("shr"); };
+      document.getElementById("couponChip").addEventListener("click", open);
+      document.getElementById("couponNoticeOpen").addEventListener("click", () => {
+        document.getElementById("couponNotice").hidden = true; open();
+      });
+      document.getElementById("couponNoticeClose").addEventListener("click", () => {
+        document.getElementById("couponNotice").hidden = true;
+        document.getElementById("couponChip").focus();
+      });
+      window.addEventListener("storage", event => { if (event.key === this.key || event.key === null) this.preferenceCache = null; });
+      const observer = new MutationObserver(() => this.refresh());
+      for (const surface of document.querySelectorAll(".dim,.panel,#sessionControls,#endingConditionPopup,#endingOverlay"))
+        observer.observe(surface, {attributes:true, attributeFilter:["class","hidden","style"]});
+      document.addEventListener("visibilitychange", () => this.refresh());
+      this.refresh();
+    },
+    mount(modal = false) {
+      // One subtree: no duplicate IDs, use handlers, certificate canvas or PIN flow.
+      const mount = document.getElementById(modal ? "couponModalMount" : "couponPanelMount");
+      const contents = document.getElementById("couponContents");
+      if (contents.parentElement !== mount) mount.append(contents);
+      if (!modal) mount.scrollTop = 0;
+    },
+    capture() {
+      return { logHead: state.benefitsLog?.[0], welcomeIds: new Set((state.couponLedger?.lots || []).filter(c => c.source === "welcome").map(c => c.id)) };
+    },
+    committed(before) {
+      // Capture the successful result now; render later, isolated from commit/rollback.
+      try {
+        const welcomes = state.couponLedger.lots.filter(c => c.source === "welcome" && !before.welcomeIds.has(c.id)).map(c => c.id);
+        const logs = state.benefitsLog || [], boundary = logs.indexOf(before.logHead);
+        const qty = logs.slice(0, boundary < 0 ? logs.length : boundary).filter(l => l.type === "stamp").reduce((sum,l) => sum + l.qty, 0);
+        const stamps = state.couponLedger.stamps;
+        queueMicrotask(() => {
+          try {
+            this.pending.push(...welcomes.map(id => ({id, kind:"welcome"})));
+            if (qty > 0) {
+              const toast = document.getElementById("couponStampToast");
+              toast.textContent = `🥤 음료 스탬프 +${qty} (${stamps}/${COUPON_POLICY.cardSize})`;
+              toast.hidden = false;
+              clearTimeout(this.toastTimer);
+              this.toastTimer = setTimeout(() => { toast.hidden = true; }, 3500);
+            }
+            this.refresh();
+          } catch (error) { console.warn("[coupon display]", error); }
+        });
+      } catch (error) { console.warn("[coupon display]", error); }
+    },
+    preferences(fresh = false) {
+      if (this.preferenceCache && !fresh) return this.preferenceCache;
+      try {
+        const data = JSON.parse(localStorage.getItem(this.key) || "{}");
+        this.preferenceCache = data && typeof data === "object" && !Array.isArray(data) ? data : {};
+      } catch { this.preferenceCache = {}; }
+      return this.preferenceCache;
+    },
+    wasSeen(id) { return this.seen.has(id) || this.preferences()[id] === true; },
+    remember(id) {
+      this.seen.add(id);
+      try {
+        const next = {...this.preferences(true), [id]:true};
+        localStorage.setItem(this.key, JSON.stringify(next)); this.preferenceCache = next;
+      }
+      catch { /* In-memory once remains available when preference storage is denied. */ }
+    },
+    refresh() {
+      const l = state.couponLedger;
+      if (!l) return;
+      const chip = document.getElementById("couponChip");
+      chip.setAttribute("aria-expanded", String(panels.shr.classList.contains("on")));
+      const count = CouponPolicy.available("drink") + CouponPolicy.available("veg");
+      setTextIfChanged(chip, `🥤 음료 스탬프 ${l.stamps}/${COUPON_POLICY.cardSize} · 🎟️ 사용 가능 ${count}장`);
+      // Availability is observed; neither this path nor opening the box settles cards.
+      for (const c of l.lots)
+        if (c.source === "welcome" && !c.usedAt && c.usableAt <= Date.now() && Date.now() < c.expiresAt && !this.wasSeen(`usable:${c.id}`) && !this.pending.some(n => n.id === c.id && n.kind === "usable"))
+          this.pending.push({id:c.id, kind:"usable"});
+      const blocked = document.querySelector(".dim.on,.panel.on") || endingPhase !== "idle" || endingEls().popup.style.display === "flex" || document.hidden || PwaRuntime.applying || !document.getElementById("sessionControls").hidden;
+      if (blocked || !document.getElementById("couponNotice").hidden || !SessionOwner.canMutate()) return;
+      while (this.pending.length) {
+        const n = this.pending.shift(), c = l.lots.find(c => c.id === n.id), key = `${n.kind}:${n.id}`;
+        if (!c || c.usedAt || Date.now() >= c.expiresAt || this.wasSeen(key)) continue;
+        if (n.kind === "usable" && Date.now() < c.usableAt) continue;
+        // Recheck shared preference immediately before showing in an owning window.
+        this.remember(key);
+        document.getElementById("couponNoticeText").textContent = n.kind === "welcome"
+          ? `🎁 웰컴 음료 ${COUPON_POLICY.welcomeDrink}장 받았어요! ${Date.now() < c.usableAt ? "내일 방문 때" : "방문할 때"} 직원에게 보여주세요.`
+          : "🥤 오늘부터 웰컴 음료를 쓸 수 있어요. 직원에게 보여주세요.";
+        document.getElementById("couponNotice").hidden = false;
+        break;
+      }
+    },
+    card(c, history = false) {
+      const card = document.createElement("article");
+      card.className = "coupon-ticket";
+      card.dataset.couponId = c.id;
+      const title = document.createElement("h4"), status = document.createElement("p"), dates = document.createElement("p");
+      const now = Date.now(), locked = now < c.usableAt, expired = now >= c.expiresAt;
+      const source = {welcome:"웰컴", stamp_card:"음료 스탬프", weekly:"주간 미션"}[c.source] || "쿠폰";
+      title.textContent = `${c.type === "drink" ? "🥤 음료" : "🥬 무/양배추"} 쿠폰 · ${source}`;
+      const tomorrow = CouponPolicy.day(c.usableAt) === CouponPolicy.day(CouponPolicy.dayStart() + CouponPolicy.dayMs);
+      const remainingDays = Math.max(0, (CouponPolicy.dayStart(c.expiresAt) - CouponPolicy.dayStart(now)) / CouponPolicy.dayMs);
+      status.textContent = c.usedAt ? "사용 완료" : expired ? "만료" : locked ? (tomorrow ? "🔒 내일부터 사용 가능" : `🔒 ${CouponPolicy.day(c.usableAt)}부터 사용 가능`) : `사용 가능 · ${remainingDays === 0 ? "오늘 만료" : `D-${remainingDays}`}`;
+      dates.className = "note";
+      dates.textContent = `사용 가능 ${CouponPolicy.dateText(c.usableAt)}\n만료 ${CouponPolicy.dateText(c.expiresAt)}${history && c.usedAt ? `\n사용 ${CouponPolicy.dateText(c.usedAt)}` : ""}`;
+      card.classList.toggle("coupon-locked", locked && !history);
+      card.append(title, status, dates);
+      return card;
+    },
+    render() {
+      const l = state.couponLedger;
+      if (!l) return;
+      const grid = document.getElementById("couponStampGrid");
+      if (grid.dataset.stamps !== String(l.stamps)) {
+        grid.replaceChildren(...Array.from({length:COUPON_POLICY.cardSize}, (_,i) => {
+          const cell = document.createElement("span"); cell.textContent = i < l.stamps ? "🥤" : String(i+1);
+          cell.className = i < l.stamps ? "filled" : ""; cell.setAttribute("aria-hidden", "true"); return cell;
+        }));
+        grid.dataset.stamps = String(l.stamps); grid.setAttribute("aria-label", `음료 스탬프 ${l.stamps}/${COUPON_POLICY.cardSize}`);
+      }
+      const due = l.stamps >= COUPON_POLICY.cardSize && !CouponPolicy.monthlyAvailable();
+      setTextIfChanged(document.getElementById("couponNextIssue"), due
+        ? `다음 지급 예정: ${CouponPolicy.day(CouponPolicy.nextMonth())} 이후 앱을 열 때`
+        : l.issuedMonths[CouponPolicy.month()] ? "이번 달 음료 쿠폰을 받았어요. 남은 스탬프는 다음 달로 이어져요."
+        : `${COUPON_POLICY.cardSize}개를 모아 이번 달 음료 쿠폰을 받아요.`);
+      const methods = document.getElementById("couponEarningMethods");
+      if (!methods.children.length) for (const text of [`일간 미션 모두 완료 +${COUPON_POLICY.dailyStamps}`, `주간 미션 모두 완료 +${COUPON_POLICY.weeklyStamps}`, `교환상점 주 1회 구매 +${COUPON_POLICY.exchangeStamps}`, `직원 확인 후 방문 기록 하루 1회 +${COUPON_POLICY.visitStamps}`]) {
+        const li = document.createElement("li"); li.textContent = text; methods.append(li);
+      }
+      // Sort a new array; do not mutate the ledger or settle deferred rewards on views.
+      const now = Date.now(), active = l.lots.filter(c => !c.usedAt && now < c.expiresAt)
+        .sort((a,b) => Number(a.usableAt > now) - Number(b.usableAt > now) || a.expiresAt - b.expiresAt || a.id.localeCompare(b.id));
+      const list = document.getElementById("datedCouponList");
+      const signature = JSON.stringify([active, state.coupons, CouponPolicy.day(), active.map(c => now < c.usableAt)]);
+      if (list.dataset.signature !== signature) {
+        const cards = active.map(c => this.card(c));
+        for (const [type,qty] of Object.entries(state.coupons)) if (qty > 0) {
+          const card = document.createElement("article"); card.className = "coupon-ticket";
+          const title = document.createElement("h4"), note = document.createElement("p");
+          title.textContent = `${type === "drink" ? "🥤 음료" : "🥬 무/양배추"} 쿠폰 ${qty}장`;
+          note.textContent = "사용 가능 · 기존 쿠폰 · 만료 없음"; card.append(title,note); cards.push(card);
+        }
+        list.replaceChildren(...cards);
+        if (!cards.length) list.textContent = "사용 가능한 쿠폰이 없어요. 지난 기록에서 사용·만료 내역을 볼 수 있어요.";
+        list.dataset.signature = signature;
+      }
+      const past = document.getElementById("couponPastLots"), history = l.lots.filter(c => c.usedAt || now >= c.expiresAt).slice().reverse();
+      const pastSignature = JSON.stringify(history);
+      if (past.dataset.signature !== pastSignature) { past.replaceChildren(...history.map(c => this.card(c,true))); past.dataset.signature = pastSignature; }
+    },
+  },
   render() {
     if (!state.couponLedger) return;
     const l=state.couponLedger, host=document.getElementById("couponPolicyStatus");
@@ -212,11 +370,7 @@ const CouponPolicy = {
       if(details&&details.textContent!==detailText)details.textContent=detailText;
       if(host.textContent!==text)host.textContent=text;
     }
-    const list=document.getElementById("datedCouponList");
-    if(list) {
-      const text=l.lots.map(c=>`${c.type==="drink"?"음료":"무/양배추"} · ${({welcome:"웰컴",stamp_card:"음료 스탬프",weekly:"주간 미션"})[c.source]||"쿠폰"} · ${c.usedAt?"사용 완료":Date.now()>=c.expiresAt?"만료":Date.now()<c.usableAt?"🔒 내일부터 사용 가능":"사용 가능"}\n발급 ${this.dateText(c.issuedAt)} · 사용 가능 ${this.dateText(c.usableAt)} · 만료 ${this.dateText(c.expiresAt)}${c.usedAt?` · 사용 ${this.dateText(c.usedAt)}`:""}`).join("\n\n")||"미션을 채우고 쿠폰을 모아보세요. 기존 쿠폰도 사용할 수 있어요.";
-      if(list.textContent!==text)list.textContent=text;
-    }
+    this.presentation.render();
     for(const [id,type] of [["useDrinkCoupon","drink"],["useVegCoupon","veg"]]) {
       const button=document.getElementById(id);
       if(button) {

@@ -4,14 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>나이스치킨 타이쿤 (방치+서빙)</title>
-  <meta name="app-version" content="imp12-8bf2cc87589249a4ad55" />
+  <meta name="app-version" content="imp12-1f462d9aee940b363c65" />
   <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#FF9F1C">
   <link rel="apple-touch-icon" href="./icon-192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./css/style.css" integrity="sha256-4fXgwpJiPTgsDpBMXOcFewfSgE3mjt6U/ebtTyyPJps=" crossorigin="anonymous">
+  <link rel="stylesheet" href="./css/style.css" integrity="sha256-cplJlAJfDHrcdWsra73gt4kN9EKuZCKeQ4DxyAgqfQA=" crossorigin="anonymous">
 
 
 </head>
@@ -75,6 +75,11 @@ document.addEventListener('DOMContentLoaded', ()=>{
       </div>
     </div>
   </div>
+  <button id="couponChip" class="coupon-chip" type="button" aria-controls="panel-shr" aria-haspopup="dialog" aria-expanded="false">🥤 음료 스탬프 0/30 · 🎟️ 사용 가능 0장</button>
+  <aside id="couponNotice" class="coupon-notice" hidden aria-label="웰컴 쿠폰 안내">
+    <p id="couponNoticeText" role="status" aria-live="polite"></p>
+    <div class="row"><button id="couponNoticeOpen" class="btn alt" type="button">쿠폰함 보기</button><button id="couponNoticeClose" class="btn gray" type="button">닫기</button></div>
+  </aside>
 </header>
 
   <div id="stageWrap">
@@ -100,7 +105,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     <button class="navBtn" data-panel="upg"><span class="ic">🛠️</span>업그레이드</button>
     <button class="navBtn" data-panel="res"><span class="ic">🔬</span>연구</button>
     <button class="navBtn" data-panel="mis"><span class="ic">📅</span>미션</button>
-    <button class="navBtn" data-panel="shr"><span class="ic">📸</span>인증서</button>
+    <button class="navBtn" data-panel="shr"><span class="ic">🎟️</span>쿠폰함</button>
   </nav>
 
   <!-- Panels -->
@@ -191,36 +196,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
   </section>
 
   <section class="panel" id="panel-shr">
-    <div class="pHead">
-      <h3>📸 주간 인증서</h3>
-      <button class="closeBtn" data-close>✕</button>
-    </div>
-    <div class="scroll" style="text-align:center;">
-      <p style="color:#666; margin:0 0 8px;">주간 미션을 <b>모두 달성</b>해야 인증서를 발급할 수 있어요.</p>
-
-      <div class="card" style="text-align:left;">
-        <div class="info" style="flex:1;">
-          <h4 style="margin:0;">✅ 상태</h4>
-          <p id="certStatus" style="margin-top:10px; color:#333; font-weight:700;">상태 확인 중...</p>
-          <details class="ux-details"><summary>자세히 · 인증서와 보상</summary>
-            <p>주간 미션 보상은 미션을 모두 채울 때 받아요. 인증서는 달성 기념으로 간직할 수 있어요.</p>
-            <p id="certificateRewardInfo"></p>
-          </details>
-        </div>
-      </div>
-
-      <canvas id="shareCanvas" width="1080" height="1920" style="display:none;"></canvas>
-      <img id="sharePreview" alt="인증서 미리보기">
-      <button class="btn" style="width:100%; padding:14px; font-size:1.05rem;" id="makeCard">인증서 발급하기</button>
-
-      <div class="row" style="margin-top:10px;">
-        <button class="btn alt" id="useCertDrink" style="flex:1;">직원과 함께 음료 쿠폰 사용</button>
-      </div>
-
-      <div style="margin-top:10px;">
-        <a id="downloadLink">이미지 다운로드</a>
-      </div>
-    </div>
+    <div class="pHead"><h3>🎟️ 쿠폰함</h3><button class="closeBtn" data-close>✕</button></div>
+    <div class="scroll" id="couponPanelMount"></div>
   </section>
 
   <!-- Modals -->
@@ -353,14 +330,51 @@ document.addEventListener('DOMContentLoaded', ()=>{
   <!-- Coupon box / benefits log -->
   <div class="dim" id="modalCoupons">
     <div class="modal" style="text-align:left;">
-      <h3 style="text-align:center;">🎟️ 쿠폰함 / 혜택 내역</h3>
-      <p class="note ux-lead">실물 혜택: 모은 쿠폰을 매장에서 직원에게 보여주세요.</p>
-      <div class="card" style="flex-direction:column;align-items:stretch;">
-        <h4>🥤 음료 스탬프 · 쿠폰</h4>
-        <p id="couponPolicyStatus" tabindex="-1" data-initial-focus style="white-space:pre-line;overflow-wrap:anywhere;"></p>
-        <details class="ux-details"><summary>자세히 · 적립과 발급</summary><p id="couponPolicyDetails" style="white-space:pre-line;"></p></details>
-        <div id="datedCouponList" class="note" tabindex="0" aria-label="쿠폰 발급·사용·만료 기록" style="max-height:240px;overflow:auto;white-space:pre-line;overflow-wrap:anywhere;"></div>
+      <h3>🎟️ 쿠폰함</h3>
+      <div id="couponModalMount"><div id="couponContents" class="coupon-contents">
+<p class="note ux-lead">실물 혜택: 모은 쿠폰을 매장에서 직원에게 보여주세요.</p>
+<section id="couponStamps" class="coupon-section">
+<h4>🥤 음료 스탬프</h4>
+<p id="couponPolicyStatus" tabindex="-1" data-initial-focus style="white-space:pre-line;"></p>
+<div id="couponStampGrid" class="coupon-stamp-grid" role="img" aria-label="음료 스탬프 0/30"></div>
+<p id="couponNextIssue" class="note"></p>
+</section>
+<section id="couponCardsSection" class="coupon-section"><h4>🎟️ 내 쿠폰</h4>
+<div id="datedCouponList" class="coupon-cards" tabindex="0" aria-label="쿠폰 발급·사용·만료 기록"></div>
+</section>
+<section id="couponHow" class="coupon-section"><h4>음료 스탬프 모으는 방법</h4>
+<ul id="couponEarningMethods" class="coupon-methods"></ul>
+<details class="ux-details"><summary>자세히 · 적립과 발급</summary><p id="couponPolicyDetails" style="white-space:pre-line;"></p></details>
+</section>
+<section id="couponCertificate" class="coupon-section">
+<h4>📸 주간 인증서</h4>
+      <p style="color:#666; margin:0 0 8px;">주간 미션을 <b>모두 달성</b>해야 인증서를 발급할 수 있어요.</p>
+
+      <div class="card" style="text-align:left;">
+        <div class="info" style="flex:1;">
+          <h4 style="margin:0;">✅ 상태</h4>
+          <p id="certStatus" style="margin-top:10px; color:#333; font-weight:700;">상태 확인 중...</p>
+          <details class="ux-details"><summary>자세히 · 인증서와 보상</summary>
+            <p>주간 미션 보상은 미션을 모두 채울 때 받아요. 인증서는 달성 기념으로 간직할 수 있어요.</p>
+            <p id="certificateRewardInfo"></p>
+          </details>
+        </div>
       </div>
+
+      <canvas id="shareCanvas" width="1080" height="1920" style="display:none;"></canvas>
+      <img id="sharePreview" alt="인증서 미리보기">
+      <button class="btn" style="width:100%; padding:14px; font-size:1.05rem;" id="makeCard">인증서 발급하기</button>
+
+      <div class="row" style="margin-top:10px;">
+        <button class="btn alt" id="useCertDrink" style="flex:1;">직원과 함께 음료 쿠폰 사용</button>
+      </div>
+
+      <div style="margin-top:10px;">
+        <a id="downloadLink">이미지 다운로드</a>
+      </div>
+
+</section>
+<section id="couponStaff" class="coupon-section"><h4>🤝 직원 확인</h4>
       <div class="card" style="flex-direction:column;align-items:stretch;">
         <label for="serviceTable">방문 번호 · 직원과 함께 입력해요</label>
         <input id="serviceTable" maxlength="20" autocomplete="off" placeholder="예: 3번" style="min-height:44px;max-width:100%;box-sizing:border-box;">
@@ -396,17 +410,21 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
       </div>
 
+      <button class="btn gray" id="clearLog" type="button">혜택 기록 정리</button>
+</section>
+<details id="couponHistory" class="ux-details coupon-section"><summary>지난 기록</summary>
+<div id="couponPastLots" class="coupon-cards"></div>
       <div class="card" style="flex-direction:column; align-items:stretch;">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <div><b>혜택 내역</b></div>
-          <button class="btn gray" id="clearLog" style="padding:5px 7px;">기록정리</button>
+
         </div>
         <div id="benefitLogList" class="note" style="margin-top:10px; max-height:180px; overflow:auto; white-space:pre-line; overflow-wrap:anywhere;"></div>
       </div>
 
-      <div class="row">
-        <button class="btn" id="closeCoupons">닫기</button>
-      </div>
+</details>
+</div></div>
+      <div class="row"><button class="btn" id="closeCoupons">닫기</button></div>
     </div>
   </div>
 
@@ -457,7 +475,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 <script src="./js/core/utils.js" integrity="sha256-rMb8jDUvlaPmk9VhbNRBrAuP4uAL90TbDOj4Yj9JlcU=" crossorigin="anonymous"></script>
 <script src="./js/core/audio.js" integrity="sha256-sHFMyhuEgs2lhttc2pyqwwqcgZ9XW0Xozmq7W5xIW24=" crossorigin="anonymous"></script>
 <script src="./js/core/config.js" integrity="sha256-/03MXGjFQ06+UIDdx6Eo+7aw+EgNYzKauvGwm/3L2sU=" crossorigin="anonymous"></script>
-<script src="./js/core/coupons.js" integrity="sha256-n+xuLlo41I5fsuFZAmsnA7BNjjh/2flUSDKGE1KEZE4=" crossorigin="anonymous"></script>
+<script src="./js/core/coupons.js" integrity="sha256-tgALs+u3KCzQuVUdTCot11Jd2zFsOVgIzZ2LfB0ODiQ=" crossorigin="anonymous"></script>
 <script src="./js/core/content.js" integrity="sha256-RtOuMEMPXH7GM0EwNzSvMsQxUt01nug0tm4Hn9GDN04=" crossorigin="anonymous"></script>
 <script src="./js/core/state.js" integrity="sha256-ijgZeI/+2ZLbUfHKCdGGFCMeOJ7Mv8SN+6Cavp6Cg8w=" crossorigin="anonymous"></script>
 <script src="./js/core/recovery.js" integrity="sha256-XokRlEXgEKE999TyybFK9LovTpmdjhlZ9XSLF6MB6+c=" crossorigin="anonymous"></script>
@@ -467,12 +485,12 @@ document.addEventListener('DOMContentLoaded', ()=>{
 <script src="./js/core/research.js" integrity="sha256-hZm8YgGc0JcOgwAOYzWkYwxYhJRlGTmMxYkf0KINf80=" crossorigin="anonymous"></script>
 <script src="./js/core/offline.js" integrity="sha256-1UXckpVuU/s8Zbg1dWLlGRw43iRxmFXHVW8BFDwI4bA=" crossorigin="anonymous"></script>
 <script src="./js/core/missions.js" integrity="sha256-tfbgVqZHzgI6stw5g2G1XRtkfLEQFou2Wl3C2vhyb74=" crossorigin="anonymous"></script>
-<script src="./js/core/economy.js" integrity="sha256-krl8migCTB0PdlBIZEyNqEj9KkoH+pXY5dPGNIguYXg=" crossorigin="anonymous"></script>
+<script src="./js/core/economy.js" integrity="sha256-ZaDK4QQfaRloS3OP74C0WJuof27aQMykHFj2fp9B2F8=" crossorigin="anonymous"></script>
 <script src="./js/core/ending.js" integrity="sha256-eK16di03+jUqGcYTsBAJkFfaeCFAGHCG6IGtge9tEtA=" crossorigin="anonymous"></script>
 <script src="./js/core/branches.js" integrity="sha256-m2PWDQRv4d2ec4DaAbgeekKh6XWsSpIQe2/IV1Lpa3Y=" crossorigin="anonymous"></script>
 <script src="./js/core/services.js" integrity="sha256-MQJhvf7umieaRc2IBiAIhzCfgq9HG3qJc5Y5uADiNkw=" crossorigin="anonymous"></script>
-<script src="./js/main.js" integrity="sha256-3e16C4jyZ1zUptCEyhQo7N87FwqFpzqtBH1A6BHd0VM=" crossorigin="anonymous"></script>
-<script src="./js/core/ui.js" integrity="sha256-9iVTEymhxpaZPZCrRIYRHUsbH5v+tLjEE7rw14XCpow=" crossorigin="anonymous"></script>
+<script src="./js/main.js" integrity="sha256-+YL+9aqsms3TdP4SwYGbpWeUCVQHms6Lh00H7EvvJcE=" crossorigin="anonymous"></script>
+<script src="./js/core/ui.js" integrity="sha256-nwwiC5yPBzYMFfuTXCKIn79Ye9wyCKsi74+zUlhY6Q0=" crossorigin="anonymous"></script>
 <script src="./js/core/pwa.js" integrity="sha256-qKu8kykvV3d2nyo3721MSRssjuM8vjxupb15cn4Lsac=" crossorigin="anonymous"></script>
 <script src="./js/core/boot.js" integrity="sha256-NCsAj6CTCn3NoiFmfvAy6/ebhSrtHea6qZ5N3/0YI5U=" crossorigin="anonymous"></script>
 
@@ -643,5 +661,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
   </div>
   <textarea id="sessionBackupText" hidden readonly aria-label="저장 백업 JSON" rows="3"></textarea>
 </section>
+<div id="couponStampToast" role="status" aria-live="polite" hidden></div>
 </body>
 </html>
