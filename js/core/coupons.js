@@ -233,7 +233,7 @@ const CouponPolicy = {
       if (!modal) mount.scrollTop = 0;
     },
     capture() {
-      return { logHead: state.benefitsLog?.[0], welcomeIds: new Set((state.couponLedger?.lots || []).filter(c => c.source === "welcome").map(c => c.id)) };
+      return { stamps:state.couponLedger?.stamps || 0, cardIds:new Set((state.couponLedger?.lots || []).filter(c => c.source === "stamp_card").map(c => c.id)), logHead: state.benefitsLog?.[0], welcomeIds: new Set((state.couponLedger?.lots || []).filter(c => c.source === "welcome").map(c => c.id)) };
     },
     committed(before) {
       // Capture the successful result now; render later, isolated from commit/rollback.
@@ -242,12 +242,16 @@ const CouponPolicy = {
         const logs = state.benefitsLog || [], boundary = logs.indexOf(before.logHead);
         const qty = logs.slice(0, boundary < 0 ? logs.length : boundary).filter(l => l.type === "stamp").reduce((sum,l) => sum + l.qty, 0);
         const stamps = state.couponLedger.stamps;
+        const cards = state.couponLedger.lots.filter(c => c.source === "stamp_card" && !before.cardIds.has(c.id)).length;
+        const retained = Math.max(0, Math.min(qty, stamps - before.stamps + cards * COUPON_POLICY.cardSize));
         queueMicrotask(() => {
           try {
             this.pending.push(...welcomes.map(id => ({id, kind:"welcome"})));
             if (qty > 0) {
               const toast = document.getElementById("couponStampToast");
-              toast.textContent = `🥤 음료 스탬프 +${qty} (${stamps}/${COUPON_POLICY.cardSize})`;
+              toast.textContent = retained > 0
+                ? `🥤 음료 스탬프 +${retained} (${stamps}/${COUPON_POLICY.cardSize})`
+                : `🥤 음료 스탬프 ${stamps}/${COUPON_POLICY.cardSize} · 카드가 가득 찼어요`;
               toast.hidden = false;
               clearTimeout(this.toastTimer);
               this.toastTimer = setTimeout(() => { toast.hidden = true; }, 3500);

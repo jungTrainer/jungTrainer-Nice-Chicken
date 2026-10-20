@@ -1,11 +1,11 @@
 /* IMP-12: generated release block; update with npm run pwa:build. */
 // BEGIN PWA RELEASE
 const RELEASE = {
-  "version": "imp12-4dcacf92f0d36be393b9",
+  "version": "imp12-d1905bfc1a340ed6b923",
   "required": [
     {
       "path": "index.html",
-      "hash": "e58fae7f65d4179d2e14e06f839fac164a465db49c9afd2fdf495737a0a90709",
+      "hash": "067d7e1cb2a26d6d2dfcaaab8123422c579476b32f017d3f587e173d7077915d",
       "mime": "text/html"
     },
     {
@@ -30,7 +30,7 @@ const RELEASE = {
     },
     {
       "path": "js/core/coupons.js",
-      "hash": "a867192132b57cfe81a7968c23ae52c1fa62d01d457c2158c90856b67a9a8c8a",
+      "hash": "71bb990c226b33c5f027048c3abc49d3683949600d993b446146eab5c5f8dcc5",
       "mime": "javascript"
     },
     {

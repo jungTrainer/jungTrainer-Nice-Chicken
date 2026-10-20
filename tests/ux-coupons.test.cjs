@@ -211,3 +211,16 @@ test('coupon D-day follows Korean date and exact expiry without changing the led
   assert.match(await p.locator('#couponPastLots [data-coupon-id="soon"]').textContent(),/만료/);
   assert.deepEqual(await p.evaluate(()=>state.couponLedger),ledger);
 }));
+test('stamp toast reports retained progress at the monthly storage cap without promising discarded surplus', async () => game(fixture(), async p => {
+  await p.evaluate(()=>{
+    state.couponLedger.stamps=29;state.couponLedger.issuedMonths[CouponPolicy.month()]=1;
+    BenefitService.commit(()=>CouponPolicy.addStamps(5,'test'));
+  });
+  assert.match(await p.locator('#couponStampToast').innerText(),/\+1 \(30\/30\)/);
+  assert.equal(await p.evaluate(()=>state.couponLedger.stamps),30);
+  assert.equal(await p.evaluate(()=>state.couponLedger.lots.length),0);
+  await p.evaluate(()=>BenefitService.commit(()=>CouponPolicy.addStamps(2,'test')));
+  assert.match(await p.locator('#couponStampToast').innerText(),/30\/30 · 카드가 가득 찼어요/);
+  assert.doesNotMatch(await p.locator('#couponStampToast').innerText(),/\+2/);
+  assert.equal(await p.evaluate(()=>state.couponLedger.stamps),30);
+}));
