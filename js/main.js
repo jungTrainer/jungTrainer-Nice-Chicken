@@ -931,7 +931,7 @@ function pickMenuByRule() {
 }
 
 /* --------------------
-   Menu grid (3x3)
+   Menu grid: unlocked choices and one next-menu preview
 -------------------- */
 function handleMenuGridServe(btn) {
   if (!btn) return;
@@ -953,31 +953,40 @@ function buildMenuGrid() {
 
   const openCount = getOpenMenuCount();
 
-  MENUS.forEach((m, idx) => {
-    const locked = idx >= openCount;
-
+  MENUS.slice(0, openCount).forEach((m) => {
     const btn = document.createElement("button");
     btn.className = "menuBtn";
-    btn.disabled = locked;
     btn.dataset.action = "serve-menu";
     btn.dataset.menuId = m.id;
-    btn.dataset.locked = locked ? "1" : "0";
+    btn.dataset.locked = "0";
 
-    const emoji = locked ? "🔒" : m.emoji;
-    const nameText = locked ? "잠김" : m.name;
     const shownPrice = getMenuPrice(m.id);
-    const priceText = locked ? "업그레이드로 해금" : ` ${fmtWon(shownPrice)}`;
 
     btn.innerHTML = `
       <div class="top">
-        <div class="emoji">${emoji}</div>
-        <div class="name">${nameText}</div>
+        <div class="emoji">${m.emoji}</div>
+        <div class="name">${m.name}</div>
       </div>
-      <div class="price">${priceText}</div>
+      <div class="price">${fmtWon(shownPrice)}</div>
     `;
 
     menuGrid.appendChild(btn);
   });
+  const next = MENUS[openCount];
+  if (next) {
+    const cost = menuUnlockCost(state.upgrades.menuUnlock || 0);
+    const preview = document.createElement("div");
+    preview.className = "menuNext";
+    preview.dataset.menuId = next.id;
+    preview.dataset.cost = String(cost);
+    preview.title = `업그레이드 → 메뉴 해금 · ${moneyExactText(cost)}원`;
+    const name = document.createElement("div"), price = document.createElement("div");
+    name.textContent = `다음 메뉴: ${next.name}`;
+    price.textContent = `해금 ${fmtWon(cost)}`;
+    preview.append(name, price);
+    menuGrid.appendChild(preview);
+  }
+  resizeCanvas();
 }
 
 const menuGridEl = document.getElementById("menuGrid");
@@ -3320,9 +3329,9 @@ function drawCustomers() {
     ctx.fillText(c.emoji || "🙂", c.x, c.y);
     ctx.restore();
 
-    // speech bubble (selected should be drawn LAST in whole scene)
-    const bubbleScale = isSelected ? 1.25 : 1.0; // selected bubble a bit bigger
-    drawSpeechBubble(c.x, c.y - 52, `(${c.menuName})`, bubbleScale, isSelected);
+    // One order label follows the selected customer; other arrivals add no duplicate labels.
+    if (isSelected)
+      drawSpeechBubble(c.x, c.y - 52, `(${c.menuName})`, 1.25, true);
 
     // patience bar
     const w = 52,
@@ -3566,8 +3575,6 @@ function onCanvasDown(e) {
   const c = pickCustomerAt(p.x, p.y);
   if (c && c.state !== "leaving") {
     selectCustomer(c.id);
-    const hintEl = document.getElementById("hint");
-    if (hintEl) hintEl.style.display = "none";
     floatText("주문 확인!", c.x, c.y - 60, "#2EC4B6");
     if (typeof sfxTick === "function") sfxTick();
     if (typeof updateUI === "function") updateUI();

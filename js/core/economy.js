@@ -81,7 +81,7 @@ function upStaff(key, kind) {
 }
 
 function updateEconomyUI() {
-  for (const button of menuGrid.children) {
+  for (const button of menuGrid.querySelectorAll('[data-action="serve-menu"]')) {
     if (button.disabled) continue;
     const price = getMenuPrice(button.dataset.menuId);
     if (button.dataset.price !== String(price)) {
@@ -263,8 +263,8 @@ function serveByMenu(menuId, actorKey = "player") {
   if (typeof checkLevelUp === "function") checkLevelUp();
   markStateChanged("economy");
 
-  const hintEl = document.getElementById("hint");
-  if (hintEl) hintEl.style.display = "none";
+  // Presentation notification only: a display-storage failure cannot interrupt settlement.
+  try { window.dispatchEvent(new Event("nice-chicken:served")); } catch (_e) {}
 
   if (_saveDirty) save(true);
 }

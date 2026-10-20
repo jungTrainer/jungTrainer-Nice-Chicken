@@ -4,14 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>나이스치킨 타이쿤 (방치+서빙)</title>
-  <meta name="app-version" content="imp12-d1905bfc1a340ed6b923" />
+  <meta name="app-version" content="imp12-61925a7dbf99a02dce3f" />
   <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#FF9F1C">
   <link rel="apple-touch-icon" href="./icon-192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./css/style.css" integrity="sha256-14XDs9DELOpIBgs748MuXaJKLf80bppOYfId3DZoynE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="./css/style.css" integrity="sha256-/NfSmannr4k4l+rDVfJHLWHaXapqEIy9GcfYgljUuMc=" crossorigin="anonymous">
 
 
 </head>
@@ -88,14 +88,14 @@ document.addEventListener('DOMContentLoaded', ()=>{
       <span id="eventTimer">00:00</span>
     </div>
     <canvas id="stage"></canvas>
-    <div id="hint">👆 손님을 눌러 선택 → 아래 메뉴판(3×3)에서 정답 메뉴를 눌러 서빙!<br>가족 알바(최대 6명)가 자동 서빙도 도와줍니다.</div>
     <div id="toast"></div>
   <div id="infoToast" class="infoToast"></div>
 </div>
 
   <div id="menuBar">
+    <p id="hint" role="status" hidden>👆 손님을 누르고 같은 메뉴를 눌러 서빙해요.</p>
     <div class="menuTitleRow">
-      <div>🍽️ 메뉴판 (3×3)</div>
+      <div>🍽️ 메뉴판</div>
       <div class="selectedInfo">선택 손님: <b id="uiSelected">없음</b></div>
     </div>
     <div class="menuGrid" id="menuGrid"></div>
@@ -269,6 +269,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     <div class="modal" style="text-align:left;">
       <h3 style="text-align:center;">⚙️ 설정</h3>
       <button class="btn alt" id="openGameGuide" type="button">게임 방법 · 첫 방문 안내</button>
+      <button class="btn gray" id="replayServingGuide" type="button">서빙 안내 다시 보기</button>
       <div class="card" style="flex-direction:column;align-items:stretch;">
         <h4>게임 난이도 · 지역 이야기</h4>
         <p id="campaignStatus" role="status" tabindex="-1" style="white-space:pre-line;overflow-wrap:anywhere;"></p>
@@ -485,12 +486,12 @@ document.addEventListener('DOMContentLoaded', ()=>{
 <script src="./js/core/research.js" integrity="sha256-hZm8YgGc0JcOgwAOYzWkYwxYhJRlGTmMxYkf0KINf80=" crossorigin="anonymous"></script>
 <script src="./js/core/offline.js" integrity="sha256-1UXckpVuU/s8Zbg1dWLlGRw43iRxmFXHVW8BFDwI4bA=" crossorigin="anonymous"></script>
 <script src="./js/core/missions.js" integrity="sha256-tfbgVqZHzgI6stw5g2G1XRtkfLEQFou2Wl3C2vhyb74=" crossorigin="anonymous"></script>
-<script src="./js/core/economy.js" integrity="sha256-ZaDK4QQfaRloS3OP74C0WJuof27aQMykHFj2fp9B2F8=" crossorigin="anonymous"></script>
+<script src="./js/core/economy.js" integrity="sha256-y9ejDQJtoqq3t7h5zBYQrjYo0zbwHv+Q7bt3Krad1us=" crossorigin="anonymous"></script>
 <script src="./js/core/ending.js" integrity="sha256-eK16di03+jUqGcYTsBAJkFfaeCFAGHCG6IGtge9tEtA=" crossorigin="anonymous"></script>
 <script src="./js/core/branches.js" integrity="sha256-m2PWDQRv4d2ec4DaAbgeekKh6XWsSpIQe2/IV1Lpa3Y=" crossorigin="anonymous"></script>
 <script src="./js/core/services.js" integrity="sha256-MQJhvf7umieaRc2IBiAIhzCfgq9HG3qJc5Y5uADiNkw=" crossorigin="anonymous"></script>
-<script src="./js/main.js" integrity="sha256-n33GQ0tWg3tK9AwfhjEBMIq20YbZ8r4bx92goaf/3SE=" crossorigin="anonymous"></script>
-<script src="./js/core/ui.js" integrity="sha256-nwwiC5yPBzYMFfuTXCKIn79Ye9wyCKsi74+zUlhY6Q0=" crossorigin="anonymous"></script>
+<script src="./js/main.js" integrity="sha256-TTpC7I5lQZazmU7XEC5az68vbG9RGbm3qn+07Xvnejg=" crossorigin="anonymous"></script>
+<script src="./js/core/ui.js" integrity="sha256-pi2Nfr0TTcw/WWdErhVO3yaRBFVyB4WljtzQROyP9Cg=" crossorigin="anonymous"></script>
 <script src="./js/core/pwa.js" integrity="sha256-qKu8kykvV3d2nyo3721MSRssjuM8vjxupb15cn4Lsac=" crossorigin="anonymous"></script>
 <script src="./js/core/boot.js" integrity="sha256-NCsAj6CTCn3NoiFmfvAy6/ebhSrtHea6qZ5N3/0YI5U=" crossorigin="anonymous"></script>
 
