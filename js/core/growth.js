@@ -336,19 +336,11 @@ function updateResearch() {
   if (!SessionOwner.canMutate()) return false;
   ensureResearchSlots();
   ensureStaffStats();
-  let anyActive = false;
-  let bestPct = 0;
-  let statusText = "없음";
 
   for (let i = 0; i < state.research.running.length; i++) {
     const s = state.research.running[i];
     if (!s.activeId) continue;
-    anyActive = true;
-    const r = RESEARCH.find((x) => x.id === s.activeId);
-    const total = s.endAt - s.startAt;
     const left = s.endAt - Date.now();
-    const pct = clamp(1 - left / total, 0, 1);
-    bestPct = Math.max(bestPct, pct);
 
     if (left <= 0) {
       const rid = s.activeId;
@@ -375,20 +367,10 @@ function updateResearch() {
       markStateChanged("input-action");
       save(true);
       renderPanel("res");
-    } else {
-      const mm = Math.floor(left / 60000);
-      const ss = Math.floor((left % 60000) / 1000);
-      statusText = `슬롯${i + 1}: ${r?.name || s.activeId} (${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")})`;
     }
   }
 
-  if (anyActive) {
-    resStatus.textContent = statusText;
-    resBar.style.width = `${Math.floor(bestPct * 100)}%`;
-  } else {
-    resStatus.textContent = "없음";
-    resBar.style.width = "0%";
-  }
+  if (panels.res.classList.contains("on")) updateProgressUI("res");
 }
 
 function buyUpgrade(id) {
