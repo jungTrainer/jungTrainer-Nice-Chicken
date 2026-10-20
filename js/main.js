@@ -3621,12 +3621,14 @@ function renderPanel(key) {
         const can = lvl < maxL && moneyCompare(state.money, cost) >= 0;
 
         const div = document.createElement("div");
-        div.className = "card";
+        div.className = "card purchase-option";
         div.innerHTML = `
           <div class="info">
             <h4>${u.name} <span style="color:var(--primary);">Lv.${lvl}/${maxL}</span></h4>
             <p>${u.desc}</p>
             <div class="cost">${lvl >= maxL ? "최대 레벨" : fmtWon(cost)}</div>
+            <progress class="ux-progress" max="1" value="0"></progress>
+            <p class="purchase-status"></p>
           </div>
           <button class="btn" ${can ? "" : "disabled"}>${lvl >= maxL ? "완료" : "구매"}</button>
         `;
@@ -3670,8 +3672,8 @@ function renderPanel(key) {
             <div style="font-size:0.85rem; color:#666;">전체 지점 누적: ${fmtWon(st.earned)}</div>
           </div>
           <div style="display:flex; gap:8px; width:100%;">
-            <button class="btn" id="btn-auto-${s.key}" style="flex:1; background:#fff; color:#333; border:1px solid #ddd;">👟속도 Lv.${st.auto}</button>
-            <button class="btn" id="btn-tip-${s.key}" style="flex:1; background:#fff; color:#333; border:1px solid #ddd;">💖매력 Lv.${st.tip}</button>
+            <div class="purchase-option staff-purchase"><button class="btn" id="btn-auto-${s.key}">👟속도 Lv.${st.auto}</button><progress class="ux-progress" max="1" value="0"></progress><p class="purchase-status"></p></div>
+            <div class="purchase-option staff-purchase"><button class="btn" id="btn-tip-${s.key}">💖매력 Lv.${st.tip}</button><progress class="ux-progress" max="1" value="0"></progress><p class="purchase-status"></p></div>
           </div>
         `;
         upgList.appendChild(card);
@@ -3695,7 +3697,10 @@ function renderPanel(key) {
           button.dataset.cost = cost;
           button.title = moneyExactText(cost) + "원";
           button.appendChild(document.createElement("br"));
-          button.appendChild(document.createTextNode(fmtWon(cost)));
+          const price = document.createElement("span");
+          price.className = "staff-cost";
+          price.textContent = fmtWon(cost);
+          button.appendChild(price);
           button.disabled = st[kind] >= 10 || moneyCompare(state.money, cost) < 0;
         }
       });
@@ -3771,7 +3776,7 @@ function renderPanel(key) {
     const s = document.createElement("div");
     s.className = "note";
     s.style.marginTop = "8px";
-    s.textContent = `현재 연구 슬롯: ${state.research.slots}개 (업그레이드 ‘연구대 확장’으로 2개까지)`;
+    s.textContent = `현재 연구 슬롯: ${state.research.slots}개 · 완료되면 효과가 적용돼요.`;
     targetList.appendChild(s);
   }
 
@@ -3806,7 +3811,58 @@ function renderPanel(key) {
       (!state.cert.validUntil || Date.now() < state.cert.validUntil)
     );
   }
+  updateProgressUI(key);
 } // 👈 여기서 모든 로직이 안전하게 종료됨!
+
+// UX-4: display-only projection; never completes research, buys, settles rewards or saves.
+function updateProgressUI(key) {
+  if (key === "upg") {
+    let available = 0;
+    for (const button of upgList.querySelectorAll('[data-action="buy-upgrade"],[data-action="buy-staff-upgrade"]')) {
+      const staff = button.dataset.action === "buy-staff-upgrade";
+      const upgrade = staff ? null : UPGRADES.find(u => u.id === button.dataset.upgradeId);
+      const level = staff ? state.staffStats[button.dataset.staffKey]?.[button.dataset.kind] || 0 : state.upgrades[upgrade.id] || 0;
+      const maxed = level >= (staff ? 10 : upgrade.maxLevel ?? 99);
+      const cost = staff ? staffUpgradeCost(button.dataset.staffKey, button.dataset.kind, level) : upgradeCost(upgrade.id, level);
+      const can = !maxed && isMoney(cost) && moneyCompare(state.money, cost) >= 0;
+      const ratio = maxed ? 1 : moneyRatio(state.money, cost);
+      const option = button.closest(".purchase-option"), bar = option.querySelector("progress");
+      button.disabled = !can;
+      button.dataset.cost = String(cost);
+      button.title = moneyExactText(cost) + "원";
+      option.classList.toggle("is-affordable", can);
+      bar.hidden = maxed;
+      bar.value = ratio;
+      bar.setAttribute("aria-label", `${staff ? `${STAFF_POOL.find(s => s.key === button.dataset.staffKey)?.label} ${button.dataset.kind === "auto" ? "속도" : "매력"}` : upgrade.name} 구매까지 보유금`);
+      setTextIfChanged(option.querySelector(".purchase-status"), maxed ? "최대 단계" : can ? "살 수 있어요" : `보유금 ${Math.floor(ratio * 100)}%`);
+      setTextIfChanged(staff ? button.querySelector(".staff-cost") : option.querySelector(".cost"), maxed ? "최대 레벨" : fmtWon(cost));
+      if (can) available++;
+    }
+    setTextIfChanged(document.getElementById("upgradeSummary"), `지금 살 수 있는 것 ${available}개`);
+  } else if (key === "res") {
+    const slots = state.research.running.map((slot, index) => ({...slot, index})).filter(slot => slot.activeId);
+    const signature = slots.map(s => [s.index,s.activeId,s.targetLevel,s.startAt,s.endAt].join(":")).join("|");
+    if (resBar.dataset.slots !== signature) {
+      resBar.dataset.slots = signature;
+      resBar.replaceChildren();
+      for (const slot of slots) {
+        const row = document.createElement("div"); row.className = "research-slot";
+        const label = document.createElement("p"), bar = document.createElement("progress");
+        bar.className = "ux-progress"; bar.max = 1;
+        bar.setAttribute("aria-label", `연구 슬롯 ${slot.index + 1} 진행률`);
+        row.append(label, bar); resBar.append(row);
+      }
+    }
+    setTextIfChanged(resStatus, slots.length ? `진행 중 ${slots.length}개` : "연구를 시작해요.");
+    slots.forEach((slot, index) => {
+      const left = Math.max(0, slot.endAt - Date.now()), total = slot.endAt - slot.startAt;
+      const ratio = total > 0 ? clamp(1 - left / total, 0, 1) : left === 0 ? 1 : 0;
+      const name = RESEARCH.find(r => r.id === slot.activeId)?.name || slot.activeId;
+      const row = resBar.children[index]; row.querySelector("progress").value = ratio;
+      setTextIfChanged(row.querySelector("p"), `슬롯 ${slot.index + 1} · ${name} Lv.${slot.targetLevel} · ${Math.floor(ratio * 100)}% · ${left > 0 ? `남은 시간 ${fmtDuration(Math.ceil(left / 1000))}` : "완료 확인 중"}`);
+    });
+  }
+}
 
 function missionValueLabel(m, v) {
   // 돈 관련 미션은 한글 단위로 표시
@@ -3822,28 +3878,30 @@ function missionProgressLine(m) {
 
 function missionRow(m) {
   const wrap = document.createElement("div");
-  wrap.className = "card";
+  wrap.className = "card mission-row";
+  wrap.dataset.done = m.done ? "1" : "0";
   wrap.innerHTML = `
+    <details class="mission-details" ${m.done ? "" : "open"}>
+    <summary><h4>${m.title}</h4></summary>
     <div class="info">
-      <h4>${m.title}</h4>
       <p>${missionProgressLine(m)}</p>
+      <progress class="ux-progress" max="1"></progress>
     </div>
+    </details>
     <button class="btn" disabled>${m.done ? "완료" : "진행중"}</button>
   `;
+  const bar = wrap.querySelector("progress");
+  bar.value = m.done ? 1 : moneyRatio(m.current ?? m.progress ?? 0, m.target || 0);
+  bar.setAttribute("aria-label", `${m.title} 진행률`);
   return wrap;
 }
 
 function weeklyRow(m) {
-  const wrap = document.createElement("div");
-  wrap.className = "card";
-  wrap.innerHTML = `
-    <div class="info">
-      <h4>${m.type === "stamp" ? `출석 도장 ${m.target}` : m.title}</h4>
-      <p>${missionProgressLine(m)}</p>
-      <div class="cost">모두 채우면 인증서를 받아요</div>
-    </div>
-    <button class="btn" disabled>${m.done ? "완료" : "진행중"}</button>
-  `;
+  const wrap = missionRow(m);
+  wrap.querySelector("h4").textContent = m.type === "stamp" ? `출석 도장 ${m.target}` : m.title;
+  const note = document.createElement("div");
+  note.className = "cost"; note.textContent = "모두 채우면 인증서를 받아요";
+  wrap.querySelector(".info").append(note);
   return wrap;
 }
 
@@ -4145,6 +4203,7 @@ function updateUI() {
 
     CouponPolicy.presentation.refresh();
     updateEconomyUI();
+    if (panels.upg.classList.contains("on")) updateProgressUI("upg");
     renderManagementContent();
     Campaign.render();
     RepeatMissions.render();

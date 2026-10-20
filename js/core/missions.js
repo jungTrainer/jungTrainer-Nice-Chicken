@@ -398,18 +398,25 @@ const RepeatMissions = {
     const stampRow = document.getElementById("weeklyStampRow");
     const columns = `repeat(${weeklyTarget}, 1fr)`;
     if (stampRow.style.gridTemplateColumns !== columns) stampRow.style.gridTemplateColumns = columns;
+    setTextIfChanged(document.getElementById("uiDailyStampText"), state.missions.dailyList.filter(goal => goal.done).length);
     for (const [id, goals] of [["dailyList", state.missions.dailyList], ["weeklyList", state.missions.weeklyList]]) {
       const rows = document.getElementById(id).children;
       goals.forEach((goal, index) => {
         const row = rows[index];
         if (!row) return;
         const refs = row._missionRefs || (row._missionRefs = {
-          title: row.querySelector("h4"), progress: row.querySelector(".info p"), button: row.querySelector("button"),
+          title: row.querySelector("h4"), progress: row.querySelector(".info p"), button: row.querySelector("button"), bar: row.querySelector("progress"), details: row.querySelector("details"),
         });
         const menu = goal.menuId && MENUS.find(item => item.id === goal.menuId);
         const progress = missionProgressLine(goal) + (menu ? ` · ${menu.name} 판매 (운영에서 전체/해당 대표 메뉴 선택)` : "");
         for (const [node, text] of [[refs.title, goal.type === "stamp" ? `출석 도장 ${goal.target}` : goal.title], [refs.progress, progress], [refs.button, goal.done ? "완료" : "진행중"]])
           if (node && node.textContent !== text) node.textContent = text;
+        if (refs.bar) refs.bar.value = goal.done ? 1 : moneyRatio(goal.current ?? goal.progress ?? 0, goal.target || 0);
+        const done = goal.done ? "1" : "0";
+        if (row.dataset.done !== done) {
+          row.dataset.done = done;
+          if (refs.details) refs.details.open = !goal.done;
+        }
       });
     }
     const c = state.missions.visitChallenge;

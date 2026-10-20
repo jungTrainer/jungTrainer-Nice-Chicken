@@ -66,7 +66,7 @@ document.addEventListener(
     }
     function controls(surface) {
       const roots = panel(surface) ? [surface, nav] : [surface];
-      return roots
+      const list = roots
         .flatMap((root) => [
           ...root.querySelectorAll(
             'button:not(:disabled),input:not(:disabled),textarea:not(:disabled),a[href],summary,[tabindex="0"]',
@@ -78,6 +78,16 @@ document.addEventListener(
             e.getClientRects().length &&
             getComputedStyle(e).visibility !== "hidden",
         );
+      // Mission DOM keeps stable goal identity; Tab follows the visible pending/done groups.
+      if (surface.id === "panel-mis") {
+        for (const id of ["dailyList", "weeklyList"]) {
+          const positions = list.map((node, index) => node.closest(`#${id}`) ? index : -1).filter(index => index >= 0);
+          const ordered = positions.map(index => list[index]).sort((a, b) =>
+            Number(a.closest(".mission-row")?.dataset.done || 0) - Number(b.closest(".mission-row")?.dataset.done || 0));
+          positions.forEach((position, index) => { list[position] = ordered[index]; });
+        }
+      }
+      return list;
     }
     function owned(target) {
       return (
@@ -256,6 +266,13 @@ document.addEventListener(
           if (!list.length) {
             event.preventDefault();
             top.focus();
+            return;
+          }
+          if (top.id === "panel-mis") {
+            event.preventDefault();
+            const next = index < 0 ? (event.shiftKey ? list.length - 1 : 0)
+              : (index + (event.shiftKey ? -1 : 1) + list.length) % list.length;
+            list[next].focus();
             return;
           }
           if (
