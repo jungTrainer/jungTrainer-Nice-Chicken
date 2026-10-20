@@ -4,14 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>나이스치킨 타이쿤 (방치+서빙)</title>
-  <meta name="app-version" content="imp12-6ed1ac79e46fa8265480" />
+  <meta name="app-version" content="imp12-960753d763e1809dc643" />
   <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#FF9F1C">
   <link rel="apple-touch-icon" href="./icon-192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./css/style.css" integrity="sha256-JT5yCw0N1BI2g9LzPX5KzmxX6h1iBsGFydvEYwocYI0=" crossorigin="anonymous">
+  <link rel="stylesheet" href="./css/style.css" integrity="sha256-dpUXqDIo6CSdmextYwNLbV56DU1mlbgR1JBkniXeq40=" crossorigin="anonymous">
 
 
 </head>
@@ -491,8 +491,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
 <script src="./js/core/ending.js" integrity="sha256-eK16di03+jUqGcYTsBAJkFfaeCFAGHCG6IGtge9tEtA=" crossorigin="anonymous"></script>
 <script src="./js/core/branches.js" integrity="sha256-m2PWDQRv4d2ec4DaAbgeekKh6XWsSpIQe2/IV1Lpa3Y=" crossorigin="anonymous"></script>
 <script src="./js/core/services.js" integrity="sha256-MQJhvf7umieaRc2IBiAIhzCfgq9HG3qJc5Y5uADiNkw=" crossorigin="anonymous"></script>
-<script src="./js/main.js" integrity="sha256-zuFBEw8QsEmxjDRImWUQRz3r3+NwTmeHZejQJxfSeBc=" crossorigin="anonymous"></script>
-<script src="./js/core/ui.js" integrity="sha256-MjMHheLoHW2N8qjK9rN3fjPVdDuTQ3ih0lt9RF9wQ7g=" crossorigin="anonymous"></script>
+<script src="./js/main.js" integrity="sha256-aj3c72ryVSzdzeQnvTlYmGo64T9v9ghHoms7tkzplSg=" crossorigin="anonymous"></script>
+<script src="./js/core/ui.js" integrity="sha256-cCBGdov8lYjAb+3ryRjXbjLSAEirf90qvPi3qEz8+q4=" crossorigin="anonymous"></script>
 <script src="./js/core/pwa.js" integrity="sha256-qKu8kykvV3d2nyo3721MSRssjuM8vjxupb15cn4Lsac=" crossorigin="anonymous"></script>
 <script src="./js/core/boot.js" integrity="sha256-NCsAj6CTCn3NoiFmfvAy6/ebhSrtHea6qZ5N3/0YI5U=" crossorigin="anonymous"></script>
 
@@ -560,20 +560,20 @@ document.addEventListener('DOMContentLoaded', ()=>{
 <div class="dim" id="modalExpansion">
   <div class="modal" style="width:95%; max-width:480px; padding:0; background:transparent; box-shadow:none;">
     <div style="background:#fff; border-radius:20px 20px 0 0; padding:15px; display:flex; justify-content:space-between; align-items:center;">
-      <h3 style="margin:0;">🌍 세계 정복 (지점 관리)</h3>
+      <h3 style="margin:0;">🗺️ 지점 지도</h3>
       <button class="closeBtn" id="closeExpansionModalBtn" type="button">✕</button>
     </div>
 
-    <div style="background:#f0f2f5; height:380px; overflow-x:auto; overflow-y:hidden; display:flex; align-items:center; padding:0 15px; gap:15px; scroll-snap-type: x mandatory;" id="mapWrap" tabindex="0" aria-label="좌우 지점 목록, 카드 안에서 상하로 매출과 해금 조건 확인">
+    <div id="mapWrap" tabindex="0" aria-label="위아래 지점 목록 · 지점을 선택하거나 이동과 오픈 버튼을 눌러요">
     </div>
 
-    <div style="background:#fff; border-radius:0 0 20px 20px; padding:15px; text-align:center;">
+    <div class="map-footer">
       <div class="row" style="margin-bottom:10px;">
         <button class="btn alt" id="mapGo" type="button">선택 지역으로 이동 🚀</button>
         <button class="btn" id="mapUnlock" type="button">다음 지역 오픈 🔓</button>
       </div>
       <p class="note ux-lead" id="mapHint" style="margin:0;">다음 지점의 조건을 확인해요.</p>
-      <details class="ux-details"><summary>자세히 · 지도와 가족 목표</summary><p id="mapPolicyDetails"></p><p>지역 이야기는 설정에서 읽을 수 있어요. 가족이 모은 수익은 받은 뒤 매출에 더해요.</p></details>
+      <details id="mapMore" class="ux-details"><summary>자세히 · 지역 이야기와 가족 목표</summary><p id="mapPolicyDetails"></p><div id="mapRegionDetails"></div><p>지역 이야기는 설정에서 읽을 수 있어요. 가족이 모은 수익은 받은 뒤 매출에 더해요.</p></details>
     </div>
   </div>
 </div>

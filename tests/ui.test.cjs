@@ -365,11 +365,11 @@ test("correct PIN consumes a coupon once and persists before reconnection", asyn
     await p.reload();
     assert.equal(await p.evaluate(() => state.coupons.veg), 4);
   }));
-test("region list scrolls horizontally and keyboard selection keeps focus", async () =>
+test("region list scrolls vertically and keyboard selection keeps focus", async () =>
   game(fixture(), async (p) => {
     await p.locator("#openMap").tap();
-    await p.locator("#mapWrap").evaluate((e) => (e.scrollLeft = e.scrollWidth));
-    assert.ok(await p.locator("#mapWrap").evaluate((e) => e.scrollLeft > 0));
+    await p.locator("#mapWrap").evaluate((e) => (e.scrollTop = e.scrollHeight));
+    assert.ok(await p.locator("#mapWrap").evaluate((e) => e.scrollTop > 0));
     const node = p.locator(".map-node").nth(1);
     await node.focus();
     await p.keyboard.press("Enter");

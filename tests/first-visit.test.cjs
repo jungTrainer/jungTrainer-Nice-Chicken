@@ -51,7 +51,8 @@ test('map overview and locked stories are pure views with accurate legacy unlock
  await unchanged(p,async()=>{
   await p.locator('#openMap').tap();
   assert.equal(await p.locator('.map-node').count(),6);
-  assert.match(await p.locator('[data-region-id="busan"] .map-details').innerText(),/창녕 본점 지점 오픈.*보유금 충족/);
+  await p.locator('#mapMore > summary').tap();
+  assert.match(await p.locator('[data-region-details="busan"]').innerText(),/창녕 본점 지점 오픈.*보유금 충족/);
   assert.match(await p.locator('#mapHint').innerText(),/가족 목표.*100해/);
   assert.equal(await p.locator('#mapUnlock').isDisabled(),false);
   await p.keyboard.press('Escape');await p.locator('#openSettings').tap();
@@ -79,7 +80,7 @@ test('region summary excludes pending income and distinguishes archived sales fr
 
 test('exact one-won map affordability and progress use canonical integer money, not rounded labels',async()=>game(fixture({campaign:campaign('easy'),money:999999,totalSales:40000000}),async p=>{
  await p.locator('#openMap').tap();assert.equal(await p.locator('#mapUnlock').isDisabled(),true);
- assert.match(await p.locator('[data-region-id="busan"] .map-details').innerText(),/1원 부족/);
+ assert.match(await p.locator('[data-region-id="busan"] .map-details').innerText(),/오픈까지 1원/);
  assert.equal(await p.locator('[data-region-id="changnyeong"] progress').evaluate(e=>e.value),1);
  await p.evaluate(()=>{recordIncome(1);renderMapUI();});
  assert.equal(await p.locator('#mapUnlock').isDisabled(),false);
@@ -131,13 +132,15 @@ for(const [name,viewport] of [['360-portrait',{width:360,height:640}],['360-land
  test(`${name} map scroll and locked region keyboard selection show readable conditions`,async()=>game(fixture({campaign:campaign('normal')}),async p=>{
   await p.locator('#openMap').tap();
   const wrap=p.locator('#mapWrap');
-  assert.ok(await wrap.evaluate(e=>e.scrollWidth>e.clientWidth));
+  assert.ok(await wrap.evaluate(e=>e.scrollHeight>e.clientHeight));
+  assert.ok(await wrap.evaluate(e=>e.scrollWidth<=e.clientWidth+1));
   await p.locator('[data-region-id="mars"]').scrollIntoViewIfNeeded();
   await p.locator('[data-region-id="mars"]').focus();await p.keyboard.press('Enter');
   assert.equal(await p.evaluate(()=>state.mapSelected),'mars');
   assert.equal(await p.evaluate(()=>document.activeElement.dataset.regionId),'mars');
   assert.equal(await p.locator('#mapGo').isDisabled(),true);
-  assert.match(await p.locator('[data-region-id="mars"] .map-details').innerText(),/미국 뉴욕 지점 오픈.*지역 이야기 해금/);
+  await p.locator('#mapMore > summary').tap();
+  assert.match(await p.locator('[data-region-details="mars"]').innerText(),/미국 뉴욕 지점 오픈.*지역 이야기 해금/);
   assert.ok(await p.locator('[data-region-id="mars"]').evaluate(e=>e.scrollWidth<=e.clientWidth+1));
   await p.screenshot({path:path.join(__dirname,`../test-results/screenshots/imp17-${name}-map.png`)});
   await p.keyboard.press('Escape');assert.equal(await p.evaluate(()=>document.activeElement.id),'openMap');
