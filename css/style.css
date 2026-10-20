@@ -814,7 +814,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .research-slot>p{font-size:14px;line-height:1.5;overflow-wrap:anywhere;}
 
 /* UX-6: shared presentation states; native disabled and game handlers stay authoritative. */
-:root{--action-bg:#ffb84d;--action-ink:#382300;--secondary-bg:#087c73;--neutral-bg:#535c65;--danger-bg:#b42332;--disabled-bg:#e1e4e8;--disabled-ink:#4c5359;}
+:root{--action-bg:#ffb84d;--action-ink:#382300;--secondary-bg:#087c73;--neutral-bg:#535c65;--danger-bg:#b42332;--disabled-bg:#e1e1e1;--disabled-ink:#4c5359;}
 button,summary,input:not([type="checkbox"]):not([type="radio"]),select,a[role="button"]{min-width:44px;min-height:44px;}
 button{font-size:14px;line-height:1.35;}
 summary{padding-block:6px;overflow-wrap:anywhere;}
@@ -826,7 +826,7 @@ textarea{min-height:88px;}
 :is(#app,.dim,#sessionControls,#endingConditionPopup,#endingOverlay) .upg-btn-small{background:#fff;color:#333;border-color:#687078;}
 :is(#app,.dim,#sessionControls,#endingConditionPopup,#endingOverlay) .upg-btn-small.affordable{background:var(--action-bg);border-color:#9b620d;}
 :is(#app,.dim,#sessionControls,#endingConditionPopup,#endingOverlay) .upg-btn-small .upg-cost{color:inherit;}
-:is(#app,.dim,#sessionControls,#endingConditionPopup,#endingOverlay) button:disabled,:is(#app,.dim,#sessionControls,#endingConditionPopup,#endingOverlay) .btn.disabled{background:var(--disabled-bg)!important;color:var(--disabled-ink)!important;opacity:1!important;filter:none;box-shadow:none;cursor:not-allowed;transform:none;}
+:is(#app,.dim,#sessionControls,#endingConditionPopup,#endingOverlay) button:disabled,:is(#app,.dim,#sessionControls,#endingConditionPopup,#endingOverlay) .btn.disabled{background:var(--disabled-bg)!important;color:var(--disabled-ink)!important;opacity:1!important;filter:none;box-shadow:none!important;cursor:not-allowed;transform:none;}
 :is(#app,.dim,#sessionControls,#endingConditionPopup,#endingOverlay) .management-choice:disabled{border-color:#687078;}
 :is(#app,.dim,#sessionControls,#endingConditionPopup,#endingOverlay) .closeBtn{background:#edf0f3;color:#28343f;border:1px solid #b3bac1;box-shadow:none;flex-shrink:0;}
 .navBtn{color:#595959;}
