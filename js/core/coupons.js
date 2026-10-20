@@ -212,7 +212,7 @@ const CouponPolicy = {
       const open = () => { if (!panels.shr.classList.contains("on")) openPanel("shr"); };
       document.getElementById("couponChip").addEventListener("click", open);
       document.getElementById("couponNoticeOpen").addEventListener("click", () => {
-        document.getElementById("couponNotice").hidden = true; open();
+        document.getElementById("couponNotice").hidden = true; document.getElementById("couponChip").click();
       });
       document.getElementById("couponNoticeClose").addEventListener("click", () => {
         document.getElementById("couponNotice").hidden = true;

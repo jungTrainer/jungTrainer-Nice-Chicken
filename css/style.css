@@ -758,6 +758,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 #missionIntro > h4, #missionIntro > p { margin: 4px 0; }
 
 /* UX-2: one coupon surface, shared between the tab and settings modal. */
+/* Immediate opening keeps focus/scroll from moving the app during a slide transition. */
+#panel-shr { transition:none; }
 .coupon-chip { display:block; width:100%; min-height:44px; margin-top:6px; padding:6px 8px; border:1px solid #b87919; border-radius:14px; background:#fff3d6; color:#573500; font:inherit; font-size:14px; text-align:center; white-space:normal; }
 .coupon-contents { text-align:left; min-width:0; }
 .coupon-section { margin:0 0 16px; padding:12px; border:1px solid #e5dccb; border-radius:14px; background:#fff; overflow-wrap:anywhere; }

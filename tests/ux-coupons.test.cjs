@@ -77,7 +77,8 @@ test('welcome celebration and KST availability notice appear once without issuin
   assert.match(await p.locator('#couponNoticeText').innerText(),/웰컴 음료 1장 받았어요.*내일 방문 때/);
   const ledger=await p.evaluate(()=>structuredClone(state.couponLedger)); assert.equal(ledger.lots.length,1);
   await p.locator('#couponNoticeOpen').tap(); assert.equal(await p.locator('#panel-shr').evaluate(e=>e.classList.contains('on')),true);
-  await p.keyboard.press('Escape'); await p.reload(); await ready(p);
+  await p.keyboard.press('Escape'); assert.equal(await p.evaluate(()=>document.activeElement.id),'couponChip');
+  await p.reload(); await ready(p);
   assert.equal(await p.locator('#couponNotice').isVisible(),false);
   // Advance only the next document: the current page has not yet crossed midnight.
   await p.evaluate(ts=>sessionStorage.setItem('testNow',ts),ledger.lots[0].usableAt);
@@ -106,7 +107,7 @@ test('display preference failure does not fail a committed welcome or repeat in 
   await p.locator('#nameInput').fill('첫방문'); await p.locator('#saveName').tap();
   assert.equal(await p.locator('#couponNotice').isVisible(),true);
   assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem(SAVE_KEY)).couponLedger.lots.length),1);
-  const before=await snapshot(p); await p.locator('#couponNoticeClose').tap();
+  await stable(p); const before=await snapshot(p); await p.locator('#couponNoticeClose').tap();
   for(let i=0;i<5;i++) await p.evaluate(()=>updateUI());
   assert.equal(await p.locator('#couponNotice').isVisible(),false); assert.deepEqual(await snapshot(p),before);
 }));
@@ -148,7 +149,8 @@ test('restoring, reading or receiving another window snapshot does not fabricate
 test('landscape coupon box scrolls to staff/history and returns focus without covering close', async () => game(fixture(), async p => {
   await seed(p); await p.locator('#couponChip').tap(); await p.locator('#couponHistory summary').tap();
   await p.locator('#panel-shr .scroll').evaluate(e=>e.scrollTop=e.scrollHeight);
-  const close=p.locator('#panel-shr .closeBtn'); const b=await close.boundingBox(); assert.ok(b.y>=0 && b.y+b.height<=360);
+  const close=p.locator('#panel-shr .closeBtn'); const b=await close.boundingBox(); assert.ok(b.y>=0 && b.y+b.height<=360,JSON.stringify(b));
+  assert.equal(await p.evaluate(()=>document.getElementById('app').scrollTop),0,'coupon scrolling cannot move the app/header/nav');
   await close.tap(); assert.equal(await p.evaluate(()=>document.activeElement.id),'couponChip');
 }, {viewport:{width:640,height:360}}));
 test('consecutive successful stamp commits announce each committed quantity and remainder', async () => game(fixture(), async p => {
