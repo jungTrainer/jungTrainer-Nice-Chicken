@@ -18,8 +18,8 @@ async function openGuide(p) { await p.locator('#openSettings').tap(); await p.lo
 test('new run guide explains serving, explicit legacy default and targets without schema/payout changes', async()=>game(null, async p=>{
   assert.equal(await p.locator('#modalProfile').evaluate(e=>e.classList.contains('on')), true);
   assert.equal(await p.evaluate(()=>state.campaign.mode),'legacy');
-  const text = await p.locator('#modalProfile').innerText();
-  for (const word of ['주문','설정','기존 운영','이지','노말','100해','지역 이야기 6곳','5,000만원','한 방문에 한 병']) assert.ok(text.includes(word),word);
+  const text = await p.locator('#modalProfile').textContent();
+  for (const word of ['주문','설정','기존 운영','이지','노말','100해','지역 이야기 6곳','게임 난이도','음료 스탬프']) assert.ok(text.includes(word),word);
   await unchanged(p,async()=>{await p.keyboard.press('Tab');await p.keyboard.press('Escape');});
   assert.deepEqual(await p.evaluate(()=>state.coupons),{veg:0,drink:0});
   assert.deepEqual(await p.evaluate(()=>state.campaign.regions),{});

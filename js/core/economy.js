@@ -391,6 +391,6 @@ const BenefitService = {
     if (host.textContent !== text) host.textContent = text;
     const summary = document.getElementById("serviceVisitSummary");
     CouponPolicy.render();
-    if (summary) summary.textContent = v ? `현재 테이블 ${v.table} · 음료 ${v.drinkConfirmedAt ? "제공 기록 완료" : "제공 전"}` : "현재 방문 미기록";
+    if (summary) summary.textContent = v ? `방문 ${v.table} · 음료 ${v.drinkConfirmedAt ? "제공 기록 완료" : "제공 전"}` : "직원과 함께 새 방문을 시작해요.";
   },
 };

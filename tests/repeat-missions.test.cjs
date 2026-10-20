@@ -268,8 +268,8 @@ test('exact next-week boundary switches seven to five without paying for opening
   assert.equal(await p.evaluate(()=>RepeatMissions.weeklyStampTarget()),5);
   assert.equal(await p.locator('#weeklyStampRow > div').count(),5);
   for(const n of await p.locator('[data-weekly-stamp-target]').all())assert.equal(await n.innerText(),'5');
-  assert.match(await p.locator('#panel-mis > .note').innerText(),/주간 스탬프 5\/5/);
-  assert.match(await p.locator('#weeklyList').innerText(),/일간 올클 5/);
+  assert.match(await p.locator('#panel-mis > .note').innerText(),/출석 도장.*목표는 5개/s);
+  assert.match(await p.locator('#weeklyList').innerText(),/출석 도장 5/);
   assert.equal(await p.locator('#weeklyStampRow').evaluate(e=>e.style.gridTemplateColumns),'repeat(5, 1fr)');
   const before=await p.evaluate(()=>({ledger:structuredClone(state.couponLedger),coupons:state.coupons,cert:state.cert}));
   await p.keyboard.press('Escape');await p.reload();await p.locator('.navBtn[data-panel="mis"]').tap();

@@ -124,7 +124,7 @@ const SaveRecovery = (() => {
       (!isMoney(data.offlineReward.amount) ||
         moneyCompare(data.offlineReward.amount, 0) < 0)
     )
-      return "확정 미수령 금액이 올바르지 않습니다.";
+      return "받을 수익의 금액을 확인해 주세요.";
     if (data.research) {
       if (
         data.research.running !== undefined &&
@@ -529,7 +529,7 @@ const SaveRecovery = (() => {
       if (!load({ data: state.couponLedger ? CouponPolicy.protectImported(selected.data) : structuredClone(selected.data) }))
         throw Error("선택 후보를 정규화하지 못했습니다.");
       state.lastSeenAt = Date.now();
-      if (!save(true)) throw Error("본 저장 commit 실패");
+      if (!save(true)) throw Error("게임 저장에 실패했어요");
       cancelEndingRuntime();
       initAfterLoad(false);
       failure =
@@ -547,7 +547,7 @@ const SaveRecovery = (() => {
       authorised = null;
       observe(inspect());
       blocked = true;
-      note("복구 실패. 원본과 미수령을 유지합니다. " + e.message);
+      note("복구 실패. 원본과 받을 수익을 유지해요. " + e.message);
       return false;
     }
   }
@@ -595,7 +595,7 @@ const SaveRecovery = (() => {
             (d.regionId || "구 저장") +
             " · " +
             fmtWon(d.money) +
-            " · 미수령 " +
+            " · 받을 수익 " +
             fmtWon(d.offlineReward?.amount || 0) +
             " · " +
             (Number.isFinite(d.lastSeenAt)

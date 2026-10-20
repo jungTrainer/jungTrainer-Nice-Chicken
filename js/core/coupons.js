@@ -206,12 +206,15 @@ const CouponPolicy = {
     const l=state.couponLedger, host=document.getElementById("couponPolicyStatus");
     if(host) {
       const count=l.issuedMonths[this.month()]||0, due=l.stamps>=COUPON_POLICY.cardSize&&!this.monthlyAvailable();
-      const text=`음료 스탬프 ${l.stamps}/${COUPON_POLICY.cardSize} (최대 ${COUPON_POLICY.stampCapacity}개 이월)\n적립: 일간 +${COUPON_POLICY.dailyStamps}, 주간 +${COUPON_POLICY.weeklyStamps}, 주 1회 구매 +${COUPON_POLICY.exchangeStamps}, 하루 1회 직원 PIN 방문 +${COUPON_POLICY.visitStamps}\n한국 시간 ${this.month()} 음료 발급 ${count}/${COUPON_POLICY.monthlyDrinkLimit}장${COUPON_POLICY.welcomeCountsTowardMonthlyLimit?" (웰컴 포함)":" (스탬프 발급 기준 · 웰컴 별도)"}\n${due?`다음 지급 예정: ${this.dateText(this.nextMonth())} 이후 첫 실행/운영 시`:`${COUPON_POLICY.cardSize}개를 채우면 월 한도 내 음료 1장`}\n기존 음료 ${state.coupons.drink}장 · 무/양배추 ${state.coupons.veg}장: 무기한\n오늘 음료: ${this.usedToday()>=COUPON_POLICY.dailyDrinkUseLimit?"오늘 사용함":"미사용"} · 같은 기기 하루 ${COUPON_POLICY.dailyDrinkUseLimit}장, 테이블 방문당 한 병\n일간 새 보상 적용 ${this.dateText(l.dailyFrom)} · 주간/새 교환 적용 ${this.dateText(l.weeklyFrom)}`;
+      const text=`음료 스탬프 ${l.stamps}/${COUPON_POLICY.cardSize}\n이번 달 ${count}/${COUPON_POLICY.monthlyDrinkLimit}장${COUPON_POLICY.welcomeCountsTowardMonthlyLimit?" · 웰컴 포함":" · 웰컴 별도"}`;
+      const details=document.getElementById("couponPolicyDetails");
+      const detailText=`음료 스탬프 적립: 일간 +${COUPON_POLICY.dailyStamps}, 주간 +${COUPON_POLICY.weeklyStamps}, 주 1회 구매 +${COUPON_POLICY.exchangeStamps}, 매장 방문 +${COUPON_POLICY.visitStamps}\n${due?`다음 지급 예정: ${this.dateText(this.nextMonth())} 이후 앱을 열 때`:`${COUPON_POLICY.cardSize}개를 채우면 이번 달 음료 쿠폰을 받을 수 있어요.`}\n남은 음료 스탬프는 최대 ${COUPON_POLICY.stampCapacity}개까지 이어가요.\n기존 음료 ${state.coupons.drink}장 · 무/양배추 ${state.coupons.veg}장: 무기한\n일간 적립 시작 ${this.dateText(l.dailyFrom)} · 주간 적립·새 교환 시작 ${this.dateText(l.weeklyFrom)}`;
+      if(details&&details.textContent!==detailText)details.textContent=detailText;
       if(host.textContent!==text)host.textContent=text;
     }
     const list=document.getElementById("datedCouponList");
     if(list) {
-      const text=l.lots.map(c=>`${c.type==="drink"?"음료":"무/양배추"} · ${c.source} · ${c.usedAt?"사용 완료":Date.now()>=c.expiresAt?"만료":Date.now()<c.usableAt?"🔒 내일부터 사용 가능":"사용 가능"}\n발급 ${this.dateText(c.issuedAt)} · 사용 가능 ${this.dateText(c.usableAt)} · 만료 ${this.dateText(c.expiresAt)}${c.usedAt?` · 사용 ${this.dateText(c.usedAt)}`:""}`).join("\n\n")||"아직 새 날짜형 쿠폰이 없습니다. 기존 쿠폰은 위 무기한 수량을 사용하세요.";
+      const text=l.lots.map(c=>`${c.type==="drink"?"음료":"무/양배추"} · ${({welcome:"웰컴",stamp_card:"음료 스탬프",weekly:"주간 미션"})[c.source]||"쿠폰"} · ${c.usedAt?"사용 완료":Date.now()>=c.expiresAt?"만료":Date.now()<c.usableAt?"🔒 내일부터 사용 가능":"사용 가능"}\n발급 ${this.dateText(c.issuedAt)} · 사용 가능 ${this.dateText(c.usableAt)} · 만료 ${this.dateText(c.expiresAt)}${c.usedAt?` · 사용 ${this.dateText(c.usedAt)}`:""}`).join("\n\n")||"미션을 채우고 쿠폰을 모아보세요. 기존 쿠폰도 사용할 수 있어요.";
       if(list.textContent!==text)list.textContent=text;
     }
     for(const [id,type] of [["useDrinkCoupon","drink"],["useVegCoupon","veg"]]) {
@@ -222,8 +225,14 @@ const CouponPolicy = {
         if(losingFocus && host && document.getElementById("modalCoupons").classList.contains("on") && !document.getElementById("modalPin").classList.contains("on")) host.focus();
       }
     }
-    for(const [id,text] of [["dailyRewardInfo",state.missions.dailyRewardPolicy===2?`일간 올클: 음료 스탬프 +${COUPON_POLICY.dailyStamps} (기기 전체 하루 ${COUPON_POLICY.dailyAwardLimit}회)` : "현재 일간 기간 보존: 무/양배추 1장"],
-      ["weeklyRewardInfo",state.missions.weeklyRewardPolicy===2?`주간 올클: 스탬프 +${COUPON_POLICY.weeklyStamps}, 무/양배추 ${COUPON_POLICY.weeklyVegCoupons}장 (${COUPON_POLICY.vegValidDays}일), 기기 전체 주 ${COUPON_POLICY.weeklyAwardLimit}회 · 인증서와 중복 지급 없음` : "현재 주간 기간 보존: 인증서 발급 시 기존 음료 1장"]]) {
+    const certificateInfo=document.getElementById("certificateRewardInfo");
+    if(certificateInfo) {
+      const modern=(state.cert.issuedThisWeek?state.cert.rewardPolicy:state.missions.weeklyRewardPolicy)===2;
+      const rewardText=modern?`이번 주 보상: 음료 스탬프 +${COUPON_POLICY.weeklyStamps} · 무/양배추 쿠폰 ${COUPON_POLICY.weeklyVegCoupons}장(${COUPON_POLICY.vegValidDays}일)` : "이번 주에는 인증서를 발급하면 음료 쿠폰 1장을 받아요.";
+      if(certificateInfo.textContent!==rewardText)certificateInfo.textContent=rewardText;
+    }
+    for(const [id,text] of [["dailyRewardInfo",state.missions.dailyRewardPolicy===2?`일간 완료: 음료 스탬프 +${COUPON_POLICY.dailyStamps}` : "일간 완료: 무/양배추 쿠폰 1장"],
+      ["weeklyRewardInfo",state.missions.weeklyRewardPolicy===2?`주간 완료: 음료 스탬프 +${COUPON_POLICY.weeklyStamps} · 무/양배추 쿠폰 ${COUPON_POLICY.weeklyVegCoupons}장` : "인증서 발급: 음료 쿠폰 1장"]]) {
       const node=document.getElementById(id);if(node&&node.textContent!==text)node.textContent=text;
     }
   },

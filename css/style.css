@@ -744,3 +744,15 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .map-node progress{display:block;width:100%;height:12px;margin-top:8px;}
 .map-node progress[hidden]{display:none;}
 #modalGameGuide .ui-modal-head,#modalProfile .ui-modal-head{box-shadow:0 -20px 0 #fff;}
+
+/* UX-1: customer copy hierarchy; existing controls and game layout keep their order. */
+.ux-intro p { margin: 5px 0; }
+.ux-welcome { padding: 10px 12px; background: #fff4df; border-radius: 12px; color: #754500; }
+.ux-details { margin: 8px 0; text-align: left; overflow-wrap: anywhere; }
+.ux-details > summary { min-height: 44px; display: list-item; align-content: center; cursor: pointer; color: #614320; font-size: 14px; }
+.ux-details > summary:focus-visible { outline: 3px solid #915500; outline-offset: 2px; border-radius: 6px; }
+.ux-details p { font-size: 14px; line-height: 1.5; }
+#couponPolicyStatus { font-size: 14px; line-height: 1.5; }
+#panel-shr .btn:disabled { background: #e1e1e1; color: #555; box-shadow: none; cursor: default; }
+
+#missionIntro > h4, #missionIntro > p { margin: 4px 0; }

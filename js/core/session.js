@@ -115,7 +115,7 @@ const SessionOwner = (() => {
         (s) => s.id !== "modalSettings",
       )
     )
-      return "미수령·입력·패널 창을 닫은 뒤 넘겨주세요. 닫아도 보상은 유지됩니다.";
+      return "수익·입력·패널 창을 닫은 뒤 넘겨주세요. 닫아도 보상은 유지됩니다.";
     if (el("saveTransferText")?.value.trim())
       return "백업 입력을 보관한 뒤 입력란을 비워주세요.";
     return "";

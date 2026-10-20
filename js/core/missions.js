@@ -330,7 +330,7 @@ function renderWeeklyCertificate() {
   x.fillStyle = "#333";
   x.textAlign = "center";
   x.font = "34px sans-serif";
-  x.fillText("※ 로컬 PIN 확인/기기 기록입니다. 서버·매장 인증이 아닙니다.", 540, 1710);
+  x.fillText("쿠폰은 매장에서 직원에게 보여주세요.", 540, 1710);
 
   const dataUrl = c.toDataURL("image/png");
   sharePreview.src = dataUrl;
@@ -408,7 +408,7 @@ const RepeatMissions = {
         });
         const menu = goal.menuId && MENUS.find(item => item.id === goal.menuId);
         const progress = missionProgressLine(goal) + (menu ? ` · ${menu.name} 판매 (운영에서 전체/해당 대표 메뉴 선택)` : "");
-        for (const [node, text] of [[refs.title, goal.title], [refs.progress, progress], [refs.button, goal.done ? "완료" : "진행중"]])
+        for (const [node, text] of [[refs.title, goal.type === "stamp" ? `출석 도장 ${goal.target}` : goal.title], [refs.progress, progress], [refs.button, goal.done ? "완료" : "진행중"]])
           if (node && node.textContent !== text) node.textContent = text;
       });
     }
@@ -422,7 +422,10 @@ const RepeatMissions = {
       ["가족 6명 고용", (upgrades.hire || 0) >= 6],
       ["가족 엔딩", state.endingSeen],
     ];
-    const text = `짧은 방문 도전: ${c ? `${c.serves}/5회 정확 서빙(직접/자동) · ${c.completedAt ? "완료" : "진행 중"}` : "시작 버튼을 눌러 주세요"}\n게임 기념 표시만 제공합니다. 쿠폰 자동 발급/서비스 사용이 아닙니다.\n성장 업적(새 보상 없음): ${achievements.map(([label,done]) => `${done ? "✓" : "○"} ${label}`).join(" · ")}\n일간 v${state.missions.dailyPolicy || 1} / 주간 v${state.missions.weeklyPolicy || 1}. 기존 목표는 현재 기간까지 보존하며 다음 기간부터 반복 v2입니다.`;
+    const text = `짧은 방문 도전: ${c ? `${c.serves}/5회 정확 서빙 · ${c.completedAt ? "완료" : "진행 중"}` : "서빙 5회에 도전해요"}`;
+    const growth = document.getElementById("growthAchievements");
+    const growthText = achievements.map(([label,done]) => `${done ? "✓" : "○"} ${label}`).join(" · ");
+    if (growth && growth.textContent !== growthText) growth.textContent = growthText;
     if (host.textContent !== text) host.textContent = text;
   },
 };

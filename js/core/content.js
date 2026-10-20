@@ -440,11 +440,11 @@ function renderManagementContent() {
   const intro = card(getRegion().name + " · 운영과 이야기");
   text(
     intro,
-    "선택은 이 지점에 저장됩니다. 선택·이야기 확인에는 비용이나 쿠폰 보상이 없습니다.",
+    "우리 지점의 운영 방향을 고르고 이야기를 모아봐요.",
   );
   text(
     intro,
-    "진행 중 손님의 주문과 확정 미수령은 유지합니다. 자동 담당자를 바꿔도 여섯 직원은 기존 순서대로 서빙합니다.",
+    "주문과 받을 수익을 이어가며 운영해요. 여섯 직원이 순서대로 서빙을 도와줘요.",
   );
   const direction = card("지점 운영 방향");
   for (const focus of MANAGEMENT_FOCUS) {
@@ -602,13 +602,13 @@ const Campaign = {
     const shortage = moneyMax(0, moneySub(cost, state.money));
     return {
       goal, ratio: goal ? moneyRatio(sales, goal) : 0,
-      progress: `기록 매출 ${fmtWon(sales)}${goal ? ` / 목표 ${fmtWon(goal)}` : " (기존 운영: 지역 목표 없음)"}`,
+      progress: `기록 매출 ${fmtWon(sales)}${goal ? ` / 목표 ${fmtWon(goal)}` : " · 자유롭게 운영해요"}`,
       ending: record?.unlockedAt
         ? `지역 엔딩: ${record.badgeAwarded ? "기념 완료 · 다시보기 가능" : "해금 · 설정에서 이야기 보기"}`
         : goal
           ? `지역 엔딩: ${opened ? "이 지점의" : "지점 오픈 후 이 지점의"} 기록 매출 ${fmtWon(goal)} 달성`
-          : "지역 엔딩: 설정에서 이지/노말을 명시적으로 선택하면 시작",
-      unlock: opened ? "지점 오픈 완료 · 해금 비용 재지급 없음"
+          : "지역 엔딩: 설정에서 이지/노말을 선택하면 시작해요",
+      unlock: opened ? "지점 오픈 완료 · 영업할 수 있어요"
         : `해금 비용 ${fmtWon(cost)} · ${requirements} · ${this.canUnlockRegion(id) ? "이전 지역 조건 충족" : "이전 지역 조건 미충족"} · ${moneyCompare(shortage, 0) > 0 ? `보유금 ${fmtWon(shortage)} 부족` : "보유금 충족"}`,
     };
   },
@@ -647,9 +647,9 @@ const Campaign = {
     if (PwaRuntime.applying || SaveRecovery.busy || endingPhase !== "idle" ||
         endingEls().popup.style.display === "flex" || pinResolver ||
         document.querySelector(".dim.on:not(#modalSettings),.panel.on")) {
-      showToast("입력/이야기/미수령 창을 닫은 뒤 모드를 선택해 주세요. 닫기는 수령이 아닙니다."); return false;
+      showToast("열려 있는 입력·이야기·수익 창을 닫으면 난이도를 고를 수 있어요. 받을 수익은 그대로 남아요."); return false;
     }
-    if (!confirm(`${CAMPAIGN_MODES[mode].label}로 이어갈까요?\n진행/지점/미수령/쿠폰/지급 이력은 유지합니다. 미래 지점 비용과 이야기/가족 엔딩 목표만 바뀝니다.\n실물 발급 한도는 바꾸지 않으며 기존 5,000만원 교환은 유지됩니다.`)) return false;
+    if (!confirm(`${CAMPAIGN_MODES[mode].label}로 이어갈까요?\n진행과 지점·받을 수익·쿠폰은 이어가요. 앞으로의 지점 비용과 이야기·가족 목표가 달라져요.\n쿠폰은 지금과 같은 조건으로 모으고 사용할 수 있어요.`)) return false;
     const previous = structuredClone(state.campaign), dirty = _saveDirty, lastSeenAt = state.lastSeenAt;
     state.campaign = { ...state.campaign, mode, selectedAt: Date.now() };
     this.updateUnlocks();
@@ -660,7 +660,7 @@ const Campaign = {
       showToast("저장 실패. 기존 모드와 진행을 유지합니다."); return false;
     }
     updateUI(); renderMapUI(); this.render();
-    showToast(`${this.rules().label}로 이어갑니다. 새 돈/실물 쿠폰을 지급하지 않습니다.`);
+    showToast(`${this.rules().label}로 이어가요. 진행과 쿠폰은 그대로예요.`);
     document.getElementById("campaignStatus")?.focus();
     return true;
   },
@@ -673,8 +673,8 @@ const Campaign = {
     document.getElementById("regionEndingTitle").textContent = `${region.name} · 지역 엔딩`;
     document.getElementById("regionEndingText").textContent = `${story.arrival}\n\n${story.growth}\n\n${REGION_ENDINGS[id]}`;
     document.getElementById("regionEndingReward").textContent = state.campaign.regions[id].badgeAwarded
-      ? "기념 칭호 기록 완료. 재생으로 추가 효과/실물 쿠폰을 지급하지 않습니다."
-      : "끝까지 읽고 완료를 기록하면 지역 기념 칭호를 한 번 보관합니다. 돈/실물 쿠폰 보상은 없습니다.";
+      ? "게임 기념 칭호를 간직했어요. 이야기를 다시 읽을 수 있어요."
+      : "끝까지 읽고 완료하면 게임 기념 칭호를 간직할 수 있어요.";
     document.getElementById("completeRegionEnding").textContent = state.campaign.regions[id].seenAt ? "다시보기 닫기" : "읽음 · 기념 완료 저장";
     document.getElementById("modalRegionEnding").classList.add("on");
     return true;
@@ -704,7 +704,9 @@ const Campaign = {
     const status = document.getElementById("campaignStatus");
     if (!status) return;
     const rules = this.rules(), count = REGIONS.filter(r => state.campaign.regions[r.id]?.badgeAwarded).length;
-    const text = `${rules.label} · 지역 기념 ${count}/6 · ${this.familySummary()}\n기존 기록/미수령/paid는 보존됩니다. 모드는 게임 성장용이며 실물 서비스 한도를 바꾸지 않습니다.`;
+    const text = `${rules.label} · 지역 기념 ${count}/6`;
+    const goalDetails = document.getElementById("campaignGoalDetails");
+    if (goalDetails) { const goalText = this.familySummary(); if (goalDetails.textContent !== goalText) goalDetails.textContent = goalText; }
     if (status.textContent !== text) status.textContent = text;
     for (const mode of Object.keys(CAMPAIGN_MODES)) {
       const button = document.getElementById("chooseMode-" + mode), disabled = mode === state.campaign.mode;
