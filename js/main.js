@@ -476,9 +476,23 @@ function initDOMRefs() {
       if (!node || !mapWrapEl.contains(node)) return;
       const id = node.dataset.regionId;
       if (!id) return;
+      const command = e.target.closest("[data-map-command]");
+      if (command?.disabled) return;
       state.mapSelected = id;
       markStateChanged("map-selection");
       renderMapUI();
+      if (command) {
+        e.preventDefault();
+        e.stopPropagation();
+        // Reuse the existing toolbar handlers; selecting a card alone never buys or moves.
+        if (command.dataset.mapCommand === "move") document.getElementById("mapGo").click();
+        else if (id === getNextRegion().id) document.getElementById("mapUnlock").click();
+        if (modalExpansionEl.classList.contains("on")) {
+          const selected = mapWrapEl.querySelector(`.map-node[data-region-id="${id}"]`);
+          const action = selected?.querySelector("button:not(:disabled)");
+          (action || selected)?.focus({ preventScroll: true });
+        }
+      }
     });
   }
 
@@ -4043,58 +4057,84 @@ function renderMapUI() {
   const btnUn = document.getElementById("mapUnlock");
   if (!wrap) return;
 
-  wrap.innerHTML = "";
   const curId = state.regionId;
   const selId = state.mapSelected || curId;
-
-  REGIONS.forEach((r, idx) => {
+  const next = getNextRegion();
+  const nextLockedId = REGIONS.find(region => !state.regionUnlocked[region.id])?.id;
+  const fullDetails = document.getElementById("mapRegionDetails");
+  if (!wrap._mapRows) {
+    wrap._mapRows = REGIONS.map((region, index) => {
+      const node = document.createElement("div");
+      node.className = "map-node"; node.dataset.action = "select-region";
+      node.dataset.regionId = region.id; node.tabIndex = 0; node.setAttribute("role", "group");
+      const heading = document.createElement("div"); heading.className = "map-heading";
+      const title = document.createElement("h4"); title.className = "map-title";
+      title.textContent = `${region.icon} ${index + 1}. ${region.name}`;
+      const status = document.createElement("span"); status.className = "map-sub";
+      heading.append(title, status);
+      const target = document.createElement("p"); target.className = "map-details";
+      const bar = document.createElement("progress"); bar.max = 1; bar.className = "ux-progress";
+      bar.setAttribute("aria-label", `${region.name} 오픈 비용 준비율`);
+      const percent = document.createElement("span"); percent.className = "map-progress-label";
+      const action = document.createElement("button"); action.className = "btn map-action"; action.type = "button";
+      const actionRow = document.createElement("div"); actionRow.className = "map-action-row";
+      actionRow.append(percent, action); node.append(heading, target, bar, actionRow); wrap.append(node);
+      const detail = document.createElement("section"); detail.dataset.regionDetails = region.id;
+      const name = document.createElement("h4"); name.textContent = region.name;
+      const text = document.createElement("p"); detail.append(name, text); fullDetails.append(detail);
+      return {node, status, target, bar, percent, action, text};
+    });
+  }
+  REGIONS.forEach((r, index) => {
+    const row = wrap._mapRows[index], {node, status, target, bar, percent, action} = row;
     const unlocked = !!state.regionUnlocked[r.id];
-    const node = document.createElement("div");
-    node.className =
-      "map-node" +
-      (unlocked ? "" : " locked") +
-      (r.id === selId ? " active" : "");
-    node.dataset.action = "select-region";
-    node.dataset.regionId = r.id;
-    node.tabIndex = 0;
-    node.setAttribute("role", "button");
-    node.setAttribute("aria-pressed", String(r.id === selId));
-
-    const left = document.createElement("div");
-    left.className = "map-left";
-    left.innerHTML = `
-      <div class="map-badge">${r.icon}</div>
-      <div>
-        <div class="map-title">${idx + 1}. ${r.name}</div>
-        <div class="map-sub">${unlocked ? (r.id === curId ? "현재 영업중" : "이동 가능") : "잠금"}</div>
-      </div>
-    `;
-
-    const right = document.createElement("div");
-    right.className = "map-cost";
-    if (unlocked) {
-      right.textContent = `x${r.priceMul.toFixed(1)}`;
+    const current = r.id === curId, previous = REGIONS[index - 1];
+    const cost = getRegionUnlockCost(r.id), summary = Campaign.regionSummary(r.id);
+    const shortage = moneyMax(0, moneySub(cost, state.money));
+    const canUnlock = Campaign.canUnlockRegion(r.id);
+    node.classList.toggle("locked", !unlocked);
+    node.classList.toggle("active", r.id === selId);
+    node.classList.toggle("current", current);
+    if (current) node.setAttribute("aria-current", "location"); else node.removeAttribute("aria-current");
+    const stateText = unlocked ? current ? "영업 중" : "이동 가능" : "잠김";
+    node.setAttribute("aria-label", `${r.name} · ${stateText} · ${r.id === selId ? "선택됨" : "지점 선택"}`);
+    setTextIfChanged(status, stateText);
+    let goalText;
+    if (!unlocked) {
+      goalText = !state.regionUnlocked[previous?.id] ? `먼저 ${previous?.name}을 오픈해요`
+        : !canUnlock ? `먼저 ${previous.name} 지역 이야기를 열어요`
+        : r.id !== next.id ? "이전 지점으로 이동해 오픈해요"
+        : moneyCompare(shortage, 0) > 0 ? `${r.name} 오픈까지 ${fmtWon(shortage)}` : "오픈 비용을 모두 모았어요";
+    } else if (state.campaign.regions[r.id]?.unlockedAt) {
+      goalText = "지역 이야기가 열렸어요 · 설정에서 볼 수 있어요";
+    } else if (summary.goal) {
+      const left = moneyMax(0, moneySub(summary.goal, Campaign.sales(r.id)));
+      goalText = moneyCompare(left, 0) > 0 ? `지역 이야기까지 매출 ${fmtWon(left)}` : "이야기 목표 달성 · 해금 확인 중";
     } else {
-      right.textContent = `해금 ${fmtCompact(getRegionUnlockCost(r.id))}`;
+      const destination = current && next.id !== curId ? next : null;
+      goalText = destination && !state.regionUnlocked[destination.id]
+        ? `${destination.name} 오픈까지 ${fmtWon(moneyMax(0, moneySub(getRegionUnlockCost(destination.id), state.money)))}`
+        : "매출을 모으며 자유롭게 운영해요";
     }
-
-    node.appendChild(left);
-    const summary = Campaign.regionSummary(r.id);
-    const details = document.createElement("div");
-    details.className = "map-details";
-    details.title = `기록 매출 ${moneyExactText(Campaign.sales(r.id))}원${summary.goal ? ` / 목표 ${moneyExactText(summary.goal)}원` : ""} · 해금 비용 ${moneyExactText(getRegionUnlockCost(r.id))}원`;
-    details.textContent = `${summary.progress}\n${summary.ending}\n${summary.unlock}`;
-    const progress = document.createElement("progress");
-    progress.max = 1; progress.value = summary.ratio;
-    progress.setAttribute("aria-label", `${r.name} 지역 매출 목표`);
-    progress.hidden = !summary.goal;
-    node.appendChild(right);
-    node.append(details, progress);
-    wrap.appendChild(node);
+    setTextIfChanged(target, goalText);
+    target.title = `기록 매출 ${moneyExactText(Campaign.sales(r.id))}원${summary.goal ? ` / 이야기 목표 ${moneyExactText(summary.goal)}원` : ""}`;
+    const funding = r.id === nextLockedId, salesGoal = unlocked && !!summary.goal;
+    bar.hidden = !funding && !salesGoal; percent.hidden = bar.hidden;
+    if (!bar.hidden) {
+      bar.dataset.progressKind = funding ? "cost" : "sales";
+      bar.value = funding ? moneyRatio(state.money, cost) : summary.ratio;
+      bar.setAttribute("aria-label", `${r.name} ${funding ? "오픈 비용 준비율" : "지역 매출 목표"}`);
+      setTextIfChanged(percent, `${funding ? "오픈 비용" : "이야기 매출"} ${Math.floor(bar.value * 100)}%`);
+    }
+    action.dataset.mapCommand = unlocked ? "move" : "unlock";
+    action.disabled = unlocked ? current : r.id !== next.id || !canUnlock || moneyCompare(state.money, cost) < 0;
+    action.dataset.cost = String(cost); action.title = unlocked ? `${r.name}으로 이동` : `${r.name} 오픈 · ${moneyExactText(cost)}원`;
+    setTextIfChanged(action, unlocked ? current ? "영업 중" : "이동" : `오픈 · ${fmtWon(cost)}`);
+    action.setAttribute("aria-label", unlocked ? `${r.name} ${current ? "영업 중" : "이동"}` : `${r.name} 오픈 · ${moneyExactText(cost)}원`);
+    setTextIfChanged(row.text, `${summary.progress}\n${summary.ending}\n${summary.unlock}`);
   });
 
   // Buttons state
-  const next = getNextRegion();
   const nextLocked = !state.regionUnlocked[next.id];
 
   if (btnGo) {
@@ -4112,11 +4152,8 @@ function renderMapUI() {
   const mapDetails = document.getElementById("mapPolicyDetails");
   if (mapDetails) mapDetails.textContent = Campaign.familySummary();
   if (hint) {
-    if (curId === REGIONS[REGIONS.length - 1].id) {
-      hint.textContent = "최종 지역에 도달했습니다. 🚀\n" + Campaign.familySummary();
-    } else {
-      hint.textContent = `다음 지점: ${next.name} · 카드에서 오픈 조건을 확인해요.\n가족 목표: ${fmtWon(Campaign.rules().ending)}`;
-    }
+    const count = REGIONS.filter(r => state.campaign.regions[r.id]?.unlockedAt).length;
+    setTextIfChanged(hint, `지역 이야기 ${count}/6 · 가족 목표 ${fmtWon(Campaign.rules().ending)}`);
   }
 }
 
@@ -4206,6 +4243,7 @@ function updateUI() {
     if (panels.upg.classList.contains("on")) updateProgressUI("upg");
     renderManagementContent();
     Campaign.render();
+    if (document.getElementById("modalExpansion").classList.contains("on")) renderMapUI();
     RepeatMissions.render();
     if (modalCoupons?.classList.contains("on") || panels.shr.classList.contains("on")) BenefitService.render();
 

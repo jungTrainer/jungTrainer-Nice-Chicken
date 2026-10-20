@@ -226,7 +226,7 @@ document.addEventListener(
     });
     document.getElementById("mapWrap").addEventListener("keydown", (event) => {
       const node = event.target.closest(".map-node");
-      if (node && (event.key === "Enter" || event.key === " ")) {
+      if (node && event.target === node && (event.key === "Enter" || event.key === " ")) {
         event.preventDefault();
         const id = node.dataset.regionId;
         node.click();
