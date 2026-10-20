@@ -283,6 +283,7 @@ document.addEventListener(
     resize.observe(nav);
     viewport();
     sync();
+    CouponPolicy.presentation.install();
   },
   { once: true },
 );

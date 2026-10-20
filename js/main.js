@@ -275,6 +275,7 @@ function initDOMRefs() {
     openCouponsBtn.addEventListener("click", () => {
       unlockAudioOnce();
       startBGM();
+      CouponPolicy.presentation.mount(true);
       if (modalCoupons) modalCoupons.classList.add("on");
       renderCoupons();
     });
@@ -316,6 +317,7 @@ function initDOMRefs() {
   document.getElementById("startServiceVisit")?.addEventListener("click", () => BenefitService.startVisit());
   document.getElementById("showStaffCoupon")?.addEventListener("click", () => {
     document.getElementById("staffCouponView").hidden = false;
+    document.getElementById("couponHistory").open = true;
     BenefitService.render();
     document.getElementById("staffCouponView").focus();
   });
@@ -606,7 +608,8 @@ function openPanel(key) {
   const isOn = panel.classList.contains("on");
   closePanels();
   if (!isOn) {
-    sanitizeState();
+    if (key !== "shr") sanitizeState();
+    if (key === "shr") CouponPolicy.presentation.mount();
     panel.classList.add("on");
     const btn = navBtns.find((b) => b.dataset.panel === key);
     if (btn) btn.classList.add("active");
@@ -3582,7 +3585,7 @@ function onCanvasDown(e) {
 // ==========================================
 let upgradeButtons = [];
 function renderPanel(key) {
-  sanitizeState();
+  if (key !== "shr") sanitizeState();
   const upgList = document.getElementById("upgList");
   const resList = document.getElementById("resList"); // 연구 리스트용 별도 ID 대응
   if (!upgList) return;
@@ -3785,6 +3788,7 @@ function renderPanel(key) {
 
   // --- [4] 인증서 패널 (shr) ---
   else if (key === "shr") {
+    renderCoupons();
     const st = certStatusText();
     certStatus.textContent = st.msg;
     makeCardBtn.disabled = !st.okIssue && !state.cert.issuedThisWeek;
@@ -4132,11 +4136,12 @@ function updateUI() {
         );
     }
 
+    CouponPolicy.presentation.refresh();
     updateEconomyUI();
     renderManagementContent();
     Campaign.render();
     RepeatMissions.render();
-    if (modalCoupons?.classList.contains("on")) BenefitService.render();
+    if (modalCoupons?.classList.contains("on") || panels.shr.classList.contains("on")) BenefitService.render();
 
     // coupons modal quick sync
     setText(uiDrinkCoupons2, CouponPolicy.available("drink"));
@@ -4182,7 +4187,7 @@ function updateStatsUI() {
     renderManagementContent();
     Campaign.render();
     RepeatMissions.render();
-    if (modalCoupons?.classList.contains("on")) BenefitService.render();
+    if (modalCoupons?.classList.contains("on") || panels.shr.classList.contains("on")) BenefitService.render();
 
     // R&D 탭은 기존 로직 유지(있으면)
     try {
