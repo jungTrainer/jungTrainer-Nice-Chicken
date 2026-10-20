@@ -2,6 +2,33 @@
 document.addEventListener(
   "DOMContentLoaded",
   () => {
+    // Origin-local display preference, intentionally outside game save/export/import/reset.
+    const servingGuideKey = "niceChicken_servingGuide_v1";
+    const servingHint = document.getElementById("hint");
+    function showServingHint(show) {
+      if (servingHint.hidden === !show) return;
+      servingHint.hidden = !show;
+      resizeCanvas();
+    }
+    let served = false;
+    try { served = localStorage.getItem(servingGuideKey) === "done"; } catch (_e) {}
+    showServingHint(!served);
+    window.addEventListener("nice-chicken:served", () => {
+      showServingHint(false);
+      if (served) return;
+      served = true;
+      try { localStorage.setItem(servingGuideKey, "done"); } catch (_e) {}
+    });
+    window.addEventListener("storage", event => {
+      if (event.storageArea === localStorage && event.key === servingGuideKey && event.newValue === "done") {
+        served = true;
+        showServingHint(false);
+      }
+    });
+    document.getElementById("replayServingGuide").addEventListener("click", () => {
+      showServingHint(true);
+      document.getElementById("modalSettings").classList.remove("on");
+    });
     document.querySelectorAll("[data-game-guide]").forEach(container => {
       container.append(document.getElementById("gameGuideTemplate").content.cloneNode(true));
     });
