@@ -317,6 +317,7 @@ function initDOMRefs() {
   document.getElementById("startServiceVisit")?.addEventListener("click", () => BenefitService.startVisit());
   document.getElementById("showStaffCoupon")?.addEventListener("click", () => {
     document.getElementById("staffCouponView").hidden = false;
+    document.getElementById("couponHistory").open = true;
     BenefitService.render();
     document.getElementById("staffCouponView").focus();
   });

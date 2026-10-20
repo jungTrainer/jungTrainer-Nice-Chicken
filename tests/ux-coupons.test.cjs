@@ -52,6 +52,7 @@ for (const width of [360,390]) {
     for(let i=0;i<22;i++) await p.keyboard.press('Tab');
     assert.equal(await p.evaluate(()=>!!document.activeElement.closest('#panel-shr,nav')),true);
     await p.locator('#showStaffCoupon').tap(); assert.equal(await p.locator('#staffCouponView').isVisible(),true);
+    assert.equal(await p.locator('#couponHistory').evaluate(e=>e.open),true,'staff preview also exposes before/after records');
     await p.locator('#hideStaffCoupon').tap(); assert.equal(await p.evaluate(()=>document.activeElement.id),'showStaffCoupon');
     const close=p.locator('#panel-shr .closeBtn'); await close.tap();
     assert.equal(await p.evaluate(()=>document.activeElement.id),'couponChip');

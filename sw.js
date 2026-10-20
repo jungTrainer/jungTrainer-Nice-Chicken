@@ -1,11 +1,11 @@
 /* IMP-12: generated release block; update with npm run pwa:build. */
 // BEGIN PWA RELEASE
 const RELEASE = {
-  "version": "imp12-1f462d9aee940b363c65",
+  "version": "imp12-ff70b564448b351b97c6",
   "required": [
     {
       "path": "index.html",
-      "hash": "ae29b79e00c63b8738cf98733d135fc3f9751c509311e9a95837bc3f7120475e",
+      "hash": "0db25bca6ea467a63cb97b5dfb81711682ef171926cff3f49f6f2284240bad2b",
       "mime": "text/html"
     },
     {
@@ -100,7 +100,7 @@ const RELEASE = {
     },
     {
       "path": "js/main.js",
-      "hash": "f982fef5aaac9acdd374fe12c1819ba567940954079ace8b874d07ec4bef25c1",
+      "hash": "9f7dc6434b56837b4af40c1f863101308ab6d186d9f2be1bc7dda0a1a7ffdd21",
       "mime": "javascript"
     },
     {
