@@ -72,6 +72,10 @@ for(const width of [360,390]){
 test('ending replay uses the same navigation button without covering menus or adding listeners/effects',async()=>game(fixture({endingUnlocked:true,endingPrompted:true,coupons:{drink:2,veg:3}}),async p=>{
  await stable(p);const before=await snapshot(p);assert.equal(await p.locator('nav #replayEndingBtn').count(),1);assert.equal(await p.locator('#replayEndingBtn').count(),1);
  const a=await p.locator('#replayEndingBtn').boundingBox(),b=await p.locator('#menuBar').boundingBox();assert.ok(a.y>=b.y+b.height);await audit(p);
+ await p.locator('[data-panel="shr"]').tap();
+ assert.equal(await p.locator('#replayEndingBtn').evaluate(e=>e.inert),true);
+ await p.evaluate(()=>document.getElementById('replayEndingBtn').click());assert.equal(await p.evaluate(()=>endingPhase),'idle');
+ await p.keyboard.press('Escape');assert.deepEqual(await snapshot(p),before);
  await p.locator('#replayEndingBtn').tap();await p.locator('#endingDialogWrapper').focus();await p.keyboard.press('Enter');assert.equal(await p.evaluate(()=>__endingStep),0);
  await p.keyboard.press('Escape');assert.equal(await p.evaluate(()=>endingPhase),'idle');assert.equal(await p.evaluate(()=>document.activeElement.id),'replayEndingBtn');assert.deepEqual(await snapshot(p),before);
 }));

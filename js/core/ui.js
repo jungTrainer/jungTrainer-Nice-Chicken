@@ -93,7 +93,7 @@ document.addEventListener(
     }
     function owned(target) {
       return (
-        !!target.closest?.("#sessionControls") || !top || top.contains(target) || (panel(top) && nav.contains(target))
+        !!target.closest?.("#sessionControls") || !top || top.contains(target) || (panel(top) && nav.contains(target) && !endingEls().replay.contains(target))
       );
     }
     function sync() {
