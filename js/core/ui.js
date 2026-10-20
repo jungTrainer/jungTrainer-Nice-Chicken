@@ -42,6 +42,8 @@ document.addEventListener(
       endingEls().popup,
       endingEls().overlay,
     ];
+    // Move the same replay button into navigation so it cannot cover menu touch targets.
+    nav.append(endingEls().replay);
     const opened = [],
       returnFocus = new WeakMap();
     let top = null,
@@ -91,7 +93,7 @@ document.addEventListener(
     }
     function owned(target) {
       return (
-        !!target.closest?.("#sessionControls") || !top || top.contains(target) || (panel(top) && nav.contains(target))
+        !!target.closest?.("#sessionControls") || !top || top.contains(target) || (panel(top) && nav.contains(target) && !endingEls().replay.contains(target))
       );
     }
     function sync() {
@@ -318,6 +320,16 @@ document.addEventListener(
           root.style.setProperty(name, next);
       }
       resizeCanvas();
+      // Only reveal the already-focused field when the visible viewport shrinks/moves.
+      // The existing surface/focus owner remains authoritative; no game state is touched.
+      const active = document.activeElement;
+      if (top?.contains(active) && active.matches("input,textarea,select")) {
+        const field = active.getBoundingClientRect();
+        const head = top.querySelector(".ui-modal-head")?.getBoundingClientRect();
+        const lower = (view?.offsetTop || 0) + (view?.height || innerHeight);
+        if (field.top < (head?.bottom || 0) || field.bottom > lower - 8)
+          active.scrollIntoView({ block: "center", inline: "nearest" });
+      }
     }
     window.addEventListener("resize", viewport);
     window.visualViewport?.addEventListener("resize", viewport);

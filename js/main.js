@@ -815,7 +815,7 @@ function renderExpansionCards() {
       <div class="loc-emoji">${emoji}</div>
       <div class="loc-name">${loc.name}</div>
       <div class="loc-desc">
-        수익 배율: <b style="color:#d35400">x${(loc.priceMul || 1).toFixed ? (loc.priceMul || 1).toFixed(1).replace(/\.0$/, "") : loc.priceMul || 1}</b><br>
+        수익 배율: <b style="color:#984000">x${(loc.priceMul || 1).toFixed ? (loc.priceMul || 1).toFixed(1).replace(/\.0$/, "") : loc.priceMul || 1}</b><br>
         ${isUnlocked ? "인테리어/직원 별도 관리" : "새로운 시작, 더 큰 수익!"}
       </div>
       ${btnHtml}
@@ -1601,7 +1601,7 @@ function ensureSaveTransferUI() {
       <h4 style="margin:0;">💾 수동 백업 / 불러오기</h4>
       <p style="margin-top:5px;">진행을 따로 보관하고 필요할 때 다시 불러올 수 있어요.</p>
     </div>
-    <textarea id="saveTransferText" rows="5" placeholder="백업 내용을 복사하거나 붙여넣으세요." style="width:100%; box-sizing:border-box; resize:vertical; font-size:12px;"></textarea>
+    <textarea id="saveTransferText" rows="5" placeholder="백업 내용을 복사하거나 붙여넣으세요." style="width:100%; box-sizing:border-box; resize:vertical; font-size:16px;"></textarea>
     <div class="row">
       <button class="btn alt" id="exportSaveBtn">백업 만들기</button>
       <button class="btn gray" id="copySaveBtn">복사</button>
@@ -3638,7 +3638,7 @@ function renderPanel(key) {
         div.className = "card purchase-option";
         div.innerHTML = `
           <div class="info">
-            <h4>${u.name} <span style="color:var(--primary);">Lv.${lvl}/${maxL}</span></h4>
+            <h4>${u.name} <span style="color:#8a4b00;">Lv.${lvl}/${maxL}</span></h4>
             <p>${u.desc}</p>
             <div class="cost">${lvl >= maxL ? "최대 레벨" : fmtWon(cost)}</div>
             <progress class="ux-progress" max="1" value="0"></progress>
@@ -3683,7 +3683,7 @@ function renderPanel(key) {
         card.innerHTML = `
           <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:10px;">
             <div style="font-weight:bold;">${s.emoji} ${s.label}</div>
-            <div style="font-size:0.85rem; color:#666;">전체 지점 누적: ${fmtWon(st.earned)}</div>
+            <div style="font-size:14px; color:#666;">전체 지점 누적: ${fmtWon(st.earned)}</div>
           </div>
           <div style="display:flex; gap:8px; width:100%;">
             <div class="purchase-option staff-purchase"><button class="btn" id="btn-auto-${s.key}">👟속도 Lv.${st.auto}</button><progress class="ux-progress" max="1" value="0"></progress><p class="purchase-status"></p></div>
@@ -3774,9 +3774,9 @@ function renderPanel(key) {
       div.className = "card";
       div.innerHTML = `
         <div class="info">
-          <h4>${r.name} <span style="color:#666;">Lv.${lvl}/${maxL}</span> ${done ? '<span style="color:#999;">(완료)</span>' : ""}</h4>
+          <h4>${r.name} <span style="color:#666;">Lv.${lvl}/${maxL}</span> ${done ? '<span style="color:#595959;">(완료)</span>' : ""}</h4>
           <p>${r.desc}</p>
-          <div class="cost">⏱ 다음 Lv.${nextLvl}: ${nextMin}분 ${effTxt ? `<span style="color:#999;">(${effTxt})</span>` : ""}</div>
+          <div class="cost">⏱ 다음 Lv.${nextLvl}: ${nextMin}분 ${effTxt ? `<span style="color:#595959;">(${effTxt})</span>` : ""}</div>
         </div>
         <button class="btn alt">${done ? "완료됨" : running ? "진행중" : "연구 시작"}</button>
       `;
@@ -4401,7 +4401,7 @@ function renderStampRow(element, count, filled, symbol, color) {
     cell.style.cssText =
       "height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;border:1px solid #eee";
     cell.style.background = i < filled ? color : "#f3f3f3";
-    cell.style.color = i < filled ? "#fff" : "#aaa";
+    cell.style.color = "#34342e";
     cell.textContent = i < filled ? symbol : i + 1;
     element.append(cell);
   }

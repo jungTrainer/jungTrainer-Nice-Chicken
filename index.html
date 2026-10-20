@@ -4,14 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>나이스치킨 타이쿤 (방치+서빙)</title>
-  <meta name="app-version" content="imp12-960753d763e1809dc643" />
+  <meta name="app-version" content="imp12-a0878502930d927838e0" />
   <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#FF9F1C">
   <link rel="apple-touch-icon" href="./icon-192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./css/style.css" integrity="sha256-dpUXqDIo6CSdmextYwNLbV56DU1mlbgR1JBkniXeq40=" crossorigin="anonymous">
+  <link rel="stylesheet" href="./css/style.css" integrity="sha256-XYUdcWk6DCmznXsRTHB8WnaKGjnAAMSQhqrB3yJDsdg=" crossorigin="anonymous">
 
 
 </head>
@@ -491,8 +491,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
 <script src="./js/core/ending.js" integrity="sha256-eK16di03+jUqGcYTsBAJkFfaeCFAGHCG6IGtge9tEtA=" crossorigin="anonymous"></script>
 <script src="./js/core/branches.js" integrity="sha256-m2PWDQRv4d2ec4DaAbgeekKh6XWsSpIQe2/IV1Lpa3Y=" crossorigin="anonymous"></script>
 <script src="./js/core/services.js" integrity="sha256-MQJhvf7umieaRc2IBiAIhzCfgq9HG3qJc5Y5uADiNkw=" crossorigin="anonymous"></script>
-<script src="./js/main.js" integrity="sha256-aj3c72ryVSzdzeQnvTlYmGo64T9v9ghHoms7tkzplSg=" crossorigin="anonymous"></script>
-<script src="./js/core/ui.js" integrity="sha256-cCBGdov8lYjAb+3ryRjXbjLSAEirf90qvPi3qEz8+q4=" crossorigin="anonymous"></script>
+<script src="./js/main.js" integrity="sha256-s3yvndmST4RAJtuw/DkAdwo2coOy22ucmBNuMxSynh4=" crossorigin="anonymous"></script>
+<script src="./js/core/ui.js" integrity="sha256-tGiXuEWrK1tXiBA2zx1XqAZ0i4qd9OSz5RgPH4JHsx4=" crossorigin="anonymous"></script>
 <script src="./js/core/pwa.js" integrity="sha256-qKu8kykvV3d2nyo3721MSRssjuM8vjxupb15cn4Lsac=" crossorigin="anonymous"></script>
 <script src="./js/core/boot.js" integrity="sha256-NCsAj6CTCn3NoiFmfvAy6/ebhSrtHea6qZ5N3/0YI5U=" crossorigin="anonymous"></script>
 
@@ -515,7 +515,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
           <div class="row-split"><span>💻 온라인(직접/배달)</span> <b><span id="rptOnline">0</span></b></div>
           <div class="row-split"><span>💤 오프라인(방치)</span> <b><span id="rptOffline">0</span></b></div>
           <hr>
-          <div class="row-split total"><span>합계</span> <b style="color:#d35400;"><span id="rptTodayTotal">0</span></b></div>
+          <div class="row-split total"><span>합계</span> <b style="color:#984000;"><span id="rptTodayTotal">0</span></b></div>
 
           <!-- legacy hidden (keep old code safe) -->
           <div style="display:none;">
@@ -544,7 +544,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
       <div id="tab-stat-management" class="tab-content"><div id="managementContent"></div></div>
       <div id="tab-stat-rnd" class="tab-content">
-        <div class="note" style="margin-bottom:10px; color:#d35400;">
+        <div class="note" style="margin-bottom:10px; color:#984000;">
           🔥 <b>조리법 연구</b> 레벨당 기본 가격 +50%<br>
           (첫 연구 <b>1.5배</b>, 두 번째 연구 <b>2배</b>)
         </div>
@@ -589,7 +589,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
        - 엔딩 재생 중 END_SOUND 루핑
        - 엔딩 종료 시 화면/사운드 페이드아웃 후 게임 계속
   ========================== -->
-  <button id="replayEndingBtn" type="button" style="display:none;">🎬 엔딩</button>
+  <button id="replayEndingBtn" class="ending-replay" type="button" style="display:none;"><span class="ic" aria-hidden="true">🎬</span><span>엔딩</span></button>
 
   <div id="endingConditionPopup" style="display:none;" aria-hidden="true">
     <div class="endingPopupInner">
