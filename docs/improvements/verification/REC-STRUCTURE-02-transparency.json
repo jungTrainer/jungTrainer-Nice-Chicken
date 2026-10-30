@@ -1,0 +1,28 @@
+{
+  "actualChromium": true,
+  "fixtureOnly": true,
+  "opaquePixelsReplaced": true,
+  "transparentPixelsRestoreProceduralBase": true,
+  "stateSaveBackupDirtyServiceUnchanged": true,
+  "pixels": {
+    "procedural": [
+      159,
+      168,
+      218,
+      255
+    ],
+    "throughAlpha": [
+      159,
+      168,
+      218,
+      255
+    ],
+    "opaque": [
+      255,
+      0,
+      0,
+      255
+    ]
+  },
+  "addedToFinalTestCount": false
+}

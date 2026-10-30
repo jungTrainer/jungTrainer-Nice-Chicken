@@ -35,11 +35,12 @@ main48함수·scene39함수와 core21파일, CSS/음원/manifest는 동일하다
 - 실제 Chromium: 공유 디코드·실패/명시 retry·후보 순서, 실제 이미지 픽셀/투명 여백 잔상, 360/390px 지연 메뉴의 크기/포커스/터치·state/원 저장/backup/dirty/서비스·배치 불변, 실제 지점 이동/재접속·백업/import/reset 후 늦은 응답 차단.
 - 실제 SW: 같은 이름의 A 빨강/B 파랑이 오프라인/대기 중에는 A로 유지되고 명시 적용 뒤 B로 바뀜, 선택 이미지404/해시/디코드 실패에도 셸 운영, 필수 catalog/images 각각 누락→거절/수리. 실제0274d0e 셸에서 필수33→35로 적용하고 오프라인 재접속한 별도1건도 통과했다. [기록](verification/REC-STRUCTURE-02-pwa-upgrade.json). B에는 검사 표식이 있어 production 해시와 다르다.
 - 기본 목록 전후32쌍/64 PNG·DOM·배치 모두 같고 캡처 전후 상태/본 저장/backup/dirty/서비스 캐시도 같았다. [캡처](../screenshots/recovery-structure-2/README.md). 캡처8건과 이전→신규1건은 전체464개에 합산하지 않는다.
+- 별도 실제 투명 SVG1건에서도 불투명 픽셀 대체·투명 부분의 기본 배경 복원·이전 녹색 픽셀 제거와 state/저장/서비스 불변을 확인했다. [픽셀 기록](verification/REC-STRUCTURE-02-transparency.json), [재현 probe](verification/REC-STRUCTURE-02-transparency-probe.cjs). `node --test docs/improvements/verification/REC-STRUCTURE-02-transparency-probe.cjs`로 재현하며 전체464개에는 합산하지 않는다.
 - 기존 검사 변경은 스크립트/필수 개수28/33→30/35, 이미지 어댑터9개 hash 고정과 테스트 fixture의 assets 복사·MIME·선택적 root/prepare hook이다. 기존 동작 assertion은 제거/완화하지 않았다.
 
 ## 보관과 남은 문제
 
-연결 중단 전의 구현/42개 통과 기록을 실제 파일로 확인해 이어갔다. 진행본 patch도 만들었으며 경로에 파일이 있다는 이유로 외부 백업 완료라고 주장하지 않는다. 최종 커밋과 원격 보관 결과는 확인 후 기록한다.
+연결 중단 전의 구현/42개 통과 기록을 실제 파일로 확인해 이어갔다. 진행본 patch도 만들었으며 경로에 파일이 있다는 이유로 외부 백업 완료라고 주장하지 않는다. 코드 커밋 `82db7632f9f51b72be4fef3aca9a5ad72208091b`을 [origin/recovery-structure-2](https://github.com/jungTrainer/jungTrainer-Nice-Chicken/tree/recovery-structure-2)에 push하고 원격 SHA 일치를 확인했다. 원격 main은 `c66d96f` 그대로다. 이후 문서 커밋으로 브랜치 HEAD가 전진할 수 있으며 최종 SHA는 완료 응답에 기록한다.
 
 실기기·스크린리더·Firefox/WebKit·실제 제작 이미지의 총 메모리/DPR/크롭 품질·사람의 음질은 미검증이다. 캐시는 문서 수명 동안 유지하고 자동 온라인 재시도/전체 메모리 LRU는 아직 없다. 실패는 기존 표시로 계속 운영하며 reload/명시 retry로 재시도한다. SVG 내용 정화기는 아니므로 신뢰하는 정적 자산을 등록한다. 기준에는 실제 구 간판 후보 파일이 없었고, config의 옛 SIGN_IMAGES/candidates 바인딩은 호환상 남지만 자동 파일 탐색/활성 캐시로 쓰지 않는다.
 

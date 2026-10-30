@@ -20,7 +20,8 @@
     "afterBackgroundFix": 23,
     "captureCases": 8,
     "realBaselinePwaUpgrade": 1,
-    "addedToFinalCount": false
+    "addedToFinalCount": false,
+    "actualTransparentBackground": 1
   },
   "doctor": "DOM and actual native headed hide/resume passed",
   "syntax": 51,
@@ -701,6 +702,42 @@
     "test.log": "90ad1e5d082b566efbb26f560880abf1448fa453d7f4ba19faff2622fd626534",
     "capture-before.log": "7f5526cf0701df4cefd4b5415e98fc815c84035c9cafb6f1cacae71cd2ec2475",
     "capture-after.log": "21e5f25b5b8eef9f59980e87c2781a25d172ab31dd802dc8441c4296248e0a6f",
-    "pwa-upgrade.log": "7cda63bdddef075dd734bafae11b18e64e40d38f22461cf40de9b3a5b0d918be"
+    "pwa-upgrade.log": "7cda63bdddef075dd734bafae11b18e64e40d38f22461cf40de9b3a5b0d918be",
+    "transparency.log": "9a04e5f7ac987b5e128799cb19c7dbbe6dd96a3cc4a40ec681028c11bb273771"
+  },
+  "transparentBackgroundProbe": {
+    "actualChromium": true,
+    "fixtureOnly": true,
+    "opaquePixelsReplaced": true,
+    "transparentPixelsRestoreProceduralBase": true,
+    "stateSaveBackupDirtyServiceUnchanged": true,
+    "pixels": {
+      "procedural": [
+        159,
+        168,
+        218,
+        255
+      ],
+      "throughAlpha": [
+        159,
+        168,
+        218,
+        255
+      ],
+      "opaque": [
+        255,
+        0,
+        0,
+        255
+      ]
+    },
+    "addedToFinalTestCount": false
+  },
+  "remoteCodeCommit": {
+    "branch": "recovery-structure-2",
+    "sha": "82db7632f9f51b72be4fef3aca9a5ad72208091b",
+    "verifiedBy": "git ls-remote origin",
+    "main": "c66d96ff0837ced8c5fe361af82cdcc47a0cd382",
+    "note": "Subsequent documentation commits may advance branch HEAD."
   }
 }

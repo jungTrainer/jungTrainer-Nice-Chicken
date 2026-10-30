@@ -196,5 +196,5 @@ IMP-16 당시 작업본의 보관 브랜치는 [`improvement-imp16-20261013`](ht
 - [x] 장면/메뉴 연결·지연 mount token·실패 fallback/retry·투명/contain 배경 잔상 방지.
 - [x] 새 자산/기존 장면 선별42개와 보완 후23개 통과, 전후32쌍/64 PNG·DOM/배치 일치, 실제 이전 셸→신규/오프라인 확인.
 - [x] 최종 pwa:build·doctor·check·전체464개 통과 및 검증 요약 확정.
-- [ ] recovery-structure-2 커밋·원격 보관 결과 확인. main 병합/배포는 하지 않음.
+- [x] 코드82db763을 origin/recovery-structure-2에 보관하고 원격 SHA/main 보존 확인. main 병합/배포는 하지 않음.
 - [ ] 복구-구조-3 음원 목록·로더/단일 재생 창구. 실제 새 그래픽/음원·패널/지도/HUD는 후속.
