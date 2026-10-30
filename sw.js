@@ -1,11 +1,11 @@
 /* IMP-12: generated release block; update with npm run pwa:build. */
 // BEGIN PWA RELEASE
 const RELEASE = {
-  "version": "imp12-a0878502930d927838e0",
+  "version": "imp12-4c50bc713a5b972f47f9",
   "required": [
     {
       "path": "index.html",
-      "hash": "69ca26737304b5abbafa01f07f319282852387025160460645e4de344c1ca070",
+      "hash": "28b321e1ad5f773a88a81adf3794ae06a9a2143066192a0bd13e18eb37e3f4ec",
       "mime": "text/html"
     },
     {
@@ -99,8 +99,38 @@ const RELEASE = {
       "mime": "javascript"
     },
     {
+      "path": "js/scene/layout.js",
+      "hash": "2d797ee12dc922be45711493d7ff4645e76f38a4cbd0b1b457ce449abd1a9577",
+      "mime": "javascript"
+    },
+    {
+      "path": "js/scene/effects.js",
+      "hash": "56fb1db0eac51a98f887885206c0b609801063822c63d995e37ae502a06a38f0",
+      "mime": "javascript"
+    },
+    {
+      "path": "js/scene/signboard.js",
+      "hash": "09cd35cbb74f15eb171ed2257f318a6cbbd6e5bc3d307ec576476cfef9268ad1",
+      "mime": "javascript"
+    },
+    {
+      "path": "js/scene/background.js",
+      "hash": "18c14f79cf00497d11313a69a41e05abe8ad8441b70c27279ae8a4916815abd4",
+      "mime": "javascript"
+    },
+    {
+      "path": "js/scene/characters.js",
+      "hash": "1adb654c89c1bea0ad033db76b06372a3cc4852422dbb973ee9ebbdc8c0a8fe6",
+      "mime": "javascript"
+    },
+    {
+      "path": "js/scene/render.js",
+      "hash": "47294657fc58c14270731b357cc49c61ddb20fdd91010305b9d63329b0645c5d",
+      "mime": "javascript"
+    },
+    {
       "path": "js/main.js",
-      "hash": "b37caf9dd9924f844026dbb0fc3900770a367283b2db6b9c98136e3314b29e1e",
+      "hash": "bafc1a72da50d38dc8f8a051d3c0922e00ff34e150de367dc00df9d592bfdc5f",
       "mime": "javascript"
     },
     {

@@ -1,5 +1,5 @@
 {
-  "source": "IMP-18; classic script load order in index.html; top-level declarations only",
+  "source": "Recovery-Structure-1 from c66d96f; scene owners before main/boot; newly validated implementation",
   "modules": [
     {
       "file": "js/core/money.js",
@@ -336,10 +336,99 @@
       ]
     },
     {
-      "file": "js/main.js",
+      "file": "js/scene/layout.js",
+      "functions": [
+        "doorRect",
+        "serveSpot",
+        "waitingSlots",
+        "hitCircle",
+        "bossCenter",
+        "staffCenters",
+        "roundRect2",
+        "roundRectPath",
+        "roundRect"
+      ],
+      "bindings": []
+    },
+    {
+      "file": "js/scene/effects.js",
       "functions": [
         "isGlobalBuffActive",
         "getClickScale",
+        "bossBurst",
+        "updateBossParticles",
+        "drawBossParticles",
+        "drawBossFlash",
+        "floatText",
+        "showFloatingText",
+        "applyElementFX",
+        "updateFloats",
+        "bossSpeak",
+        "updateBoss",
+        "drawFloats"
+      ],
+      "bindings": [
+        "floats",
+        "bossParticles",
+        "bossFlash",
+        "_bossAnim"
+      ]
+    },
+    {
+      "file": "js/scene/signboard.js",
+      "functions": [
+        "preloadSignImages",
+        "tryLoadSignImage",
+        "getSignImage",
+        "signStage",
+        "signStageName",
+        "drawSignboard"
+      ],
+      "bindings": []
+    },
+    {
+      "file": "js/scene/background.js",
+      "functions": [
+        "drawDoor",
+        "drawTables",
+        "drawCounter",
+        "_bgSeededRand",
+        "getAtmosphere",
+        "drawSkyGradient",
+        "drawCloud",
+        "drawCelestial",
+        "drawHill",
+        "drawStatueOfLiberty",
+        "drawEiffelTower",
+        "drawFireworks",
+        "drawBackground"
+      ],
+      "bindings": [
+        "_BG_CACHE"
+      ]
+    },
+    {
+      "file": "js/scene/characters.js",
+      "functions": [
+        "drawStaffSpeechBubble",
+        "drawBoss",
+        "drawStaff",
+        "drawSpeechBubble",
+        "drawCustomers",
+        "drawDeliveryLayer"
+      ],
+      "bindings": []
+    },
+    {
+      "file": "js/scene/render.js",
+      "functions": [
+        "render"
+      ],
+      "bindings": []
+    },
+    {
+      "file": "js/main.js",
+      "functions": [
         "initDOMRefs",
         "resizeCanvas",
         "showToast",
@@ -358,64 +447,21 @@
         "pickMenuByRule",
         "handleMenuGridServe",
         "buildMenuGrid",
-        "doorRect",
-        "serveSpot",
-        "waitingSlots",
         "spawnCustomer",
         "layoutTargets",
         "moveCustomers",
         "pickCustomerAt",
         "selectCustomer",
-        "bossBurst",
-        "updateBossParticles",
-        "drawBossParticles",
-        "drawBossFlash",
-        "floatText",
-        "showFloatingText",
-        "hitCircle",
-        "bossCenter",
-        "staffCenters",
         "triggerBossFX",
         "triggerStaffFX",
-        "applyElementFX",
-        "updateFloats",
         "maybeTriggerEvent",
         "updateEvent",
         "updateCustomers",
         "fmtDuration",
         "ensureSaveTransferUI",
         "certStatusText",
-        "roundRect2",
         "renderCoupons",
         "renderExchange",
-        "preloadSignImages",
-        "tryLoadSignImage",
-        "getSignImage",
-        "signStage",
-        "signStageName",
-        "roundRectPath",
-        "drawSignboard",
-        "drawStaffSpeechBubble",
-        "drawBoss",
-        "drawStaff",
-        "drawDoor",
-        "drawTables",
-        "drawCounter",
-        "_bgSeededRand",
-        "getAtmosphere",
-        "drawSkyGradient",
-        "drawCloud",
-        "drawCelestial",
-        "drawHill",
-        "drawStatueOfLiberty",
-        "drawEiffelTower",
-        "drawFireworks",
-        "drawBackground",
-        "drawSpeechBubble",
-        "drawCustomers",
-        "drawFloats",
-        "render",
-        "drawDeliveryLayer",
         "getCanvasPoint",
         "onCanvasDown",
         "renderPanel",
@@ -424,9 +470,6 @@
         "missionProgressLine",
         "missionRow",
         "weeklyRow",
-        "bossSpeak",
-        "updateBoss",
-        "roundRect",
         "startGameLoop",
         "frame",
         "renderMapUI",
@@ -505,15 +548,10 @@
         "menuGridEl",
         "upgListEl",
         "resListEl",
-        "floats",
-        "bossParticles",
-        "bossFlash",
-        "_BG_CACHE",
         "upgradeButtons",
         "acc",
         "last",
         "rAF_ID",
-        "_bossAnim",
         "stampRowKeys"
       ]
     },

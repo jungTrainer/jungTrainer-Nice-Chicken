@@ -1,0 +1,13 @@
+{
+  "base": "c66d96ff0837ced8c5fe361af82cdcc47a0cd382",
+  "from": "imp12-a0878502930d927838e0",
+  "toFixture": "imp12-f2fe7e5d963732943250",
+  "fixtureBHasConfigMarker": true,
+  "required": [
+    27,
+    33
+  ],
+  "sceneScriptsRequested": true,
+  "explicitApplyOfflineReloadPassed": true,
+  "fixedBenefitsUnchanged": true
+}

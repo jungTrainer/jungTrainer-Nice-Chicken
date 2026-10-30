@@ -1,0 +1,169 @@
+{
+  "base": "c66d96f",
+  "pairs": 32,
+  "pngPairsIdentical": 32,
+  "domAndLayoutPairsIdentical": 32,
+  "stateStorageTimersUnchanged": true,
+  "comparisons": [
+    {
+      "file": "360x640-changnyeong.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "360x640-busan.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "360x640-seoul.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "360x640-japan.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "360x640-usa.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "360x640-mars.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "360x640-effects.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "360x640-menu.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "390x844-changnyeong.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "390x844-busan.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "390x844-seoul.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "390x844-japan.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "390x844-usa.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "390x844-mars.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "390x844-effects.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "390x844-menu.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "640x360-changnyeong.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "640x360-busan.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "640x360-seoul.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "640x360-japan.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "640x360-usa.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "640x360-mars.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "640x360-effects.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "640x360-menu.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "1280x800-changnyeong.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "1280x800-busan.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "1280x800-seoul.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "1280x800-japan.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "1280x800-usa.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "1280x800-mars.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "1280x800-effects.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    },
+    {
+      "file": "1280x800-menu.png",
+      "domAndLayoutIdentical": true,
+      "pngIdentical": true
+    }
+  ]
+}

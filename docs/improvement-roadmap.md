@@ -1,8 +1,10 @@
 # 개선 작업 목록
 
+2026-10-30 최신 구조 작업: **복구-구조-1 장면 렌더링 분리**. main `c66d96f`에서 `recovery-structure-1` 브랜치로 별도 재구현한다. 이전 기록을 현재 검증으로 간주하지 않는다. [새 보고서](improvements/REC-STRUCTURE-01-scene.md).
+
 갱신일: 2026-10-13 (한국 시간). 기준 저장소 `6b602e583644ec4ba21f4ed74924cc0b684c0c92`.
 
-현재 작업본의 보관 브랜치는 [`improvement-imp16-20261013`](https://github.com/jungTrainer/jungTrainer-Nice-Chicken/tree/improvement-imp16-20261013)이다. IMP-16 기준은 `origin/improvement-imp15-20261013`의 `491e4aa`이며 다음 환경은 IMP-16 브랜치를 선택한다. [Draft PR #10](https://github.com/jungTrainer/jungTrainer-Nice-Chicken/pull/10)의 base는 IMP-15이며 main 병합·배포는 수행하지 않았다.
+IMP-16 당시 작업본의 보관 브랜치는 [`improvement-imp16-20261013`](https://github.com/jungTrainer/jungTrainer-Nice-Chicken/tree/improvement-imp16-20261013)이다. IMP-16 기준은 `origin/improvement-imp15-20261013`의 `491e4aa`이며 다음 환경은 IMP-16 브랜치를 선택한다. [Draft PR #10](https://github.com/jungTrainer/jungTrainer-Nice-Chicken/pull/10)의 base는 IMP-15이며 main 병합·배포는 수행하지 않았다.
 
 이전 환경의 IMP-01~05 코드·문서와 검사 96개는 로컬/원격/Git 복구 객체에서 찾을 수 없었다. 사용자 승인 후 REC-01~05로 기능을 재구현하고 새 회귀 검사를 만들었다. 과거 완료 기록과 현재 재검증을 동일한 것으로 취급하지 않는다. [복구 보고서](improvements/REC-recovery.md)를 참고한다.
 
@@ -174,3 +176,13 @@
 - UX-5 출시: main `30a024d`, PR #18·404개 최종 SHA CI·Pages 확인 완료.
 - UX-6 표시·입력 마감: 버튼 상태 색·14px 본문·44px 조작 영역·대비·작은 세로/가로 화면과 입력/닫기 접근성을 보완한다. [표시 설계와 검증 한계](ux-accessibility-presentation.md). 기존 404개와 새 화면 검사·전후 캡처·최종 SHA CI·merge commit·Pages 결과는 단계 PR에 기록한다.
 - 다음: 소유자 실기기 피드백을 정리하고 필요하면 UX-7 수정 범위를 별도로 정한다.
+
+
+## 복구-구조-1 (2026-10-30)
+
+- [x] c66d96f 기준/깨끗한 별도 체크아웃, 함수·전역·시작 순서·기존422개 통과 확인.
+- [x] 장면6파일·함수48개/캐시 소유권 분리, main49함수·정산/입력/저장·자산/음원 보존.
+- [x] 새17개 검사, 전후32쌍/64 PNG·DOM/배치 일치, 실제 c66 PWA→분리본 적용/오프라인 확인.
+- [x] 최종 pwa:build·doctor·check·전체439개 통과.
+- [ ] 새 구현 커밋과 recovery-structure-1 작업 브랜치 원격 보관.
+- [ ] 복구-구조-2 이미지 교체 기반, 이후 오디오·패널·지도/HUD 단계. main 병합/배포는 별도 범위.
