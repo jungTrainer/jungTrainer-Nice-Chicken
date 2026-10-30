@@ -256,5 +256,12 @@
     "capture-before.log": "f035894c0710d58317688f4bfb9dbdc9ea68deb77a61a63c5f860968afb879a2",
     "capture-after.log": "75d8db19f78108c18359da537d50327335182cbc441715bf0eaf77aff1d8c1da",
     "pwa-upgrade.log": "9fceba4b6befbf0fe47e73ceba1fc3d929d6d58e0768163d5cb59ff8c877b775"
+  },
+  "remoteCodeCommit": {
+    "branch": "recovery-structure-1",
+    "sha": "04bf0f011a3aec8ede6da0443f9d74039375d436",
+    "verifiedBy": "git ls-remote origin",
+    "main": "c66d96ff0837ced8c5fe361af82cdcc47a0cd382",
+    "note": "Subsequent documentation commits may advance branch HEAD."
   }
 }

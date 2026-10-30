@@ -33,7 +33,7 @@ SIGN_IMAGES/candidates는 config에 남고 boot의 preload 호출·누락 순서
 
 현재 환경에서 이전 로컬 구조-1~5 커밋과 구조-6 스테이징도 다시 발견했다. 원본 작업 공간의 상태/패치를 보존·비교하고 별도 bundle/patch로 묶었다. 이번 구현에는 그 작업 트리를 덮어쓰거나 예전 결과를 복사하지 않았다. 원본의 구조-6 완료/전체520개 통과를 새로 주장하지 않는다.
 
-새 브랜치의 원격 보관 결과는 커밋 후 확인해 기록한다. 클라우드 경로에 산출물이 있는 것만으로 외부 백업 완료라 하지 않는다. 실기기·스크린리더·Firefox/WebKit 및 사람의 음질 평가는 미검증이다. 원격 CI 결과는 로컬 검증과 구분한다.
+코드 커밋 `04bf0f011a3aec8ede6da0443f9d74039375d436`을 [origin/recovery-structure-1](https://github.com/jungTrainer/jungTrainer-Nice-Chicken/tree/recovery-structure-1)에 push하고 원격 SHA 일치를 확인했다. 원격 main은 `c66d96f` 그대로다. 이후 문서 커밋으로 브랜치 HEAD가 전진할 수 있으며 최종 SHA는 완료 응답에 기록한다. 클라우드 경로에 산출물이 있는 것만으로 외부 백업 완료라 하지 않는다. 실기기·스크린리더·Firefox/WebKit 및 사람의 음질 평가는 미검증이다. 원격 CI 결과는 로컬 검증과 구분한다.
 
 ## 다음 작업
 

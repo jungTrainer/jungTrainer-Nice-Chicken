@@ -184,5 +184,5 @@ IMP-16 당시 작업본의 보관 브랜치는 [`improvement-imp16-20261013`](ht
 - [x] 장면6파일·함수48개/캐시 소유권 분리, main49함수·정산/입력/저장·자산/음원 보존.
 - [x] 새17개 검사, 전후32쌍/64 PNG·DOM/배치 일치, 실제 c66 PWA→분리본 적용/오프라인 확인.
 - [x] 최종 pwa:build·doctor·check·전체439개 통과.
-- [ ] 새 구현 커밋과 recovery-structure-1 작업 브랜치 원격 보관.
+- [x] 새 코드 커밋04bf0f0을 origin/recovery-structure-1에 보관하고 원격 SHA 확인. main c66d96f 유지.
 - [ ] 복구-구조-2 이미지 교체 기반, 이후 오디오·패널·지도/HUD 단계. main 병합/배포는 별도 범위.
