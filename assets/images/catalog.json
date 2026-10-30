@@ -1,0 +1,259 @@
+{
+  "version": 1,
+  "entries": {
+    "character.boss": {
+      "sources": []
+    },
+    "staff.neighbor": {
+      "sources": []
+    },
+    "staff.ato": {
+      "sources": []
+    },
+    "staff.daughter1": {
+      "sources": []
+    },
+    "staff.daughter2": {
+      "sources": []
+    },
+    "staff.soninlaw": {
+      "sources": []
+    },
+    "staff.grandson": {
+      "sources": []
+    },
+    "menu.fried": {
+      "sources": []
+    },
+    "menu.yang": {
+      "sources": []
+    },
+    "menu.soy_hot": {
+      "sources": []
+    },
+    "menu.boneless_feet": {
+      "sources": []
+    },
+    "menu.roast": {
+      "sources": []
+    },
+    "menu.garlic_roast": {
+      "sources": []
+    },
+    "menu.gizzard_s": {
+      "sources": []
+    },
+    "menu.doritang": {
+      "sources": []
+    },
+    "menu.buldak": {
+      "sources": []
+    },
+    "customer.default": {
+      "sources": []
+    },
+    "customer.grin": {
+      "sources": []
+    },
+    "customer.happy": {
+      "sources": []
+    },
+    "customer.cool": {
+      "sources": []
+    },
+    "customer.disguise": {
+      "sources": []
+    },
+    "customer.nerd": {
+      "sources": []
+    },
+    "customer.person": {
+      "sources": []
+    },
+    "customer.woman": {
+      "sources": []
+    },
+    "customer.man": {
+      "sources": []
+    },
+    "customer.girl": {
+      "sources": []
+    },
+    "customer.boy": {
+      "sources": []
+    },
+    "customer.grandfather": {
+      "sources": []
+    },
+    "customer.grandmother": {
+      "sources": []
+    },
+    "customer.beard": {
+      "sources": []
+    },
+    "customer.blond-woman": {
+      "sources": []
+    },
+    "customer.blond-man": {
+      "sources": []
+    },
+    "customer.santa": {
+      "sources": []
+    },
+    "customer.mrs-claus": {
+      "sources": []
+    },
+    "customer.alien": {
+      "sources": []
+    },
+    "customer.astronaut-woman": {
+      "sources": []
+    },
+    "customer.astronaut-man": {
+      "sources": []
+    },
+    "customer.wizard-man": {
+      "sources": []
+    },
+    "customer.wizard-woman": {
+      "sources": []
+    },
+    "customer.zombie-man": {
+      "sources": []
+    },
+    "customer.zombie-woman": {
+      "sources": []
+    },
+    "vehicle.0": {
+      "sources": []
+    },
+    "vehicle.1": {
+      "sources": []
+    },
+    "vehicle.2": {
+      "sources": []
+    },
+    "vehicle.3": {
+      "sources": []
+    },
+    "vehicle.4": {
+      "sources": []
+    },
+    "vehicle.5": {
+      "sources": []
+    },
+    "vehicle.6": {
+      "sources": []
+    },
+    "vehicle.7": {
+      "sources": []
+    },
+    "vehicle.8": {
+      "sources": []
+    },
+    "vehicle.9": {
+      "sources": []
+    },
+    "vehicle.10": {
+      "sources": []
+    },
+    "signboard.0": {
+      "sources": []
+    },
+    "signboard.1": {
+      "sources": []
+    },
+    "signboard.2": {
+      "sources": []
+    },
+    "signboard.3": {
+      "sources": []
+    },
+    "signboard.4": {
+      "sources": []
+    },
+    "signboard.5": {
+      "sources": []
+    },
+    "signboard.6": {
+      "sources": []
+    },
+    "signboard.7": {
+      "sources": []
+    },
+    "signboard.8": {
+      "sources": []
+    },
+    "signboard.9": {
+      "sources": []
+    },
+    "background.changnyeong": {
+      "sources": [],
+      "fit": "cover"
+    },
+    "background.busan": {
+      "sources": [],
+      "fit": "cover"
+    },
+    "background.seoul": {
+      "sources": [],
+      "fit": "cover"
+    },
+    "background.japan": {
+      "sources": [],
+      "fit": "cover"
+    },
+    "background.usa": {
+      "sources": [],
+      "fit": "cover"
+    },
+    "background.mars": {
+      "sources": [],
+      "fit": "cover"
+    },
+    "staff.grandson.robot": {
+      "sources": []
+    }
+  },
+  "aliases": {
+    "customers": {
+      "😀": "grin",
+      "😄": "happy",
+      "😎": "cool",
+      "🥸": "disguise",
+      "🤓": "nerd",
+      "🧑": "person",
+      "👩": "woman",
+      "👨": "man",
+      "👧": "girl",
+      "👦": "boy",
+      "👴": "grandfather",
+      "👵": "grandmother",
+      "🧔": "beard",
+      "👱‍♀️": "blond-woman",
+      "👱‍♂️": "blond-man",
+      "🎅": "santa",
+      "🤶": "mrs-claus",
+      "👽": "alien",
+      "👩‍🚀": "astronaut-woman",
+      "👨‍🚀": "astronaut-man",
+      "🧙‍♂️": "wizard-man",
+      "🧙‍♀️": "wizard-woman",
+      "🧟‍♂️": "zombie-man",
+      "🧟‍♀️": "zombie-woman"
+    },
+    "vehicles": {
+      "🏃": "0",
+      "🚲": "1",
+      "🛴": "2",
+      "🛵": "3",
+      "🚗": "4",
+      "🚁": "5",
+      "✈️": "6",
+      "🚀": "7",
+      "🛸": "8",
+      "🌀": "9",
+      "🧿": "10"
+    }
+  }
+}

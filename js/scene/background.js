@@ -802,4 +802,6 @@ function drawBackground() {
   ctx.strokeStyle = "rgba(0,0,0,0.4)";
   ctx.lineWidth = 6;
   ctx.stroke();
+  // Fill transparent and letterboxed areas with the original background on every frame.
+  ImageAssets.draw(ctx, "background." + state.regionId, 0, 0, canvas.width, canvas.height);
 }

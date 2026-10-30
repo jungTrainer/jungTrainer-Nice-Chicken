@@ -3,7 +3,7 @@ const { execFileSync } = require("node:child_process");
 require("./build-pwa.cjs").build(process.cwd(), true);
 for (const file of [
   "js/main.js",
-  ...["js/core", "js/scene"].flatMap(dir =>
+  ...["js/core", "js/media", "js/scene"].flatMap(dir =>
     fs.readdirSync(dir).filter(f => f.endsWith(".js")).map(f => dir + "/" + f)
   ),
   "sw.js",

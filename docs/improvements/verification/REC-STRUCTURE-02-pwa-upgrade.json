@@ -1,0 +1,13 @@
+{
+  "base": "0274d0e0e107c63128f18f6b489f9c4780728d61",
+  "from": "imp12-4c50bc713a5b972f47f9",
+  "toFixture": "imp12-4ea285a7a5b71af0d4cd",
+  "fixtureBHasConfigMarker": true,
+  "required": [
+    33,
+    35
+  ],
+  "newMediaScriptsRequested": true,
+  "explicitApplyOfflineReloadPassed": true,
+  "fixedBenefitsUnchanged": true
+}

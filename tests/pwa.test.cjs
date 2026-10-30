@@ -97,11 +97,11 @@ test("release generation covers all scripts/styles with SRI and matches tracked 
   const scripts = [
     ...html.matchAll(/<script src="\.\/([^"]+)" integrity="sha256-([^"]+)"/g),
   ];
-  assert.equal(scripts.length, 28);
+  assert.equal(scripts.length, 30);
   assert.equal(scripts.at(-1)[1], "js/core/boot.js");
   for (const script of scripts)
     assert.ok(release.required.find((asset) => asset.path === script[1]));
-  assert.equal(release.required.length, 33);
+  assert.equal(release.required.length, 35);
   assert.equal(release.optional.length, 6);
 });
 

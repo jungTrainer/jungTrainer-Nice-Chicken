@@ -1,0 +1,706 @@
+{
+  "completedAt": "2026-10-30T04:46:56.467Z",
+  "base": "0274d0e0e107c63128f18f6b489f9c4780728d61",
+  "branch": "recovery-structure-2",
+  "node": "24.19.0",
+  "playwright": "1.62.1",
+  "chromium": "151.0.7922.34",
+  "tests": {
+    "existing": 439,
+    "new": 25,
+    "total": 464,
+    "passed": 464,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "durationMs": 396454.310073
+  },
+  "separateChecks": {
+    "initialSelected": 42,
+    "afterBackgroundFix": 23,
+    "captureCases": 8,
+    "realBaselinePwaUpgrade": 1,
+    "addedToFinalCount": false
+  },
+  "doctor": "DOM and actual native headed hide/resume passed",
+  "syntax": 51,
+  "pwaVersion": "imp12-5f37a8a1c1abe2f85609",
+  "scripts": 30,
+  "required": 35,
+  "defaultOptional": 6,
+  "catalogEntries": 69,
+  "defaultGraphicsReplaced": false,
+  "screenshots": {
+    "base": "0274d0e",
+    "pairs": 32,
+    "pngPairsIdentical": 32,
+    "domAndLayoutPairsIdentical": 32,
+    "stateStorageTimersUnchanged": true,
+    "comparisons": [
+      {
+        "file": "360x640-changnyeong.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "360x640-busan.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "360x640-seoul.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "360x640-japan.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "360x640-usa.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "360x640-mars.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "360x640-effects.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "360x640-menu.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "390x844-changnyeong.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "390x844-busan.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "390x844-seoul.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "390x844-japan.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "390x844-usa.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "390x844-mars.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "390x844-effects.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "390x844-menu.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "640x360-changnyeong.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "640x360-busan.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "640x360-seoul.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "640x360-japan.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "640x360-usa.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "640x360-mars.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "640x360-effects.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "640x360-menu.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "1280x800-changnyeong.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "1280x800-busan.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "1280x800-seoul.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "1280x800-japan.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "1280x800-usa.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "1280x800-mars.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "1280x800-effects.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      },
+      {
+        "file": "1280x800-menu.png",
+        "domAndLayoutIdentical": true,
+        "pngIdentical": true
+      }
+    ]
+  },
+  "originalToNewPwa": {
+    "base": "0274d0e0e107c63128f18f6b489f9c4780728d61",
+    "from": "imp12-4c50bc713a5b972f47f9",
+    "toFixture": "imp12-4ea285a7a5b71af0d4cd",
+    "fixtureBHasConfigMarker": true,
+    "required": [
+      33,
+      35
+    ],
+    "newMediaScriptsRequested": true,
+    "explicitApplyOfflineReloadPassed": true,
+    "fixedBenefitsUnchanged": true
+  },
+  "equivalence": {
+    "base": "0274d0e0e107c63128f18f6b489f9c4780728d61",
+    "unchangedMain": [
+      {
+        "name": "initDOMRefs",
+        "hash": "f7e5a9c01c32ef912643d0c887650d577948611a61276aed6ff758f3c3d38c48"
+      },
+      {
+        "name": "resizeCanvas",
+        "hash": "6f559b93a31ce71b4a4b45da0c72786905a37938b21c13925d3058940cac4658"
+      },
+      {
+        "name": "showToast",
+        "hash": "54a003a844213fbf5ff639ea1635593c3a47e984cb3d3b03de927195fcd1bfef"
+      },
+      {
+        "name": "closePanels",
+        "hash": "57979cd2c3323c91d6c286f6115402d82eff2d9c3176993fb3aa06a9f973e062"
+      },
+      {
+        "name": "openPanel",
+        "hash": "74aa0712190119a4586cf3d2edda776588fad8e306b6193ca88692c46044668e"
+      },
+      {
+        "name": "renderRndList",
+        "hash": "68d5cf87398eba8da4f37bda0d0ba4b1db3dbd6bc4be1a47e8a6a80d878f322b"
+      },
+      {
+        "name": "bindRecipeResearchClicks",
+        "hash": "f11bd17235f256f9a28c26aa580f328ba8c930106fd9bf68b7ed2e02305c533a"
+      },
+      {
+        "name": "openExpansionModal",
+        "hash": "202bb8674238460b6d58be2d00c959ff85d4c5b876c135a6b4def50dccdbbf7a"
+      },
+      {
+        "name": "closeExpansionModal",
+        "hash": "0a0794ff96cc68f8729149bcba5da975d8a5946c33151688fe7e8a3d481cd686"
+      },
+      {
+        "name": "moveBranch",
+        "hash": "aab190ac0ed1c092a4c7d51b61789108ffaf79a6281b4bdac91b50cb1ffc1475"
+      },
+      {
+        "name": "unlockBranch",
+        "hash": "bc796c12fad99a393d98f6eea3429054e8769c2bceeccc10c69589bcfd08a880"
+      },
+      {
+        "name": "renderExpansionCards",
+        "hash": "58cf3f0aa5b06bb50be5bf947d02f20ac0dff46d627e51f62afdc8ad7ef1e9b8"
+      },
+      {
+        "name": "showInfoToast",
+        "hash": "1e230ecec2dc412dbeea1be5ca65ef698d2d2fc589ad2618e922d970f439370f"
+      },
+      {
+        "name": "askPIN",
+        "hash": "272eb141d15609d70258294125026cf7129efada7780684078bf9d2ae5cd5eaf"
+      },
+      {
+        "name": "maybeAskName",
+        "hash": "7246fca71a836fa0ec8a65e50c782addb0feda84cfd122c119c4f188d77cb739"
+      },
+      {
+        "name": "pickMenuByRule",
+        "hash": "e848fd0b754f3d122657b004737c150e28f96ef5c01022bc55e2bbad5c33e258"
+      },
+      {
+        "name": "handleMenuGridServe",
+        "hash": "5fe0c2ef7727033dd9385ba732204364cc0d6f72042c41c42c695ffa0343d172"
+      },
+      {
+        "name": "spawnCustomer",
+        "hash": "84108d0370e8788831a46d970c8e8402daff85b5b6426255322c33b85cb655a5"
+      },
+      {
+        "name": "layoutTargets",
+        "hash": "cdfdb4821c1302c8dbfe4ebf60629199a66e0b4c94d861f3a670d761b9a4335a"
+      },
+      {
+        "name": "moveCustomers",
+        "hash": "eba93d70ade574e5f9d672f627885c4f6c80ea9d75f0ae76623f726ab6f5eaa7"
+      },
+      {
+        "name": "pickCustomerAt",
+        "hash": "2d5d8759731cee5e0c9d8c286bb02338d2909e70104bc2df0ecf8ff66af1d44f"
+      },
+      {
+        "name": "selectCustomer",
+        "hash": "61ad1a01696c6a5491b5c52ffda9191676d2dd9eaaff770e6d9b976e66c11029"
+      },
+      {
+        "name": "triggerBossFX",
+        "hash": "cb4940a41b1f084be28420d624e570291d67711d8141c72e3d1789e6b944b496"
+      },
+      {
+        "name": "triggerStaffFX",
+        "hash": "10ccea2473b617b5b76031102e1cb37da9f90f4f63976a7953f4ba44be583e6a"
+      },
+      {
+        "name": "maybeTriggerEvent",
+        "hash": "71f987b9ac778e929c17b2f602b50bf7737a3fe9e078e7ff46e2aecceb01cb95"
+      },
+      {
+        "name": "updateEvent",
+        "hash": "9152782ece4b1e9de2f0853084746e7f16a537e7af1303a727c05d2e065caf2e"
+      },
+      {
+        "name": "updateCustomers",
+        "hash": "6725ad2329f3e862e1910aeafee8aceeb38abb6fbf78e35432879e8e6c668fef"
+      },
+      {
+        "name": "fmtDuration",
+        "hash": "7a1a412c95c54e6a5b2231fb905fc14b04470c3c436effc4d847db7c37a068c6"
+      },
+      {
+        "name": "ensureSaveTransferUI",
+        "hash": "f299c735d7a2aeca677f034c8ee26b3dfb604620d983e597d2dcd3910ca2cca2"
+      },
+      {
+        "name": "certStatusText",
+        "hash": "5262042a25c8c78022847fc1960169819eda4d3e9c64e2d62c7d61cbd7fc8045"
+      },
+      {
+        "name": "renderCoupons",
+        "hash": "42be8c4ae2d355d9c265453c15a4d013909af2439b613b85b717cc36c10253c2"
+      },
+      {
+        "name": "renderExchange",
+        "hash": "496effe9a849c906e845fbf2b9e5ea15b405e5d8c3dcea0a730151afd2c57d9d"
+      },
+      {
+        "name": "getCanvasPoint",
+        "hash": "0019a12ae75c71d47e00ae2390fe93e691db8f7cabba53fb03a96464dada1c0d"
+      },
+      {
+        "name": "onCanvasDown",
+        "hash": "b99c1e29c8873fdd5cda0a9ba740d9446823933e9e96e5432b896093a69fd9b0"
+      },
+      {
+        "name": "renderPanel",
+        "hash": "6602e8521303dbf75e2bac123310d7f6782c9f5098d500a33d5e225c832e8adf"
+      },
+      {
+        "name": "updateProgressUI",
+        "hash": "5e0c551f5644157074ec31ac97bfe46ff32735b3d19a26357403d325416a65a9"
+      },
+      {
+        "name": "missionValueLabel",
+        "hash": "45bce7e3d26c7e81e50cf320a0efb2b278e2cdbc97135459e65a9716aea9c230"
+      },
+      {
+        "name": "missionProgressLine",
+        "hash": "02a7cbbff5e24b2cf6703753aab9a37411de71c45c20caf3ffb4cc5008642746"
+      },
+      {
+        "name": "missionRow",
+        "hash": "e67d1a6879702df34325c54cc63970ffb56686277a1c8266f45d5c48fbe31423"
+      },
+      {
+        "name": "weeklyRow",
+        "hash": "cbf3f26ff27dbc075cb7ab924e8c079b47e258a910a1f1cb7e9ba52d9c5c018b"
+      },
+      {
+        "name": "startGameLoop",
+        "hash": "31a61dc565e0db7f33d767cc48bacb87e75c4649eab6b81be32a08bfb1b3131d"
+      },
+      {
+        "name": "frame",
+        "hash": "c69773769ec0df0ef41be6460918c647d3702d97a86d2b5963bcab578106b0aa"
+      },
+      {
+        "name": "renderMapUI",
+        "hash": "b9772eb0b04b8cd5a457e85b6fa454e8795b8dc5c5e329e1a4904afa3d7afff7"
+      },
+      {
+        "name": "updateUI",
+        "hash": "0d61368016b8ffd47f27d2ad607761aa5308a05c882d5ed863c5e2be83202061"
+      },
+      {
+        "name": "updateStatsUI",
+        "hash": "ffcd7fcd6d325514e4bd86186b29ba33e23e70d962119b53ee046b305c9978cb"
+      },
+      {
+        "name": "tick",
+        "hash": "16d168570fbfea51b08a498d11ccada097eeab422fb16b895ad6652855f9305b"
+      },
+      {
+        "name": "setTextIfChanged",
+        "hash": "dcfeb91c3592b752b05743e3d660852d325d6d4842eccdf0538c5467bba22060"
+      },
+      {
+        "name": "renderStampRow",
+        "hash": "f54c9c0aabd82a8e3d6d1f68c2eea27f639f44408854679f142d202da7ff144c"
+      }
+    ],
+    "revisedMain": {
+      "buildMenuGrid": {
+        "before": "4a68dd58a885cd67f1a9215054ce6f9bfa1896bf59f812d31823707ed7400e7e",
+        "after": "7c0b13080fef2cb44da3860e6c6afef8f7b0f1e573af475b79e63da91233c181"
+      }
+    },
+    "unchangedScene": [
+      {
+        "name": "doorRect",
+        "hash": "5cf0db2977340516450eff4fd42f178b2a9aec472ce5d853d1b9d6276534504b"
+      },
+      {
+        "name": "serveSpot",
+        "hash": "77f7d2a57c53f84190952a3063732d0f9bb6fde5b2f5b3427da42b1588d275a9"
+      },
+      {
+        "name": "waitingSlots",
+        "hash": "c298602d7b2472ba027cabc2fc9aebb44aa983518d5aab65b49d68dd6331c4cc"
+      },
+      {
+        "name": "hitCircle",
+        "hash": "e49bb092bbade1d706bc0b58dc38cacedb2cdff5a6ced380ed76105bdce805ff"
+      },
+      {
+        "name": "bossCenter",
+        "hash": "089a8ad26c834b8295e4e015f9b0012131900c7dd2fe27b4e6e53a57b79b8e53"
+      },
+      {
+        "name": "staffCenters",
+        "hash": "fec34c334dbd98f3cabe067b309b658a797e4a287d01ecebd8c6b1d02cb1f25e"
+      },
+      {
+        "name": "roundRect2",
+        "hash": "f027922f86354e8249c396db1f6c161886ba7338f069467bb6f0ec1367e78a13"
+      },
+      {
+        "name": "roundRectPath",
+        "hash": "7c425ce5fee6e72fa28c047f45154f7aed8db69eced646360c7c5e1f7975dcb5"
+      },
+      {
+        "name": "roundRect",
+        "hash": "e98d6fee245258b522636faea7b272b6b19ae92703b3fae0ca4bdf13e10e209f"
+      },
+      {
+        "name": "drawDoor",
+        "hash": "23b6fb719c38405bd80f53e4fdde66b239f1d1835492df922c59f58d75e18798"
+      },
+      {
+        "name": "drawTables",
+        "hash": "bc181800323eab687fbb3c606376c959cae8ea3f90af02fd976bdba35b004f69"
+      },
+      {
+        "name": "drawCounter",
+        "hash": "1079c883c014129d075758e36dce55bcd7d5bcdae340e085d676eeebb7f052ad"
+      },
+      {
+        "name": "_bgSeededRand",
+        "hash": "1dd194aa38fec41e30e7d31776be4c7283a88df8bdc0c23dbeffa60ec00d190c"
+      },
+      {
+        "name": "getAtmosphere",
+        "hash": "adcefe112eca1969b2c9a616334107def0a58eb1ba0366e0779a52a25cc61fc3"
+      },
+      {
+        "name": "drawSkyGradient",
+        "hash": "03756f59c6109a09c707741ea06ba142c97d44fc8e94f5de591f4daeac9aa1a1"
+      },
+      {
+        "name": "drawCloud",
+        "hash": "6ee5100d98447d9e61a4a01bb85b62ed7bd6d53b4061c696a10cc3c6ca74bff0"
+      },
+      {
+        "name": "drawCelestial",
+        "hash": "abb1f3e5a34bf8f3b8e4d09941902adce6b7029f0b0514473b042a5f40c43382"
+      },
+      {
+        "name": "drawHill",
+        "hash": "394c79e5a35ddf7e66d45adfc96c8c8bb6c7ca16b73178ebf83d5ee720283940"
+      },
+      {
+        "name": "drawStatueOfLiberty",
+        "hash": "096b6e42e893782ff55e059b4317e264a65d34fee4e3685045e9f03fea0aa1c3"
+      },
+      {
+        "name": "drawEiffelTower",
+        "hash": "0c26c14bf4a151034d2e8f8f59476f4e8835503b19b711506429ea44d91f5ed9"
+      },
+      {
+        "name": "drawFireworks",
+        "hash": "3cc32a96d4c220206c74d1e5f878957402ead5d58d506e04a36846948d6ca7f5"
+      },
+      {
+        "name": "render",
+        "hash": "3ec0095209b24affc75ba2c5ca3239af41b55316d97ef8b5600d38ba5ce7006a"
+      },
+      {
+        "name": "isGlobalBuffActive",
+        "hash": "f5fe8d5954f7b47307fc051fe9904184da64844affb4b8459a7ac3284e75cab0"
+      },
+      {
+        "name": "getClickScale",
+        "hash": "673a2eea6e1411d605421025f9585e09d6eeff8d874959cd304d401702414a55"
+      },
+      {
+        "name": "bossBurst",
+        "hash": "42d443b71dd52ddf7298102e0d6d1155afea7291893fd8c25532bef8d208ceae"
+      },
+      {
+        "name": "updateBossParticles",
+        "hash": "83f5c80e072a48a6ebb34bd66dd9fec0c149c6f5bf53a3cf4f77d8f8d63f0b23"
+      },
+      {
+        "name": "drawBossParticles",
+        "hash": "f47b2c37e825ef06d4bc0bfd7faaa3edf775db25fae326bea1b3c9bb5eabcad2"
+      },
+      {
+        "name": "drawBossFlash",
+        "hash": "0af41625cb152347b3314f159a1eccc077035e12108fc9c796e4530b01584b94"
+      },
+      {
+        "name": "floatText",
+        "hash": "ca5adb70fb2ec490dcacd737c4d96b3fe97b115f62a3f481ec836f902c10df97"
+      },
+      {
+        "name": "showFloatingText",
+        "hash": "296f247f1be6f1231503f4695b9d657b7b9ad293addd3fddf77c35e0cf2b5cc4"
+      },
+      {
+        "name": "applyElementFX",
+        "hash": "4f18a7287276c4a0bb3258147168b333369c8086504a49ce32b64059b9133606"
+      },
+      {
+        "name": "updateFloats",
+        "hash": "7dc932822f702d5cdcdca21713a21ceb6367340251b8eb1728e243bb8115b766"
+      },
+      {
+        "name": "bossSpeak",
+        "hash": "83ed63a230718a929ed67f1b2d76a719be496130b3ff9eec4235c06eda6bc06c"
+      },
+      {
+        "name": "updateBoss",
+        "hash": "a327926cb80a8646fc432d0aa839bbb1ed835408c2a8e384eb0e2bc9c84a6239"
+      },
+      {
+        "name": "drawFloats",
+        "hash": "b14750d1e12073104beb84dddfe4c96478c3564e1ba394170b330b4654a663e0"
+      },
+      {
+        "name": "drawStaffSpeechBubble",
+        "hash": "8b5e2d3c698139df13f88a6c1ef7e69a2d06227af5aee1f1a3d675e44b4fdd5a"
+      },
+      {
+        "name": "drawSpeechBubble",
+        "hash": "9ad79a697eb2b8a36c673c6914ae04d02897912964fb27fdcdc28eea03ecc835"
+      },
+      {
+        "name": "signStage",
+        "hash": "28986a6413e2bbf38ff316b57b35f9a9c2a71b40bb81523b9f1600d485de31e8"
+      },
+      {
+        "name": "signStageName",
+        "hash": "85c647fb7e9c544c91f4efee32e33e05f06783128abf76053e3fbb18c72bb13f"
+      }
+    ],
+    "revisedScene": {
+      "drawBackground": {
+        "before": "fd7da76ea237df5a1507c43434e32c5918c517ee5fffd702129dd010bdf1cb02",
+        "after": "3377db5a6170eac654a774ba3b6c62a938d0354fb976d4fe9fcee0c60aac6206"
+      },
+      "drawBoss": {
+        "before": "85437e7ba2308a317ae2679d4f1df5b1893ad447e863fac1dd365280e8973bf3",
+        "after": "f29abf51f1fd0980b817aa23645f0b44123844455221e648ad3c894745806eb7"
+      },
+      "drawStaff": {
+        "before": "6e8a52463627258f0d40e11f1ebdc7f73ea37392ea83ae794061ddc7f00912be",
+        "after": "3a9b339948d3da2823cf27e5793b16265c38bf600ba3745255ee2ef8c86dad12"
+      },
+      "drawCustomers": {
+        "before": "40c089ce5f460788cd17ad0710610a11cb51d67421d36a02844d643926229fe2",
+        "after": "cd2e0574dd022902100b95d8f443c16ea6cb6fd8eae97174fc06f09885c3a8f4"
+      },
+      "drawDeliveryLayer": {
+        "before": "b3e8d165beee9b1ad5c94d1dd059e55674ecdacdbaaf5bd95dbec814b940b07e",
+        "after": "7179517df162f0ed517fc461b7e1ad1e41a0c150eff7938b2756407300b99b99"
+      },
+      "preloadSignImages": {
+        "before": "0bf0c69336f4c1fc8b2dc92812fc130dfd8c2832e054857912d872c73bb42880",
+        "after": "fa8bb4761504dd22783b943241b735c32f2733465d6575a67495d70f674fb894"
+      },
+      "tryLoadSignImage": {
+        "before": "11b02034af982ace7c851c9979ed291e3142e9a702a6428a0f8de0bdf7f45ca9",
+        "after": "387d883a3c3de7bf5e4a8858208f75da8aa3dd7854504298c63b64742b444b3a"
+      },
+      "getSignImage": {
+        "before": "4c5126b4ccacd9f64a40bfe9cd887af8fa2b5c90705a043b67a7250f5ea34a38",
+        "after": "1922ea2a647d4e86f00f4cf5ca63db411dbf81c15050dc057ab06d748718ec76"
+      },
+      "drawSignboard": {
+        "before": "dbc69a58c73982d688db439e7fd13f84dd5b435722004490afb32cfaba8c6dc2",
+        "after": "0c87fe10e26b6de1c5db90d6632e0bbd8a6ad4fd224eb139a6a17e1e6a263b38"
+      }
+    },
+    "unchangedCore": [
+      "js/core/content.js",
+      "js/core/utils.js",
+      "js/core/branches.js",
+      "js/core/state.js",
+      "js/core/recovery.js",
+      "js/core/coupons.js",
+      "js/core/research.js",
+      "js/core/ending.js",
+      "js/core/missions.js",
+      "js/core/growth.js",
+      "js/core/offline.js",
+      "js/core/economy.js",
+      "js/core/persistence.js",
+      "js/core/money.js",
+      "js/core/session.js",
+      "js/core/ui.js",
+      "js/core/pwa.js",
+      "js/core/audio.js",
+      "js/core/config.js",
+      "js/core/services.js",
+      "js/core/boot.js"
+    ],
+    "saveSchemaChanged": false,
+    "cssAudioChanged": false
+  },
+  "coreCssAudioChanged": false,
+  "saveSchemaChanged": false,
+  "mainMerge": false,
+  "deployment": false,
+  "actualDevicesScreenReaderFirefoxWebKit": "not evaluated",
+  "humanAudioQuality": "not evaluated",
+  "remoteCI": "not evaluated",
+  "sourceSHA256": {
+    "js/core/money.js": "f25ead1c0f7a10ddbc91f6b79216354a8d7d358131559443a00035b7ccee00ec",
+    "js/core/utils.js": "acc6fc8c352f95a3e693d5616cd441ac0b8fe2e00bf744db0ce8f8623f4995c5",
+    "js/core/audio.js": "b0714cca1b8482cda586db5cda9caac30a9c819f575b45e8ce6abb5b9c485b6e",
+    "js/core/config.js": "ff4dcc5c68c5434ebe5080ddc7a128fbb6b0f8480d63329abaf1b09bfdcbdac5",
+    "js/core/coupons.js": "71bb990c226b33c5f027048c3abc49d3683949600d993b446146eab5c5f8dcc5",
+    "js/core/content.js": "46d3ae30430f5c7ec63341303734af32c43152dd359ee834b66e079fd183374e",
+    "js/core/state.js": "8a3819788ffed992db51f1ca09d18614231e389eccbfc48dfba09abe9e8283cc",
+    "js/core/recovery.js": "5e89119445e010a13df7d4f2c9b14af4ba2f4e999d8e1959f5748b17a301ebe7",
+    "js/core/session.js": "847d0efd150ebd132708e155ffe10ab23d81c2c41badd4e975cc6466398bdd0e",
+    "js/core/persistence.js": "aac11def66b44dd47247f4bbffbb3bc70f3da31a76316599f29d198e83b0f6cc",
+    "js/core/growth.js": "4fefda253e0313feab8e2f7d388d759f7feeedf21504ae3d47ab2c82c64ae911",
+    "js/core/research.js": "8599bc62019cd0970e83000e6335a4630c5884946519398cc5891fd0a20d7fcd",
+    "js/core/offline.js": "d545dc92956e53fb3c65b8357562e5191c38de24719855c7556f01143c08e1b0",
+    "js/core/missions.js": "1efe1c55a66e7e22c0fb0f8c08e614403ff900022eca48be0db135d1458a6e8c",
+    "js/core/economy.js": "cbd7a30d026da2aab7b7b879cc1610ae3628d336f01eff90edbb772ab69dd6eb",
+    "js/core/ending.js": "78ad7a762d37fa352a19c613b010099057da782140187086e881ad81ef6d12d0",
+    "js/core/branches.js": "9b63d60d046fe1dd9e7380da01b81e7a42a1e975ac4a92107b6fc85752e96b76",
+    "js/core/services.js": "310261bdfeee9a279a45cd8806200887309f82af471b7a89739639b800e2364c",
+    "js/media/catalog.js": "efb6fa18417791c3ecb4eac1f395f5dcc0ea7e9cdf4867e980469589140bb8c7",
+    "js/media/images.js": "45ddc0224571343f8e665a50203f74451ff5e4b348b5e5e36060fb11fe23f12c",
+    "js/scene/layout.js": "2d797ee12dc922be45711493d7ff4645e76f38a4cbd0b1b457ce449abd1a9577",
+    "js/scene/effects.js": "56fb1db0eac51a98f887885206c0b609801063822c63d995e37ae502a06a38f0",
+    "js/scene/signboard.js": "f0c03347bc94dd8dd2a0d3181eb1ee106d7195beed0bc47778bd1d829a3944ab",
+    "js/scene/background.js": "c2e60c6217ba47acadac17ac6ad851ec0aeba4ef004bda6a043fb9707cdd80ec",
+    "js/scene/characters.js": "87a953b44a06bce2e83ec8a7d07f7ed5bc24e79439bce32fb4bbb3a15e1d4638",
+    "js/scene/render.js": "47294657fc58c14270731b357cc49c61ddb20fdd91010305b9d63329b0645c5d",
+    "js/main.js": "1dd05ff0feaf89be31c3e22f0cdde7777851719d1a24afd83060bfbf3acb4d4c",
+    "js/core/ui.js": "b46897b845ab2b5b57881036cf1d57a806748b8a9df4e4b3e5180f1f8247b31e",
+    "js/core/pwa.js": "a8abbc93292f5777769f2a37ef6d4c491b2c8ee33cbe3c6ea5bd79727e0bb1a7",
+    "js/core/boot.js": "342b008fa0930a7dcda221667ef032ebf79b852aed1de6baa99e4ddffd182395",
+    "index.html": "8e7c0387fb086a30ea76048059d0a2d41f11e221e8038b75c4252b76e2cf9385",
+    "sw.js": "7dc985b0bab7775620a3a18e82d9d78ab15fd5c4a269a9880883a779db271aa4",
+    "assets/images/catalog.json": "0a1de5ae094791174f202125c112e3c5a79f33afea58d30cb0d18086ea491f7e",
+    "scripts/image-catalog.cjs": "b6719e65a19819115ea42d7fccc5b1f857c124ec34893fe13eb2440d5d9eec2f",
+    "scripts/build-pwa.cjs": "b812607d1644bacdd7652019c47b8a1caa2fffd3745e604e1150a0d26c4ce0c5",
+    "scripts/check-js.cjs": "96bc8afc9974c95f26c1e278c553a51fc372e9a309127bdc10cf9aeeb0023131",
+    "tests/helpers/game.cjs": "506b56313480fe99b06ba744cb1683871b0da4fa84e7fb3f74a43fc66bbd8203",
+    "tests/helpers/pwa.cjs": "e57e8731bf5f3da80d506752bf4cb420bf7e036f7c0afa8314a8b23189a8a4a2",
+    "tests/helpers/recovery-media.cjs": "7b8d258646c0003341ec65a090de2e29c3f62b49f38503ddcc9f2813bc2fa5e9",
+    "tests/pwa.test.cjs": "b8457500c3b60914144bdf3d6b4fd83ced9f6081a3f6a5dad1f6a76045facbaa",
+    "tests/pwa-release.test.cjs": "25c669e3237bf7321a7fc2d92bd0a464e3839a6a4f99ce9473bc29056200afc8",
+    "tests/recovery-scene.test.cjs": "2f96dd63279a5c1f242376b6df5ad15a53ead2700b3de51a9598ad4ff7084595",
+    "tests/fixtures/recovery-image-adapters.json": "5e53dbc3e9d84e46fb2f0987d2750b6f25ff557779072e680d86074b26cccf91",
+    "tests/recovery-images-build.test.cjs": "7d530c255df6a0a0014066f9d6a718aa9763be46a3dded3d31ddbbc732984b45",
+    "tests/recovery-images.test.cjs": "47aa730f2e0001132a0104d7e8096e2913a98942f52fa210607f954bd9824559",
+    "tests/recovery-images-pwa.test.cjs": "793f904a4ff3d446af5e182ad64128bc0a8fc28e97e509d6b57a09defa118923",
+    "docs/runtime-globals.json": "49dc41fdf9018b5ed7d50ef3ba16d7466eed0f5e7f57671787a8b753c99726f8"
+  },
+  "logsSHA256": {
+    "targeted.log": "38f34781fd7caf5c0085a9f5d575142b34063b23f28c0e9bc5e9ca93dfd27bc0",
+    "runtime-final.log": "d3b30cae3e5dbf1fc66d69ff6e0999436c3f42cd162b3c2bf6a7a894962d308d",
+    "pwa-build.log": "05474b4ba827d541d759201ec5322240a17fdea89e4be470650c7a2f6ae0fff5",
+    "doctor.log": "62c99d56d8957a790a2589882100d0b6a205a9d73d17ca216450b56cfa8c9b89",
+    "check.log": "59e9b1e70244a99354839d590be07a3ffeb70a9a204ab8232225a6fcd22f613b",
+    "test.log": "90ad1e5d082b566efbb26f560880abf1448fa453d7f4ba19faff2622fd626534",
+    "capture-before.log": "7f5526cf0701df4cefd4b5415e98fc815c84035c9cafb6f1cacae71cd2ec2475",
+    "capture-after.log": "21e5f25b5b8eef9f59980e87c2781a25d172ab31dd802dc8441c4296248e0a6f",
+    "pwa-upgrade.log": "7cda63bdddef075dd734bafae11b18e64e40d38f22461cf40de9b3a5b0d918be"
+  }
+}

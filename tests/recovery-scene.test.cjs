@@ -36,9 +36,12 @@ test('recreated scene owners have one definition, one effective FX default and p
   assert.doesNotMatch(sources.join('\n'), /addEventListener\(|setInterval\(|requestAnimationFrame\(/);
 });
 
-test('all 48 moved function bodies and runtime buffer declarations match c66d96f', () => {
+test('scene bodies retain c66d96f except explicitly pinned image adapters; buffer declarations stay identical', () => {
   const source = sources.join('\n');
-  for (const [name, digest] of Object.entries(expected.functions)) {
+  const revised = require('./fixtures/recovery-image-adapters.json').functions;
+  assert.equal(Object.keys(revised).length, 9);
+  for (const [name, originalDigest] of Object.entries(expected.functions)) {
+    const digest = revised[name] || originalDigest;
     const start = source.indexOf('function ' + name + '(');
     assert.ok(start >= 0);
     assert.equal(hash(source.slice(start, source.indexOf('\n}', start) + 2)), digest, name);

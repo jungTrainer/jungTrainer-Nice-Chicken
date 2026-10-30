@@ -74,7 +74,7 @@ function drawBoss(charY) {
   ctx.font = "60px 'Jua', sans-serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText("👩‍🍳", 0, -20);
+  if (!ImageAssets.draw(ctx, "character.boss", -30, -50, 60, 60)) ctx.fillText("👩‍🍳", 0, -20);
 
   if (isBossBuff) {
     ctx.font = "20px sans-serif";
@@ -179,7 +179,8 @@ function drawStaff(y) {
 
     ctx.font = "50px 'Jua', sans-serif";
     ctx.fillStyle = "#000";
-    ctx.fillText(s.emoji, 0, -10);
+    const imageId = "staff." + s.key + (s.key === "grandson" && s.emoji === "🤖" ? ".robot" : "");
+    if (!ImageAssets.draw(ctx, imageId, -25, -35, 50, 50)) ctx.fillText(s.emoji, 0, -10);
 
     ctx.font = "14px 'Jua', sans-serif";
     ctx.fillStyle = isBuffed ? "#FFD700" : isExhausted ? "#bbb" : "#eee";
@@ -322,7 +323,7 @@ function drawCustomers() {
       ctx.font = "42px sans-serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText(c.emoji || "🙂", c.x, c.y);
+      if (!ImageAssets.draw(ctx, ImageAssets.customerId(c.emoji), c.x-21, c.y-21, 42, 42)) ctx.fillText(c.emoji || "🙂", c.x, c.y);
       ctx.restore();
       return;
     }
@@ -357,7 +358,7 @@ function drawCustomers() {
     ctx.font = "42px sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(c.emoji || "🙂", c.x, c.y);
+    if (!ImageAssets.draw(ctx, ImageAssets.customerId(c.emoji), c.x-21, c.y-21, 42, 42)) ctx.fillText(c.emoji || "🙂", c.x, c.y);
     ctx.restore();
 
     // One order label follows the selected customer; other arrivals add no duplicate labels.
@@ -447,7 +448,7 @@ function drawDeliveryLayer(now) {
       ctx.restore();
     }
 
-    ctx.fillText(r.emoji, r.x, r.y + jitter);
+    if (!ImageAssets.draw(ctx, ImageAssets.vehicleId(r.emoji, r.vehicleId), r.x-fontSize/2, r.y+jitter-fontSize/2, fontSize, fontSize)) ctx.fillText(r.emoji, r.x, r.y + jitter);
   }
 
   // 상태 HUD (작고 깔끔)

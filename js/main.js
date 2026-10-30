@@ -961,6 +961,7 @@ function buildMenuGrid() {
     `;
 
     menuGrid.appendChild(btn);
+    ImageAssets.mount(btn.querySelector(".emoji"), "menu." + m.id, m.emoji);
   });
   const next = MENUS[openCount];
   if (next) {

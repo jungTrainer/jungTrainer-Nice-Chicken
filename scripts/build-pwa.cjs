@@ -6,7 +6,9 @@ const hash = (bytes) => crypto.createHash("sha256").update(bytes).digest("hex");
 const sri = (bytes) =>
   "sha256-" + crypto.createHash("sha256").update(bytes).digest("base64");
 function build(root, check = false) {
-  const read = (file) => fs.readFileSync(path.join(root, file));
+  const images = require("./image-catalog.cjs").buildImageCatalog(root);
+  const imageAssets = new Map(images.assets.map(asset => [asset.path, asset]));
+  const read = file => file === "js/media/catalog.js" ? Buffer.from(images.source) : fs.readFileSync(path.join(root,file));
   const original = read("index.html").toString();
   const normalized = original
     .replace(
@@ -34,7 +36,7 @@ function build(root, check = false) {
     /\/\/ BEGIN PWA RELEASE[\s\S]*?\/\/ END PWA RELEASE/,
     "// PWA GENERATED",
   );
-  const optional = [
+  const legacyOptional = [
     "END_01.png",
     "END_02.png",
     "END_03.png",
@@ -42,13 +44,14 @@ function build(root, check = false) {
     "END_05.png",
     "END_SOUND.mp3",
   ];
+  const optional = [...legacyOptional, ...imageAssets.keys()];
   const version =
     "imp12-" +
     hash(
       JSON.stringify([
         normalized,
         workerSource,
-        ...[...files, ...optional].map((file) => [file, hash(read(file))]),
+        ...[...files, ...optional].map(file => [file, imageAssets.has(file) ? imageAssets.get(file).hash : hash(read(file))]),
       ]),
     ).slice(0, 20);
   let html = normalized.replace('content="unbuilt"', `content="${version}"`);
@@ -69,9 +72,13 @@ function build(root, check = false) {
       ".css": "text/css",
       ".json": "json",
       ".png": "image/png",
+      ".jpg": "image/jpeg",
+      ".jpeg": "image/jpeg",
+      ".webp": "image/webp",
+      ".svg": "image/svg+xml",
       ".mp3": "audio/mpeg",
     })[path.extname(file)];
-  const asset = (file) => ({
+  const asset = (file) => imageAssets.get(file) || ({
     path: file,
     hash: hash(file === "index.html" ? html : read(file)),
     mime: mime(file),
@@ -86,11 +93,15 @@ function build(root, check = false) {
     `// BEGIN PWA RELEASE\nconst RELEASE = ${JSON.stringify(release, null, 2)};\n// END PWA RELEASE`,
   );
   if (check) {
-    if (html !== original || worker !== workerOriginal)
+    if (html !== original || worker !== workerOriginal ||
+        !fs.existsSync(path.join(root,"js/media/catalog.js")) ||
+        fs.readFileSync(path.join(root,"js/media/catalog.js"),"utf8") !== images.source)
       throw Error(
-        "PWA release is stale. Run npm run pwa:build and commit index.html + sw.js.",
+        "PWA release is stale. Run npm run pwa:build and commit index.html + sw.js + js/media/catalog.js.",
       );
   } else {
+    fs.mkdirSync(path.join(root,"js/media"), {recursive:true});
+    fs.writeFileSync(path.join(root,"js/media/catalog.js"), images.source);
     fs.writeFileSync(path.join(root, "index.html"), html);
     fs.writeFileSync(path.join(root, "sw.js"), worker);
   }

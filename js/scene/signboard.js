@@ -1,36 +1,14 @@
 /* Recovery-Structure-1: canonical signboard definitions; game state, input and persistence keep their existing owners. */
 function preloadSignImages() {
-  for (let i = 0; i < SIGN_STAGES_MAX; i++) {
-    tryLoadSignImage(i);
-  }
+  for (let i = 0; i <= 9; i++) tryLoadSignImage(i);
 }
 
 function tryLoadSignImage(stage) {
-  const slot = SIGN_IMAGES[stage];
-  if (slot.tried && slot.ok) return;
-  const candidates = SIGN_IMAGE_CANDIDATES[stage];
-  if (!candidates || slot.idx >= candidates.length) {
-    slot.tried = true;
-    slot.ok = false;
-    slot.img = null;
-    return;
-  }
-  const src = candidates[slot.idx++];
-  const img = new Image();
-  img.onload = () => {
-    slot.img = img;
-    slot.ok = true;
-    slot.tried = true;
-  };
-  img.onerror = () => {
-    tryLoadSignImage(stage);
-  };
-  img.src = src;
+  return ImageAssets.load("signboard." + stage);
 }
 
 function getSignImage(stage) {
-  const slot = SIGN_IMAGES[stage];
-  return slot && slot.ok && slot.img ? slot.img : null;
+  return ImageAssets.image("signboard." + stage);
 }
 
 function signStage() {
@@ -71,6 +49,11 @@ function drawSignboard() {
   // 공통: 모든 간판에 둥둥 떠다니는 효과 적용 (레벨별로 위상차)
   const floatOffset = Math.sin(Date.now() / 800 + lvl) * 5;
   const y = topY + floatOffset;
+  const imageWidth = Math.min(canvas.width - 30, 340);
+  if (ImageAssets.draw(ctx, "signboard." + lvl, cx-imageWidth/2, y-40, imageWidth, 120)) {
+    ctx.restore();
+    return;
+  }
 
   // 공통 외곽선 스타일 설정
   ctx.lineWidth = 3;

@@ -1,5 +1,5 @@
 {
-  "source": "Recovery-Structure-1 from c66d96f; scene owners before main/boot; newly validated implementation",
+  "source": "Recovery-Structure-2; immutable image catalog/loader before scene; business/input/save ownership unchanged",
   "modules": [
     {
       "file": "js/core/money.js",
@@ -333,6 +333,20 @@
         "deliveryNextIntervalMs",
         "deliveryVisualAcc",
         "deliveryNextVisualSec"
+      ]
+    },
+    {
+      "file": "js/media/catalog.js",
+      "functions": [],
+      "bindings": [
+        "IMAGE_CATALOG"
+      ]
+    },
+    {
+      "file": "js/media/images.js",
+      "functions": [],
+      "bindings": [
+        "ImageAssets"
       ]
     },
     {

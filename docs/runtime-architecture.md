@@ -1,6 +1,6 @@
 # 실행 구조와 상태 변경 계약
 
-현재 장면 구조: 복구-구조-1, 2026-10-30(한국 시간). 기준 main c66d96f에서 새로 구현·검증했다. 데이터 범위는 [본사·지점 규칙](data-ownership.md), 금액은 [성장·금액 정책](economy-policy.md)을 따른다. 모듈 분리는 [IMP-08 보고서](improvements/IMP-08-state-modules.md)에 기록했다.
+현재 구조: 복구-구조-2, 2026-10-30(한국 시간). 기준 origin/recovery-structure-1의0274d0e에서 이미지 교체 기반을 추가했다. 데이터 범위는 [본사·지점 규칙](data-ownership.md), 금액은 [성장·금액 정책](economy-policy.md)을 따른다. 모듈 분리는 [IMP-08 보고서](improvements/IMP-08-state-modules.md)에 기록했다.
 
 ## 정의와 시작 순서
 
@@ -13,16 +13,12 @@
 | 7–10 | `state.js`, `recovery.js`, `session.js`, `persistence.js` | 원본 상태·명시적 복구·단일 작성자·dirty/저장/가져오기 | 기존 상태/금액·지점/미션/엔딩·화면 lifecycle |
 | 11–15 | `growth.js`, `research.js`, `offline.js`, `missions.js`, `economy.js` | 성장·연구·확정/수령·미션·정확한 정산/거래 | 기존 core API·입력/저장·장면 표시 |
 | 16–18 | `ending.js`, `branches.js`, `services.js` | 엔딩 재생/취소/1회 효과·지점 snapshot·서비스 타이머/연구 간격 캐시 | 기존 core·장면/입력·화면 함수 |
-| 19 | `scene/layout.js` | 문/서빙/대기열·보스/직원 위치·충돌/둥근 사각형 helper | 호출 시 canvas·고용 조회 |
-| 20 | `scene/effects.js` | 기존 FX 기본값·일시 버퍼·텍스트/입자·클릭 크기/버프 조회 | 설치 시 일시 값만 생성; 실제 호출 시 ctx/시각 |
-| 21 | `scene/signboard.js` | 기존 이미지 후보 로딩·간판 레벨/그리기 | 호출 시 config의 SIGN_IMAGES/candidates·Image·canvas/state |
-| 22 | `scene/background.js` | 배경/소품·결정적 난수·분위기·기존 배경 캐시 | 호출 시 canvas·지역·인테리어 |
-| 23 | `scene/characters.js` | 보스/직원/손님·말풍선·배달 표시 | 호출 시 상태·layout/effects·services의 visualRiders |
-| 24 | `scene/render.js` | 기존 safeLayer 격리와 레이어 합성 순서 | 모든 장면 정의·main의 canvas/ctx가 준비된 뒤 호출 |
-| 25 | `main.js` | DOM refs/입력·고객 진행·버프 발동·패널/지도/리포트/HUD·tick/frame | core 및 장면 함수를 직접 호출 |
-| 26–28 | `ui.js`, `pwa.js`, `boot.js` | 기존 모달 입력·업데이트 대기/적용·초기화와 단일 loop 시작 | 모든 정의 로드 후 기존 lifecycle |
+| 19–20 | `media/catalog.js`, `media/images.js` | 빌드 생성 불변 이미지 목록·해시, 공통 로더/디코드 캐시·Canvas/메뉴 어댑터 | 설치 시 Map/WeakMap만 생성. DOM/state/미디어는 실제 호출 시에만 접근 |
+| 21–26 | `scene/layout.js`, `effects.js`, `signboard.js`, `background.js`, `characters.js`, `render.js` | 기존 배치/효과·간판·배경·인물/라이더·레이어 합성 | 호출 시 ImageAssets 또는 기존 이모지/그림; 게임/입력은 기존 owner |
+| 27 | `main.js` | DOM refs/입력·고객 진행·버프 발동·패널/지도/리포트/HUD·tick/frame | 기존 API, 메뉴 emoji host에 표시용 mount 한 번 추가 |
+| 28–30 | `ui.js`, `pwa.js`, `boot.js` | 기존 모달 입력·업데이트 대기/적용·초기화와 단일 loop 시작 | 모든 정의 로드 후 기존 lifecycle |
 
-scene 파일은 `js/scene/`, 나머지 core 파일은 `js/core/`에 있다. 실행 시 상호 호출은 남아 있으나 이전 함수의 캡처·재할당 체인은 없다. `main.js`의 DOM 입력 delegation은 평가 시 연결되고, `ui.js`는 DOMContentLoaded에서 입력 소유권을 구성한다. 마지막 `boot.js`의 DOMContentLoaded가 DOM refs·저장 lifecycle을 연결한 뒤 load → sanitize/bootstrap → 오프라인 확정 → 엔딩 UI 복원 → 단일 rAF를 시작한다. 이벤트 연결 guard와 엔딩 WeakSet은 버튼을 여러 번 연결하지 않는다.
+media는 `js/media/`, scene은 `js/scene/`, 나머지 core 파일은 `js/core/`에 있다. 실행 시 상호 호출은 남아 있으나 이전 함수의 캡처·재할당 체인은 없다. `main.js`의 DOM 입력 delegation은 평가 시 연결되고, `ui.js`는 DOMContentLoaded에서 입력 소유권을 구성한다. 마지막 `boot.js`의 DOMContentLoaded가 DOM refs·저장 lifecycle을 연결한 뒤 load → sanitize/bootstrap → 오프라인 확정 → 엔딩 UI 복원 → 단일 rAF를 시작한다. 이벤트 연결 guard와 엔딩 WeakSet은 버튼을 여러 번 연결하지 않는다.
 
 ## 상태 변경과 저장
 
@@ -47,7 +43,7 @@ scene 파일은 `js/scene/`, 나머지 core 파일은 `js/core/`에 있다. 실�
 
 ## 변경 시 검증
 
-`npm run doctor`, `npm run check`, `npm test`를 실행한다. 현재 기준 c66d96f의 기존 검사는422개이며 새 장면 검사17개를 더한 총439개를 모두 통과했다. 고정 Playwright Chromium과 실제 SW를 사용하고 문법 검사에 js/scene을 포함한다. 설치/정의 중복 검사는 `tests/refactor.test.cjs`, 지점/저장 원본의 규칙은 `tests/branches.test.cjs`에 있다. 브라우저 검사는 자체 HTTP 서버와 Chromium을 열고 종료한다.
+`npm run doctor`, `npm run check`, `npm test`를 실행한다. 현재 검사는 기존439개와 새 자산25개, 총464개이며 모두 통과했다. 고정 Playwright Chromium과 실제 SW를 사용하고 문법 검사에 js/scene을 포함한다. 설치/정의 중복 검사는 `tests/refactor.test.cjs`, 지점/저장 원본의 규칙은 `tests/branches.test.cjs`에 있다. 브라우저 검사는 자체 HTTP 서버와 Chromium을 열고 종료한다.
 
 측정은 `node scripts/measure-runtime.cjs [비교할 정적 웹앱 디렉터리]`를 사용한다. 게임 API를 계측하는 래퍼는 이 별도 브라우저 측정 페이지에만 존재하며 앱에 설치되지 않는다. 연산 수와 표시 정확도를 먼저 비교하고 실행 시간은 동일 기기/부하에서 참고한다. CI의 시간 성능 임계값으로 사용하지 않는다.
 
@@ -124,6 +120,8 @@ getRegionUnlockCost 하나가 정확한 모드 비용을 반환한다. main unlo
 
 ## 복구-구조-1 장면 경계와 자산 후속 작업
 
+아래는 복구-구조-1 당시의 기록이다. 현재 이미지 경계는 다음 복구-구조-2와 상단 표를 따른다.
+
 main의 장면 함수48개와 일시 버퍼 선언은6개 역할 파일로 원문 그대로 이동했다. 남은 main 함수49개도 원문이 동일하다. 설치/정의 중 함수를 캡처·재할당하는 래퍼나 새 listener/loop는 없다. main은4,409→2,426줄이다. 실제 입력/구매/정산·버프 발동/dirty·저장·고객 이동·tick/frame은 기존 owner에 남는다.
 
 기준 main에 있던 window._fxState 초기값2개 중, 시작 시 최종적으로 남는 두 번째 객체를 effects의 단일 기본값으로 유지했다. 두 대입 사이에는 사용자 입력/boot 실행이 없으며 함수 정의·입력 등록만 있다. 본사/지점·import/reset의 기존 FX 초기화/rollback은 그대로다. _bossAnim의 기존 t0 평가는 앞당겨지지만 이 필드는 현재 소비되지 않으며 Date.now/performance.now에 의한 실제 연출 계산과 취소/저장 규칙은 바꾸지 않았다.
@@ -131,3 +129,16 @@ main의 장면 함수48개와 일시 버퍼 선언은6개 역할 파일로 원�
 floats/bossParticles/bossFlash/_bossAnim은 effects, _BG_CACHE는 background의 일시 캐시다. 서비스 타이머·연구 간격·visualRiders는 기존 services 소유다. SIGN_IMAGES/candidates는 기존 config에 남고, boot의 preloadSignImages 호출·누락 후보 순서·기존 그림 fallback을 유지한다. 사용하지 않던 소품/도형 helper도 새 화면에 연결하지 않았다.
 
 다음 이미지 단계는 표시 ID 목록·공통 로더/캐시와 기존 이모지/그림 fallback의 경계다. Canvas 장면의 fillText/그리기와 main의 메뉴 표시를 어댑터로 단계적으로 연결하되, 입력 영역·게임 상태/dirty/보상과 분리한다. 실제 새 이미지 교체·오디오 목록/재생·패널/지도/HUD 분리는 후속 작업이다. [새 구현/검증/한계](improvements/REC-STRUCTURE-01-scene.md).
+
+
+## 복구-구조-2 이미지 목록·캐시 경계
+
+편집 원본은 assets/images/catalog.json, Node 빌드 검사는 scripts/image-catalog.cjs, 브라우저 필수 셸은 생성된 media/catalog.js와 media/images.js다. 목록은 기본 sources가 모두 비어 기존 이모지/그림을 유지한다. 메뉴/직원6명·로봇·손님 별칭·차량·지역/간판 ID는 표시 전용이며 저장/게임 ID를 바꾸지 않는다. 구 간판 로더의 이름은 유지하지만 활성 파일/디코드 캐시는 ImageAssets 하나다. SIGN_IMAGES/candidates 바인딩은 config에 호환상 남는다.
+
+빌드는 로컬 경로·후보 수·fit/anchor·별칭·symlink 탈출·파일8MiB 제한을 검사하고 SHA-256/MIME를 목록에 넣는다. 같은 이름의 파일 교체와 목록 수정도 generated JS/SRI/SW 버전을 바꾼다. 선택 그림의 누락은 hash:null로 고정하고 미래 파일을 임의로 가져오지 않는다. 필수 JS2개 추가로 scripts30/필수35, 기본 선택6이다. 등록한 그림만 중복 제거해 선택 목록에 더한다. 잘못된 선택 그림은 셸 설치를 실패시키지 않는다.
+
+ImageAssets의 path+hash Map과 DOM WeakMap token, Promise/Image/Blob URL은 저장과 별개다. 실제 접근/명시 preload에서만 same-origin fetch→MIME/해시→Blob decode를 수행한다. fetch/전체decode 각10초·원본8MiB·디코드16M픽셀 제한을 적용하며 결과는 null/기존 표시로 끝난다. Image.decode 자체가 멈춰도 deadline으로 실패를 종결하고 URL/timer를 해제한다. 실패는 재프레임/조회마다 재요청하지 않고 명시 retry 또는 새 문서에서 재시도한다.
+
+장면은 기존 transform/상자·hit 영역을 사용한다. 배경은 기존 절차 그림 뒤에 이미지를 겹쳐 투명/contain 여백의 잔상을 막는다. 메뉴는 원래 텍스트의 흐름 크기를 유지하며 aria-hidden/pointer-events:none canvas만 추가한다. 늦은 callback은 isConnected와 token을 확인해 지점/import/reset의 옛 노드나 이전 mount에 붙이지 않는다. 성공/실패 callback에서 state/dirty/save/보상·서비스/연구나 게임 loop를 호출하지 않는다.
+
+기존 main48함수·scene39함수와 core21파일은 원문이 같고, 메뉴1함수/scene9함수의 표시 연결만 수정했다. 기존 구조 검사의 변경은 이9개 어댑터 hash 고정이며 동작 검사는 유지했다. 테스트 helper의 assets 복사·MIME·선택적 root/prepare hook은 임시 자산 검사만 위한 변경이다. [편집 안내](../assets/images/README.md), [검증/한계/다음 단계](improvements/REC-STRUCTURE-02-image-assets.md).

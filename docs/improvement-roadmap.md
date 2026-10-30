@@ -1,6 +1,8 @@
 # 개선 작업 목록
 
-2026-10-30 최신 구조 작업: **복구-구조-1 장면 렌더링 분리**. main `c66d96f`에서 `recovery-structure-1` 브랜치로 별도 재구현한다. 이전 기록을 현재 검증으로 간주하지 않는다. [새 보고서](improvements/REC-STRUCTURE-01-scene.md).
+2026-10-30 최신 구조 작업: **복구-구조-2 이미지 교체 기반**. origin/recovery-structure-1의0274d0e에서 recovery-structure-2로 이어간다. 기본 그림 유지·목록/공통 캐시·장면/메뉴 연결과 PWA 버전 고정을 추가한다. [보고서](improvements/REC-STRUCTURE-02-image-assets.md).
+
+2026-10-30 이전 구조 작업: **복구-구조-1 장면 렌더링 분리**. main `c66d96f`에서 `recovery-structure-1` 브랜치로 별도 재구현한다. 이전 기록을 현재 검증으로 간주하지 않는다. [새 보고서](improvements/REC-STRUCTURE-01-scene.md).
 
 갱신일: 2026-10-13 (한국 시간). 기준 저장소 `6b602e583644ec4ba21f4ed74924cc0b684c0c92`.
 
@@ -186,3 +188,13 @@ IMP-16 당시 작업본의 보관 브랜치는 [`improvement-imp16-20261013`](ht
 - [x] 최종 pwa:build·doctor·check·전체439개 통과.
 - [x] 새 코드 커밋04bf0f0을 origin/recovery-structure-1에 보관하고 원격 SHA 확인. main c66d96f 유지.
 - [ ] 복구-구조-2 이미지 교체 기반, 이후 오디오·패널·지도/HUD 단계. main 병합/배포는 별도 범위.
+
+
+## 복구-구조-2 (2026-10-30)
+
+- [x] 이미지 목록/Node 생성·검사·공통 로더/캐시, 기본 sources 비움·기존 표시 유지.
+- [x] 장면/메뉴 연결·지연 mount token·실패 fallback/retry·투명/contain 배경 잔상 방지.
+- [x] 새 자산/기존 장면 선별42개와 보완 후23개 통과, 전후32쌍/64 PNG·DOM/배치 일치, 실제 이전 셸→신규/오프라인 확인.
+- [x] 최종 pwa:build·doctor·check·전체464개 통과 및 검증 요약 확정.
+- [ ] recovery-structure-2 커밋·원격 보관 결과 확인. main 병합/배포는 하지 않음.
+- [ ] 복구-구조-3 음원 목록·로더/단일 재생 창구. 실제 새 그래픽/음원·패널/지도/HUD는 후속.

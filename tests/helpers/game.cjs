@@ -8,7 +8,7 @@ const { browserOptions } = require("../../scripts/browser-options.cjs");
 const { captureFailure, resultRoot } = require("./diagnostics.cjs");
 const NOW = Date.UTC(2026, 9, 12, 12),
   KEY = "niceChicken_idleServe_vFinal";
-function harness() {
+function harness({ root = path.resolve(__dirname, "../..") } = {}) {
   let browser,
     server,
     url,
@@ -16,7 +16,6 @@ function harness() {
     caseNumber = 0;
   before(async () => {
     fs.mkdirSync(path.join(resultRoot, "screenshots"), { recursive: true });
-    const root = path.resolve(__dirname, "../..");
     server = http.createServer((req, res) => {
       const file = path.resolve(
         root,
@@ -35,6 +34,10 @@ function harness() {
             ".js": "text/javascript",
             ".css": "text/css",
             ".png": "image/png",
+            ".jpg": "image/jpeg",
+            ".jpeg": "image/jpeg",
+            ".webp": "image/webp",
+            ".svg": "image/svg+xml",
             ".mp3": "audio/mpeg",
           }[path.extname(file)] || "text/plain";
         res.writeHead(200, { "Content-Type": type }).end(data);
@@ -154,6 +157,7 @@ function harness() {
     page.on("pageerror", (err) => errors.push(err.message));
     await page.route("https://fonts.googleapis.com/**", (r) => r.abort());
     try {
+      if (options.preparePage) await options.preparePage(page);
       await page.goto(url);
       await page.waitForFunction(
         () =>

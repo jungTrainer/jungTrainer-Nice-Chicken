@@ -1,11 +1,11 @@
 /* IMP-12: generated release block; update with npm run pwa:build. */
 // BEGIN PWA RELEASE
 const RELEASE = {
-  "version": "imp12-4c50bc713a5b972f47f9",
+  "version": "imp12-5f37a8a1c1abe2f85609",
   "required": [
     {
       "path": "index.html",
-      "hash": "28b321e1ad5f773a88a81adf3794ae06a9a2143066192a0bd13e18eb37e3f4ec",
+      "hash": "8e7c0387fb086a30ea76048059d0a2d41f11e221e8038b75c4252b76e2cf9385",
       "mime": "text/html"
     },
     {
@@ -99,6 +99,16 @@ const RELEASE = {
       "mime": "javascript"
     },
     {
+      "path": "js/media/catalog.js",
+      "hash": "efb6fa18417791c3ecb4eac1f395f5dcc0ea7e9cdf4867e980469589140bb8c7",
+      "mime": "javascript"
+    },
+    {
+      "path": "js/media/images.js",
+      "hash": "45ddc0224571343f8e665a50203f74451ff5e4b348b5e5e36060fb11fe23f12c",
+      "mime": "javascript"
+    },
+    {
       "path": "js/scene/layout.js",
       "hash": "2d797ee12dc922be45711493d7ff4645e76f38a4cbd0b1b457ce449abd1a9577",
       "mime": "javascript"
@@ -110,17 +120,17 @@ const RELEASE = {
     },
     {
       "path": "js/scene/signboard.js",
-      "hash": "09cd35cbb74f15eb171ed2257f318a6cbbd6e5bc3d307ec576476cfef9268ad1",
+      "hash": "f0c03347bc94dd8dd2a0d3181eb1ee106d7195beed0bc47778bd1d829a3944ab",
       "mime": "javascript"
     },
     {
       "path": "js/scene/background.js",
-      "hash": "18c14f79cf00497d11313a69a41e05abe8ad8441b70c27279ae8a4916815abd4",
+      "hash": "c2e60c6217ba47acadac17ac6ad851ec0aeba4ef004bda6a043fb9707cdd80ec",
       "mime": "javascript"
     },
     {
       "path": "js/scene/characters.js",
-      "hash": "1adb654c89c1bea0ad033db76b06372a3cc4852422dbb973ee9ebbdc8c0a8fe6",
+      "hash": "87a953b44a06bce2e83ec8a7d07f7ed5bc24e79439bce32fb4bbb3a15e1d4638",
       "mime": "javascript"
     },
     {
@@ -130,7 +140,7 @@ const RELEASE = {
     },
     {
       "path": "js/main.js",
-      "hash": "bafc1a72da50d38dc8f8a051d3c0922e00ff34e150de367dc00df9d592bfdc5f",
+      "hash": "1dd05ff0feaf89be31c3e22f0cdde7777851719d1a24afd83060bfbf3acb4d4c",
       "mime": "javascript"
     },
     {
@@ -212,6 +222,7 @@ const ownedPath = (url) =>
   url.origin === SCOPE.origin && url.pathname.startsWith(SCOPE.pathname);
 
 async function verifiedResponse(asset) {
+  if (!asset.hash) throw Error(`Optional asset absent in this release: ${asset.path}`);
   const response = await fetch(assetURL(asset.path), {
     cache: "no-store",
     signal: AbortSignal.timeout(10000),

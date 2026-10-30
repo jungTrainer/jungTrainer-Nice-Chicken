@@ -18,6 +18,7 @@ test("forgotten release regeneration fails read-only check, rebuilt versions are
       "icon-512.png",
       "js",
       "css",
+      "assets",
       ...[1, 2, 3, 4, 5].map((n) => `END_0${n}.png`),
       "END_SOUND.mp3",
     ])

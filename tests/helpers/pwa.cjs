@@ -11,7 +11,7 @@ const { build } = require("../../scripts/build-pwa.cjs");
 const { startHeadedContext } = require("../../scripts/display.cjs");
 const { captureFailure, resultRoot } = require("./diagnostics.cjs");
 const { NOW } = require("./game.cjs");
-function pwaHarness() {
+function pwaHarness({ prepare } = {}) {
   let browser,
     temp,
     roots,
@@ -32,6 +32,7 @@ function pwaHarness() {
         "icon-512.png",
         "js",
         "css",
+        "assets",
         ...[1, 2, 3, 4, 5].map((n) => `END_0${n}.png`),
         "END_SOUND.mp3",
       ])
@@ -39,6 +40,7 @@ function pwaHarness() {
           recursive: true,
         });
     }
+    if (prepare) roots.forEach((root,index) => prepare(root,index));
     fs.appendFileSync(
       path.join(roots[1], "js/core/config.js"),
       '\nwindow.pwaFixtureVersion = "b";\n',
@@ -81,6 +83,10 @@ function pwaHarness() {
             ".css": "text/css",
             ".json": "application/manifest+json",
             ".png": "image/png",
+            ".jpg": "image/jpeg",
+            ".jpeg": "image/jpeg",
+            ".webp": "image/webp",
+            ".svg": "image/svg+xml",
             ".mp3": "audio/mpeg",
           }[path.extname(file)] || "text/plain";
         res.writeHead(200, {
